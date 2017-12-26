@@ -24,16 +24,18 @@
     _creditsButton.layer.cornerRadius = 5;
     _sourceButton.layer.cornerRadius = 5;
 
-    [self setStatus:@"> ready."];
+    [self writeText:@"> ready."];
 }
 
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+- (IBAction)goButtonPressed:(UIButton *)sender {
+    [self writeText:@"go pressed"];
 }
 
-- (void)setStatus:(NSString *)message {
-    _textArea.text = [_textArea.text stringByAppendingString:message];
+- (void)writeText:(NSString *)message {
+    _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
+    
+    NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
+    [self.textArea scrollRangeToVisible:bottom];
 }
 
 @end

@@ -9,10 +9,15 @@
 #import "CreditsController.h"
 
 @interface CreditsController ()
-    
+@property (weak, nonatomic) IBOutlet UITextView *creditsText;
 @end
 
 @implementation CreditsController
+
+- (void)viewDidLayoutSubviews {
+    [self.creditsText setContentOffset:CGPointZero animated:NO];
+}
+
 - (IBAction)closeButton:(id)sender {
     [self dismissViewControllerAnimated:TRUE completion:nil];
 }
