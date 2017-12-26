@@ -1,9 +1,9 @@
 //
 //  amfi.m
-//  v0rtex
+//  Meridian
 //
-//  Created by Ben on 19/12/2017.
-//  Copyright © 2017 Sticktron. All rights reserved.
+//  Created by Ben Sparkes on 19/12/2017.
+//  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
 #import "patchfinder64.h"

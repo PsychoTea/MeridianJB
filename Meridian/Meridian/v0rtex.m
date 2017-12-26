@@ -21,7 +21,6 @@
 
 #include "common.h"
 #include "symbols.h"
-#include "symbols.h"
 
 #define SIZEOF_TASK                                 0x550
 #define OFFSET_TASK_ITK_SELF                        0xd8

@@ -1,9 +1,9 @@
 //
 //  symbols.h
-//  v0rtex-s
+//  Meridian
 //
-//  Created by Ben on 16/12/2017.
-//  Copyright © 2017 Sticktron. All rights reserved.
+//  Created by Ben Sparkes on 16/12/2017.
+//  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
 #include <stdint.h>
