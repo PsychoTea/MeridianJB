@@ -91,7 +91,11 @@
                                 </state>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Liz-C3-Qax">
-                                <rect key="frame" x="34" y="175" width="300" height="64"/>
+                                <rect key="frame" x="37.5" y="175" width="300" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="aP4-6w-4Oz"/>
+                                    <constraint firstAttribute="height" constant="64" id="jv7-Rf-GzC"/>
+                                </constraints>
                                 <string key="text">Exploit may take 20+ tries before it runs. All offsets for supported devices have already been added. This will run on pre-10.3.x however is not guaranteed to work. Proceed at your own risk. THIS IS WORK IN PROGRESS SOFTWARE.</string>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="10"/>
                                 <color key="textColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -120,6 +124,7 @@
                             <constraint firstItem="Liz-C3-Qax" firstAttribute="top" secondItem="3G2-Ms-HYF" secondAttribute="bottom" constant="16" id="kgI-qZ-FaW"/>
                             <constraint firstItem="LaC-2w-KjF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mOs-YP-nJY"/>
                             <constraint firstItem="eEN-LM-8Uz" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="20" id="pXF-pW-eAF"/>
+                            <constraint firstItem="Liz-C3-Qax" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="zNs-I8-F2D"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
