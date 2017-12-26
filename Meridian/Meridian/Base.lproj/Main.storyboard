@@ -191,7 +191,18 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <mutableString key="content">  Siguza: for packaging the exploit into v0rtex xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research  EthanRDoesMC: the original v0rtex-S logo, OlayTeam founder </mutableString>
+                                        <mutableString key="content">  Siguza: for packaging the exploit into v0rtex xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </mutableString>
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="https://twitter.com/arpolix">
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                            <string key="NSLink">https://twitter.com/arpolix</string>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="  EthanRDoesMC: the original v0rtex-S logo, OlayTeam founder ">
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -202,8 +213,19 @@
                                             <string key="NSLink">https://twitter.com/EthanRDoesMC_</string>
                                         </attributes>
                                     </fragment>
+                                    <fragment content="  CydiaBen: for being an absolute lifesaved and compiling dropbear-ios for me  ">
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="https://twitter.com/brsgaming804">
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                            <string key="NSLink">https://twitter.com/brsgaming804</string>
+                                        </attributes>
+                                    </fragment>
                                     <fragment>
-                                        <mutableString key="content">  CydiaBen: for being an absolute lifesaved and compiling dropbear-ios for me   Comsecuris UG: for creating dropbear-ios   If you believe you have contributed to the project and haven't been credited, please contact me and I will ammend this page as soon as possible.</mutableString>
+                                        <string key="content">  Comsecuris UG: for creating dropbear-ios   If you believe you have contributed to the project and haven't been credited, please contact me and I will ammend this page as soon as possible.</string>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
