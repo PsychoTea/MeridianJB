@@ -102,7 +102,7 @@
                                 <color key="textColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="Status messages." translatesAutoresizingMaskIntoConstraints="NO" id="qVU-s8-Wog">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qVU-s8-Wog">
                                 <rect key="frame" x="23" y="345" width="329" height="250"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.25745558375634514" green="0.25745558375634514" blue="0.25745558375634514" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -132,6 +132,12 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="creditsButton" destination="OJj-2e-4Ry" id="FYd-oA-NxI"/>
+                        <outlet property="goButton" destination="LaC-2w-KjF" id="Lzq-oO-c8y"/>
+                        <outlet property="sourceButton" destination="OJj-2e-4Ry" id="cgI-j8-6VH"/>
+                        <outlet property="textArea" destination="qVU-s8-Wog" id="XGs-Bv-wke"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
