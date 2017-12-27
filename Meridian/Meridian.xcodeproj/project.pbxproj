@@ -7,28 +7,70 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B514CC7B1FECD788005F4E6B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC7A1FECD788005F4E6B /* AppDelegate.m */; };
+		B50F79541FF2248D000D6015 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F793A1FF2248A000D6015 /* cydia.tar */; };
+		B50F79561FF2248D000D6015 /* tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F793F1FF2248A000D6015 /* tar */; };
+		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
+		B50F79581FF2248D000D6015 /* symbols.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79411FF2248B000D6015 /* symbols.m */; };
+		B50F795A1FF2248D000D6015 /* dropbear in Resources */ = {isa = PBXBuildFile; fileRef = B50F79441FF2248B000D6015 /* dropbear */; };
+		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
+		B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79471FF2248B000D6015 /* CreditsController.m */; };
+		B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F79491FF2248B000D6015 /* bootstrap.tar */; };
+		B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794A1FF2248B000D6015 /* AppDelegate.m */; };
+		B50F79611FF2248D000D6015 /* bash in Resources */ = {isa = PBXBuildFile; fileRef = B50F794B1FF2248C000D6015 /* bash */; };
+		B50F79631FF2248D000D6015 /* kernel.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794F1FF2248C000D6015 /* kernel.m */; };
+		B50F79641FF2248D000D6015 /* amfi.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79531FF2248D000D6015 /* amfi.m */; };
 		B514CC811FECD788005F4E6B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC7F1FECD788005F4E6B /* Main.storyboard */; };
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
-		B514CC891FECD788005F4E6B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC881FECD788005F4E6B /* main.m */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
-		B514CC931FECE673005F4E6B /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC921FECE673005F4E6B /* CreditsController.m */; };
+		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
+		B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2A51FF2C6300087619A /* libjb.a */; };
+		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
+		B5B7C2B71FF353980087619A /* v0rtex.m in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
+		B5B7C2B81FF353980087619A /* v0rtex.h in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B61FF353980087619A /* v0rtex.h */; };
+		B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
+		B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
+		B50F793A1FF2248A000D6015 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
+		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		B50F793F1FF2248A000D6015 /* tar */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = tar; sourceTree = "<group>"; };
+		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
+		B50F79411FF2248B000D6015 /* symbols.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = symbols.m; sourceTree = "<group>"; };
+		B50F79441FF2248B000D6015 /* dropbear */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = dropbear; sourceTree = "<group>"; };
+		B50F79461FF2248B000D6015 /* root-rw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "root-rw.m"; sourceTree = "<group>"; };
+		B50F79471FF2248B000D6015 /* CreditsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
+		B50F79481FF2248B000D6015 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		B50F79491FF2248B000D6015 /* bootstrap.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = bootstrap.tar; sourceTree = "<group>"; };
+		B50F794A1FF2248B000D6015 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		B50F794B1FF2248C000D6015 /* bash */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = bash; sourceTree = "<group>"; };
+		B50F794C1FF2248C000D6015 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
+		B50F794E1FF2248C000D6015 /* amfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfi.h; sourceTree = "<group>"; };
+		B50F794F1FF2248C000D6015 /* kernel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = kernel.m; sourceTree = "<group>"; };
+		B50F79501FF2248C000D6015 /* symbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = symbols.h; sourceTree = "<group>"; };
+		B50F79511FF2248C000D6015 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
+		B50F79521FF2248C000D6015 /* root-rw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "root-rw.h"; sourceTree = "<group>"; };
+		B50F79531FF2248D000D6015 /* amfi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = amfi.m; sourceTree = "<group>"; };
+		B50F79651FF224B4000D6015 /* BinPackCreator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BinPackCreator; path = ../BinPackCreator; sourceTree = "<group>"; };
 		B514CC761FECD788005F4E6B /* Meridian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Meridian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B514CC791FECD788005F4E6B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		B514CC7A1FECD788005F4E6B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		B514CC7C1FECD788005F4E6B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		B514CC801FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B514CC821FECD788005F4E6B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B514CC881FECD788005F4E6B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		B514CC911FECE673005F4E6B /* CreditsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
-		B514CC921FECE673005F4E6B /* CreditsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
+		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		B5B7C2A51FF2C6300087619A /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
+		B5B7C2A61FF2C6300087619A /* libjb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
+		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
+		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
+		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; };
+		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
+		B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
+		B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */ = {isa = PBXFileReference; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,17 +78,39 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
+				B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B50F79671FF224F0000D6015 /* Frontend */ = {
+			isa = PBXGroup;
+			children = (
+				B514CC871FECD788005F4E6B /* Info.plist */,
+				B514CC791FECD788005F4E6B /* AppDelegate.h */,
+				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
+				B514CC7C1FECD788005F4E6B /* ViewController.h */,
+				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
+				B50F79391FF2248A000D6015 /* CreditsController.h */,
+				B50F79471FF2248B000D6015 /* CreditsController.m */,
+				B514CC821FECD788005F4E6B /* Assets.xcassets */,
+				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
+				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
+			);
+			path = Frontend;
+			sourceTree = "<group>";
+		};
 		B514CC6D1FECD787005F4E6B = {
 			isa = PBXGroup;
 			children = (
+				B50F79651FF224B4000D6015 /* BinPackCreator */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
+				B5C368AD1FF2B80400D7724F /* Recovered References */,
+				B5B7C2A31FF2C5CE0087619A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,19 +125,49 @@
 		B514CC781FECD788005F4E6B /* Meridian */ = {
 			isa = PBXGroup;
 			children = (
-				B514CC791FECD788005F4E6B /* AppDelegate.h */,
-				B514CC7A1FECD788005F4E6B /* AppDelegate.m */,
-				B514CC7C1FECD788005F4E6B /* ViewController.h */,
-				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
-				B514CC911FECE673005F4E6B /* CreditsController.h */,
-				B514CC921FECE673005F4E6B /* CreditsController.m */,
-				B514CC821FECD788005F4E6B /* Assets.xcassets */,
-				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
-				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
-				B514CC871FECD788005F4E6B /* Info.plist */,
-				B514CC881FECD788005F4E6B /* main.m */,
+				B50F79671FF224F0000D6015 /* Frontend */,
+				B50F794B1FF2248C000D6015 /* bash */,
+				B50F79491FF2248B000D6015 /* bootstrap.tar */,
+				B50F793A1FF2248A000D6015 /* cydia.tar */,
+				B50F79441FF2248B000D6015 /* dropbear */,
+				B50F793F1FF2248A000D6015 /* tar */,
+				B5B7C29F1FF2BA100087619A /* main.m */,
+				B50F793B1FF2248A000D6015 /* common.h */,
+				B50F794E1FF2248C000D6015 /* amfi.h */,
+				B50F79531FF2248D000D6015 /* amfi.m */,
+				B50F79511FF2248C000D6015 /* kernel.h */,
+				B50F794F1FF2248C000D6015 /* kernel.m */,
+				B5B7C2A51FF2C6300087619A /* libjb.a */,
+				B5B7C2A61FF2C6300087619A /* libjb.h */,
+				B50F79401FF2248B000D6015 /* patchfinder64.c */,
+				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
+				B50F79521FF2248C000D6015 /* root-rw.h */,
+				B50F79461FF2248B000D6015 /* root-rw.m */,
+				B50F79501FF2248C000D6015 /* symbols.h */,
+				B50F79411FF2248B000D6015 /* symbols.m */,
+				B5B7C2B61FF353980087619A /* v0rtex.h */,
+				B5B7C2B51FF353970087619A /* v0rtex.m */,
+				B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */,
+				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
 			);
 			path = Meridian;
+			sourceTree = "<group>";
+		};
+		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B5B7C2AA1FF2C7860087619A /* IOKit.framework */,
+				B5B7C2A81FF2C7700087619A /* IOKit */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B5C368AD1FF2B80400D7724F /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B50F79481FF2248B000D6015 /* main.m */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -134,9 +228,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B50F79611FF2248D000D6015 /* bash in Resources */,
+				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
+				B50F79541FF2248D000D6015 /* cydia.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
+				B50F795A1FF2248D000D6015 /* dropbear in Resources */,
+				B5B7C2B81FF353980087619A /* v0rtex.h in Resources */,
+				B5B7C2B71FF353980087619A /* v0rtex.m in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
+				B50F79561FF2248D000D6015 /* tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,10 +248,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B514CC931FECE673005F4E6B /* CreditsController.m in Sources */,
+				B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */,
+				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
+				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
+				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
+				B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */,
+				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
+				B50F79581FF2248D000D6015 /* symbols.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
-				B514CC891FECD788005F4E6B /* main.m in Sources */,
-				B514CC7B1FECD788005F4E6B /* AppDelegate.m in Sources */,
+				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
+				B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */,
+				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,28 +391,49 @@
 		B514CC8D1FECD788005F4E6B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;
-				INFOPLIST_FILE = Meridian/Info.plist;
+				ENABLE_BITCODE = NO;
+				GCC_NO_COMMON_BLOCKS = NO;
+				INFOPLIST_FILE = "$(SRCROOT)/Meridian/Frontend/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Meridian",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/IOKit.framework/Versions/A",
+				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.Meridian;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "armv7 arm64 armv7s";
 			};
 			name = Debug;
 		};
 		B514CC8E1FECD788005F4E6B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;
-				INFOPLIST_FILE = Meridian/Info.plist;
+				ENABLE_BITCODE = NO;
+				GCC_NO_COMMON_BLOCKS = NO;
+				INFOPLIST_FILE = "$(SRCROOT)/Meridian/Frontend/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Meridian",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/IOKit.framework/Versions/A",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.Meridian;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "armv7 arm64 armv7s";
 			};
 			name = Release;
 		};
