@@ -30,8 +30,7 @@
 task_t tfp0;
 kptr_t kslide;
 kptr_t kernel_base;
-kptr_t kernucred;
-kptr_t selfproc;
+kptr_t kern_ucred;
 
 @implementation ViewController
 
@@ -93,7 +92,7 @@ kptr_t selfproc;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
-        int ret = v0rtex(&tfp0, &kslide, &kernucred, &selfproc);
+        int ret = v0rtex(&tfp0, &kslide, &kern_ucred);
         
         dispatch_async(dispatch_get_main_queue(), ^{
             if (ret == 0) {
@@ -109,10 +108,10 @@ kptr_t selfproc;
 -(void) makeShitHappen {
     kernel_base = kslide + 0xFFFFFFF007004000;
     
+    printf("tfp0: %llu \n", tfp0);
     printf("kslide: %llu \n", kslide);
     printf("kernel_base: %llu \n", kernel_base);
-    printf("self_proc: %llu \n", selfproc);
-    printf("kern_ucred: %llu \n", kernucred);
+    printf("kern_ucred: %llu \n", kern_ucred);
     
     {
         // set up stuff
@@ -252,8 +251,8 @@ kptr_t selfproc;
     
     {
         // Launch dropbear
-        [self writeText:@"launching dropebear..."];
-        execprog(kernucred, "/meridian/dropbear", (const char**)&(const char*[]) {
+        [self writeText:@"launching dropbear..."];
+        execprog(kern_ucred, "/meridian/dropbear", (const char**)&(const char*[]) {
             "/meridian/dropbear",
             "-R",
             "-E",
