@@ -29,6 +29,7 @@
 		B5B7C2B71FF353980087619A /* v0rtex.m in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B5B7C2B81FF353980087619A /* v0rtex.h in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B61FF353980087619A /* v0rtex.h */; };
 		B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
+		B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,8 @@
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
+		B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
+		B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */ = {isa = PBXFileReference; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +147,8 @@
 				B50F79411FF2248B000D6015 /* symbols.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
+				B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */,
+				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -252,6 +257,7 @@
 				B50F79581FF2248D000D6015 /* symbols.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
+				B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

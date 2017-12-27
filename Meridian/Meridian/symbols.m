@@ -115,7 +115,6 @@ BOOL init_symbols()
             OFFSET_ROP_ADD_X0_X0_0x10                   = 0xfffffff0064ff0a8;
             OFFSET_ROP_LDR_X0_X0_0x10                   = 0xfffffff0074cf02c;
             OFFSET_ROOT_MOUNT_V_NODE                    = 0xfffffff0075ec0b0;
-            OFFSET_OSSERIALIZER_SERIALIZE          = 0xfffffff007486530;
             return TRUE;
         }
     }

@@ -211,8 +211,19 @@
                                             <font key="NSFont" size="14" name="HelveticaNeue"/>
                                         </attributes>
                                     </fragment>
+                                    <fragment content="  Siguza: for packaging the exploit into v0rtex ">
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="https://twitter.com/s1guza">
+                                        <attributes>
+                                            <font key="NSFont" metaFont="system" size="14"/>
+                                            <string key="NSLink">https://twitter.com/s1guza</string>
+                                        </attributes>
+                                    </fragment>
                                     <fragment>
-                                        <mutableString key="content">  Siguza: for packaging the exploit into v0rtex xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </mutableString>
+                                        <mutableString key="content">  xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </mutableString>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -223,18 +234,18 @@
                                             <string key="NSLink">https://twitter.com/arpolix</string>
                                         </attributes>
                                     </fragment>
-                                    <fragment content="  EthanRDoesMC: the original v0rtex-S logo, OlayTeam founder ">
+                                    <fragment content="  EthanRDoesMC: both the Meridian and original v0rtex-S logos, OlayTeam founder ">
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
                                     </fragment>
-                                    <fragment content="https://twitter.com/EthanRDoesMC_">
+                                    <fragment content="https://ethanrdoesmc.tk">
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                             <string key="NSLink">https://twitter.com/EthanRDoesMC_</string>
                                         </attributes>
                                     </fragment>
-                                    <fragment content="  CydiaBen: for being an absolute lifesaved and compiling dropbear-ios for me  ">
+                                    <fragment content="  CydiaBen: for being an absolute lifesaver and compiling dropbear-ios for me  ">
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
