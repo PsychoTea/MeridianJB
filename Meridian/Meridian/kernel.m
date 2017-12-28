@@ -2,8 +2,8 @@
 //  kernel.m
 //  v0rtex
 //
-//  Created by Ben on 16/12/2017.
-//  Copyright © 2017 Sticktron. All rights reserved.
+//  Created by Ben Sparkes on 16/12/2017.
+//  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
 #include "kernel.h"

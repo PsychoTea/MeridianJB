@@ -1,9 +1,9 @@
 //
 //  amfi.h
-//  v0rtex-s
+//  Meridian
 //
-//  Created by Ben on 19/12/2017.
-//  Copyright © 2017 Sticktron. All rights reserved.
+//  Created by Ben Sparkes on 19/12/2017.
+//  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
 
