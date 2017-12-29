@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B50F79541FF2248D000D6015 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F793A1FF2248A000D6015 /* cydia.tar */; };
 		B50F79561FF2248D000D6015 /* tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F793F1FF2248A000D6015 /* tar */; };
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
 		B50F79581FF2248D000D6015 /* symbols.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79411FF2248B000D6015 /* symbols.m */; };
@@ -23,6 +22,19 @@
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
+		B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B53DA78C1FF6587000747ED7 /* cydia.tar */; };
+		B53DA79B1FF65CAD00747ED7 /* iPhone6,1 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA78F1FF65CAC00747ED7 /* iPhone6,1 */; };
+		B53DA79C1FF65CAD00747ED7 /* iPhone6,2 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7901FF65CAC00747ED7 /* iPhone6,2 */; };
+		B53DA79D1FF65CAD00747ED7 /* iPhone7,1 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7911FF65CAC00747ED7 /* iPhone7,1 */; };
+		B53DA79E1FF65CAD00747ED7 /* iPhone8,1 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7921FF65CAC00747ED7 /* iPhone8,1 */; };
+		B53DA79F1FF65CAD00747ED7 /* iPhone8,2 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7931FF65CAD00747ED7 /* iPhone8,2 */; };
+		B53DA7A01FF65CAD00747ED7 /* iPhone7,2 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7941FF65CAD00747ED7 /* iPhone7,2 */; };
+		B53DA7A11FF65CAD00747ED7 /* iPhone8,4 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7951FF65CAD00747ED7 /* iPhone8,4 */; };
+		B53DA7A21FF65CAD00747ED7 /* iPhone9,1 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7961FF65CAD00747ED7 /* iPhone9,1 */; };
+		B53DA7A31FF65CAD00747ED7 /* iPod7,1 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7971FF65CAD00747ED7 /* iPod7,1 */; };
+		B53DA7A41FF65CAD00747ED7 /* iPhone9,3 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7981FF65CAD00747ED7 /* iPhone9,3 */; };
+		B53DA7A51FF65CAD00747ED7 /* iPhone9,2 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA7991FF65CAD00747ED7 /* iPhone9,2 */; };
+		B53DA7A61FF65CAD00747ED7 /* iPhone9,4 in Resources */ = {isa = PBXBuildFile; fileRef = B53DA79A1FF65CAD00747ED7 /* iPhone9,4 */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2A51FF2C6300087619A /* libjb.a */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
@@ -34,7 +46,6 @@
 
 /* Begin PBXFileReference section */
 		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
-		B50F793A1FF2248A000D6015 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B50F793F1FF2248A000D6015 /* tar */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = tar; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
@@ -62,6 +73,19 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		B53DA78C1FF6587000747ED7 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
+		B53DA78F1FF65CAC00747ED7 /* iPhone6,1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone6,1"; sourceTree = "<group>"; };
+		B53DA7901FF65CAC00747ED7 /* iPhone6,2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone6,2"; sourceTree = "<group>"; };
+		B53DA7911FF65CAC00747ED7 /* iPhone7,1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone7,1"; sourceTree = "<group>"; };
+		B53DA7921FF65CAC00747ED7 /* iPhone8,1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone8,1"; sourceTree = "<group>"; };
+		B53DA7931FF65CAD00747ED7 /* iPhone8,2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone8,2"; sourceTree = "<group>"; };
+		B53DA7941FF65CAD00747ED7 /* iPhone7,2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone7,2"; sourceTree = "<group>"; };
+		B53DA7951FF65CAD00747ED7 /* iPhone8,4 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone8,4"; sourceTree = "<group>"; };
+		B53DA7961FF65CAD00747ED7 /* iPhone9,1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone9,1"; sourceTree = "<group>"; };
+		B53DA7971FF65CAD00747ED7 /* iPod7,1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPod7,1"; sourceTree = "<group>"; };
+		B53DA7981FF65CAD00747ED7 /* iPhone9,3 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone9,3"; sourceTree = "<group>"; };
+		B53DA7991FF65CAD00747ED7 /* iPhone9,2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone9,2"; sourceTree = "<group>"; };
+		B53DA79A1FF65CAD00747ED7 /* iPhone9,4 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "iPhone9,4"; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2A51FF2C6300087619A /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
 		B5B7C2A61FF2C6300087619A /* libjb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
@@ -126,9 +150,10 @@
 			isa = PBXGroup;
 			children = (
 				B50F79671FF224F0000D6015 /* Frontend */,
+				B53DA78E1FF65C9B00747ED7 /* Offsets */,
 				B50F794B1FF2248C000D6015 /* bash */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
-				B50F793A1FF2248A000D6015 /* cydia.tar */,
+				B53DA78C1FF6587000747ED7 /* cydia.tar */,
 				B50F79441FF2248B000D6015 /* dropbear */,
 				B50F793F1FF2248A000D6015 /* tar */,
 				B5B7C29F1FF2BA100087619A /* main.m */,
@@ -151,6 +176,25 @@
 				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
 			);
 			path = Meridian;
+			sourceTree = "<group>";
+		};
+		B53DA78E1FF65C9B00747ED7 /* Offsets */ = {
+			isa = PBXGroup;
+			children = (
+				B53DA78F1FF65CAC00747ED7 /* iPhone6,1 */,
+				B53DA7901FF65CAC00747ED7 /* iPhone6,2 */,
+				B53DA7911FF65CAC00747ED7 /* iPhone7,1 */,
+				B53DA7941FF65CAD00747ED7 /* iPhone7,2 */,
+				B53DA7921FF65CAC00747ED7 /* iPhone8,1 */,
+				B53DA7931FF65CAD00747ED7 /* iPhone8,2 */,
+				B53DA7951FF65CAD00747ED7 /* iPhone8,4 */,
+				B53DA7961FF65CAD00747ED7 /* iPhone9,1 */,
+				B53DA7991FF65CAD00747ED7 /* iPhone9,2 */,
+				B53DA7981FF65CAD00747ED7 /* iPhone9,3 */,
+				B53DA79A1FF65CAD00747ED7 /* iPhone9,4 */,
+				B53DA7971FF65CAD00747ED7 /* iPod7,1 */,
+			);
+			path = Offsets;
 			sourceTree = "<group>";
 		};
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
@@ -228,14 +272,26 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B53DA7A41FF65CAD00747ED7 /* iPhone9,3 in Resources */,
+				B53DA79F1FF65CAD00747ED7 /* iPhone8,2 in Resources */,
+				B53DA7A01FF65CAD00747ED7 /* iPhone7,2 in Resources */,
+				B53DA79C1FF65CAD00747ED7 /* iPhone6,2 in Resources */,
+				B53DA7A11FF65CAD00747ED7 /* iPhone8,4 in Resources */,
+				B53DA79E1FF65CAD00747ED7 /* iPhone8,1 in Resources */,
+				B53DA79D1FF65CAD00747ED7 /* iPhone7,1 in Resources */,
+				B53DA7A21FF65CAD00747ED7 /* iPhone9,1 in Resources */,
 				B50F79611FF2248D000D6015 /* bash in Resources */,
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
-				B50F79541FF2248D000D6015 /* cydia.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
+				B53DA79B1FF65CAD00747ED7 /* iPhone6,1 in Resources */,
 				B50F795A1FF2248D000D6015 /* dropbear in Resources */,
+				B53DA7A31FF65CAD00747ED7 /* iPod7,1 in Resources */,
 				B5B7C2B81FF353980087619A /* v0rtex.h in Resources */,
 				B5B7C2B71FF353980087619A /* v0rtex.m in Resources */,
+				B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
+				B53DA7A51FF65CAD00747ED7 /* iPhone9,2 in Resources */,
+				B53DA7A61FF65CAD00747ED7 /* iPhone9,4 in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B50F79561FF2248D000D6015 /* tar in Resources */,
 			);

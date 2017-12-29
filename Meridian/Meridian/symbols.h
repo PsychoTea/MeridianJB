@@ -6,10 +6,6 @@
 //  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <strings.h>
 #include "common.h"
 
 extern uint64_t OFFSET_ZONE_MAP;

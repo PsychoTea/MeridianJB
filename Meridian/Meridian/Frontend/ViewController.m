@@ -73,7 +73,8 @@ kptr_t kern_ucred;
     
     // lets run dat ting
     
-    [self writeTextPlain:@"running..."];
+    [self writeTextPlain:@"running v0rtex..."];
+    
     [self.goButton setEnabled:NO];
     [self.goButton setHidden:YES];
     [self.creditsButton setEnabled:NO];
@@ -84,31 +85,44 @@ kptr_t kern_ucred;
     // self.sourceButton.alpha = 0.5;
     [self.progressSpinner startAnimating];
     
-    /* if you just lookin to test the 'in progress' UI uncomment this and comment the rest
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void) {
-        [self exploitFailed];
-    });
-     */
-    
+    // background thread so we can update the UI
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
+        // run v0rtex itself
         int ret = v0rtex(&tfp0, &kslide, &kern_ucred);
+
+        if (ret != 0)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self exploitFailed];
+            });
+            
+            return;
+        }
+        
+        [self writeTextPlain:@"exploit succeeded! praize siguza!"];
+        
+        ret = [self makeShitHappen];
+        
+        if (ret != 0)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self exploitFailed];
+            });
+            
+            return;
+        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (ret == 0) {
-                [self writeTextPlain:@"exploit succeeded!"];
-                [self makeShitHappen];
-            } else {
-                [self exploitFailed];
-            }
+            [self exploitSucceeded];
         });
     });
 }
 
--(void) makeShitHappen {
+-(int) makeShitHappen {
     kernel_base = kslide + 0xFFFFFFF007004000;
     
-    printf("tfp0: %llu \n", tfp0);
+    printf("tfp0: %u \n", tfp0);
     printf("kslide: %llu \n", kslide);
     printf("kernel_base: %llu \n", kernel_base);
     printf("kern_ucred: %llu \n", kern_ucred);
@@ -126,15 +140,17 @@ kptr_t kern_ucred;
         int remount = mount_root(tfp0, kslide);
         LOG("remount: %d", remount);
         if (remount != 0) {
+            [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", remount]];
             [self exploitFailed];
-            return;
+            return 1;
         }
+        
         [self writeText:@"done!"];
     }
     
     {
-        // create dirs for v0rtex
+        // create dirs for meridian
         [self writeText:@"creating /meridian directory..."];
         mkdir("/meridian", 0777);
         mkdir("/meridian/bins", 0777);
@@ -175,7 +191,7 @@ kptr_t kern_ucred;
         
         // copy cydia
         [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/cydia.tar"]
-                         toPath:@"/v0rtex/cydia.tar"
+                         toPath:@"/meridian/cydia.tar"
                           error:nil];
         
         [self writeText:@"setting up the envrionment..."];
@@ -228,12 +244,12 @@ kptr_t kern_ucred;
         // nostash
         close(creat("/.cydia_no_stash", 0644));
         
-        // delete old cydia
-        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
-        
-        // run uicache
-        execprog(0, "/v0rtex/bins/uicache", NULL);
-        
+//        // delete old cydia
+//        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
+//
+//        // run uicache
+//        execprog(0, "/meridian/bins/uicache", NULL);
+
         // extract
         execprog(0, "/meridian/tar", (const char**)&(const char*[]){
             "/meridian/tar",
@@ -243,13 +259,16 @@ kptr_t kern_ucred;
             "/Applications",
             NULL
         });
-        
+
         // sign it
-        trust_files("/Applications/Cydia.app");
+        // trust_files("/Applications/Cydia.app"); // trust_files doesn't seem to work? throws a bad access err
+        inject_trust("/Applications/Cydia.app/Cydia");
+
+        [self writeText:@"done!"];
         
-        // run uicache (again)
-        execprog(0, "/v0rtex/bins/uicache", NULL);
-        
+        // run uicache
+        [self writeText:@"running uicache..."];
+        execprog(0, "/meridian/bins/uicache", NULL);
         [self writeText:@"done!"];
     }
     
@@ -290,7 +309,7 @@ kptr_t kern_ucred;
         [self writeText:@"done!"];
     }
     
-    [self exploitSucceeded];
+    return 0;
 }
 
 - (IBAction)websiteButtonPressed:(UIButton *)sender {
@@ -338,21 +357,25 @@ kptr_t kern_ucred;
 }
 
 - (void)writeText:(NSString *)message {
-    if (![message  isEqual: @"done!"]) {
-        NSLog(@"%@", message);
-        _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@ ", message]];
-    } else {
-        _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
-    }
-    
-    NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
-    [self.textArea scrollRangeToVisible:bottom];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (![message  isEqual: @"done!"] && ![message isEqual:@"failed!"]) {
+            NSLog(@"%@", message);
+            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@ ", message]];
+        } else {
+            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
+        }
+        
+        NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
+        [self.textArea scrollRangeToVisible:bottom];
+    });
 }
 
 - (void)writeTextPlain:(NSString *)message {
-    _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
-    NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
-    [self.textArea scrollRangeToVisible:bottom];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
+        NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
+        [self.textArea scrollRangeToVisible:bottom];
+    });
 }
 
 // creds to stek29 on this one
@@ -421,7 +444,7 @@ int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
                     wk32(proc + 0x2a8, csflags);
                     tries = 0;
                     
-                    // i don't think this bit is implemented properly
+                    // i don't think this bit is implemented properly (note: it's really not)
                     uint64_t self_ucred = rk64(proc + 0x100);
                     uint32_t selfcred_temp = rk32(kern_ucred + 0x78);
                     wk32(self_ucred + 0x78, selfcred_temp);
@@ -432,7 +455,7 @@ int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
                     
                     printf("gave elevated perms to pid %d \n", pid);
                     
-                    // original stuff, rewritten above using v0rtex stuff
+                    // original stuff, rewritten above using meridian stuff
                     // kcall(find_copyout(), 3, proc+0x100, &self_ucred, sizeof(self_ucred));
                     // kcall(find_bcopy(), 3, kern_ucred + 0x78, self_ucred + 0x78, sizeof(uint64_t));
                     // kcall(find_bzero(), 2, self_ucred + 0x18, 12);
