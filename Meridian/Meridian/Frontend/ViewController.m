@@ -174,9 +174,9 @@ kptr_t kern_ucred;
         [self writeText:@"done!"];
         
         // copy cydia
-//        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/cydia.tar"]
-//                         toPath:@"/v0rtex/cydia.tar"
-//                          error:nil];
+        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/cydia.tar"]
+                         toPath:@"/v0rtex/cydia.tar"
+                          error:nil];
         
         [self writeText:@"setting up the envrionment..."];
         
@@ -222,9 +222,35 @@ kptr_t kern_ucred;
     }
     
     {
-        // TODO: cydia stuff
+        // install Cydia
+        [self writeText:@"installing cydia..."];
         
+        // nostash
         close(creat("/.cydia_no_stash", 0644));
+        
+        // delete old cydia
+        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
+        
+        // run uicache
+        execprog(0, "/v0rtex/bins/uicache", NULL);
+        
+        // extract
+        execprog(0, "/meridian/tar", (const char**)&(const char*[]){
+            "/meridian/tar",
+            "-xf",
+            "/meridian/cydia.tar",
+            "-C",
+            "/Applications",
+            NULL
+        });
+        
+        // sign it
+        trust_files("/Applications/Cydia.app");
+        
+        // run uicache (again)
+        execprog(0, "/v0rtex/bins/uicache", NULL);
+        
+        [self writeText:@"done!"];
     }
     
     {

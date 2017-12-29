@@ -126,7 +126,6 @@
 			isa = PBXGroup;
 			children = (
 				B50F79671FF224F0000D6015 /* Frontend */,
-				B51813FF1FF4A88C00FA7C54 /* amfi_fun */,
 				B50F794B1FF2248C000D6015 /* bash */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B50F793A1FF2248A000D6015 /* cydia.tar */,
@@ -152,13 +151,6 @@
 				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
 			);
 			path = Meridian;
-			sourceTree = "<group>";
-		};
-		B51813FF1FF4A88C00FA7C54 /* amfi_fun */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = amfi_fun;
 			sourceTree = "<group>";
 		};
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
