@@ -29,6 +29,7 @@ uint64_t OFFSET_ROP_LDR_X0_X0_0x10;
 uint64_t OFFSET_ROP_ADD_X0_X0_0x10;
 uint64_t OFFSET_ROOT_MOUNT_V_NODE;
 
+/*
 #include "./Offsets/iPhone6,1/14A403.h"
 #include "./Offsets/iPhone6,1/14A456.h"
 #include "./Offsets/iPhone6,1/14B100.h"
@@ -221,39 +222,37 @@ uint64_t OFFSET_ROOT_MOUNT_V_NODE;
 #include "./Offsets/iPod7,1/14E304.h"
 #include "./Offsets/iPod7,1/14F89.h"
 #include "./Offsets/iPod7,1/14G60.h"
+ */
 
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 
 BOOL init_symbols()
 {
-//    NSString *ver = [[NSProcessInfo processInfo] operatingSystemVersionString];
-//
-//    struct utsname u;
-//    uname(&u);
+    NSString *ver = [[NSProcessInfo processInfo] operatingSystemVersionString];
 
+    struct utsname u;
+    uname(&u);
+
+    LOG("Device: %s", u.machine);
+    LOG("Device Name: %s", u.nodename);
+    LOG("Device iOS Version: %@", ver);
+    
     // creds: arx8x from v0rtexNonce/offsets.m
 
-    int d_prop[2] = { CTL_HW, HW_MACHINE };
-    char model[20];
-    size_t d_prop_len = sizeof(model);
-    sysctl(d_prop, 2, model, &d_prop_len, NULL, 0);
+//    int d_prop[2] = { CTL_HW, HW_MACHINE };
+//    char model[20];
+//    size_t d_prop_len = sizeof(model);
+//    sysctl(d_prop, 2, model, &d_prop_len, NULL, 0);
+
+//    int version_prop[2] = { CTL_KERN, KERN_OSVERSION };
+//    char build[20];
+//    size_t version_prop_len = sizeof(build);
+//    sysctl(version_prop, 2, build, &version_prop_len, NULL, 0);
     
-    int version_prop[2] = { CTL_KERN, KERN_OSVERSION };
-    char build[20];
-    size_t version_prop_len = sizeof(build);
-    sysctl(version_prop, 2, build, &version_prop_len, NULL, 0);
+//    printf("%s \n", model);
+//    printf("%s \n", build);
     
-//    LOG("Device: %s", u.machine);
-//    LOG("Device Name: %s", u.nodename);
-//    LOG("Device iOS Version: %@", ver);
-    
-    printf("%s \n", model);
-    printf("%s \n", build);
-    
-    return FALSE;
-    
-    /*
     // iPhone 7 (Global)
     if (strcmp(u.machine, "iPhone9,1") == 0)
     {
@@ -329,7 +328,7 @@ BOOL init_symbols()
             OFFSET_ROOT_MOUNT_V_NODE                    = 0xfffffff0075ec0b0;
             return TRUE;
         }
-    }*/
+    }
     
     LOG("Device not supported. \n");
     return FALSE;
