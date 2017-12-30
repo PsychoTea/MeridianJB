@@ -8,7 +8,7 @@
 
 #include "root-rw.h"
 #include "kernel.h"
-#include "symbols.h"
+#include "offsets.h"
 
 // For '/' remount (not offsets)
 #define KSTRUCT_OFFSET_MOUNT_MNT_FLAG   0x70
@@ -16,7 +16,7 @@
 
 // props to xerub for the original '/' r/w remount code
 int mount_root(task_t tfp0, uint64_t kslide) {
-    uint64_t _rootnode = OFFSET_ROOT_MOUNT_V_NODE + kslide;
+    uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     uint64_t rootfs_vnode = rk64(_rootnode);
     
     // read the original flags

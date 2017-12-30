@@ -83,8 +83,6 @@ void wk64(uint64_t kaddr, uint64_t val) {
 
 void wk32(uint64_t kaddr, uint32_t val) {
     if (tfp0 == MACH_PORT_NULL) {
-        // printf("attempt to write to kernel memory before any kernel memory write primitives available\n");
-        // sleep(3);
         return;
     }
     
@@ -95,7 +93,6 @@ void wk32(uint64_t kaddr, uint32_t val) {
                         (mach_msg_type_number_t)sizeof(uint32_t));
     
     if (err != KERN_SUCCESS) {
-        // printf("tfp0 write failed: %s %x\n", mach_error_string(err), err);
         return;
     }
 }
@@ -115,7 +112,7 @@ size_t kwrite(uint64_t where, const void *p, size_t size) {
         
         if (rv) {
             printf("[kernel] error copying buffer into region: @%p \n", (void *)(offset + where));
-                   break;
+            break;
         }
         
         offset +=chunk;

@@ -223,7 +223,7 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <mutableString key="content">  xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </mutableString>
+                                        <mutableString key="content">  xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  cheesecakeufo: help with entitlements and Cydia https://twitter.com/cheesecakeufo  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  ARX8x: finding and formatting all possible offsets needed https://twitter.com/ARX8x   Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </mutableString>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
