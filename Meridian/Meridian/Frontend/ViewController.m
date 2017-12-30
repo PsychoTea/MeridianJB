@@ -12,7 +12,9 @@
 #import "kernel.h"
 #import "amfi.h"
 #import "root-rw.h"
-#import "symbols.h"
+#import "offsets.h"
+#import "helpers.h"
+#import "libjb.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
 #import <sys/spawn.h>
@@ -56,9 +58,12 @@ kptr_t kern_ucred;
         return;
     }
     
-    if (!init_symbols()) {
+    // Load offsets
+    if (load_offsets() != 0) {
         [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
-        [self.goButton setHidden:YES];
+        [self writeTextPlain:@"> Please report this to @iBSparkes on Twitter."];
+        [self writeTextPlain:@"> Make sure to include a screenshot of this page."];
+        [self disableApp];
         return;
     }
     
@@ -67,6 +72,17 @@ kptr_t kern_ucred;
     }
     
     [self writeTextPlain:@"> ready."];
+    
+    printf("%s \n", bundle_path());
+    
+    if (!file_exists("/meridian"))
+    {
+        printf("the dir does exist \n");
+    }
+    else
+    {
+        printf("the dir does not exist \n");
+    }
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
@@ -151,125 +167,115 @@ kptr_t kern_ucred;
     
     {
         // create dirs for meridian
-        [self writeText:@"creating /meridian directory..."];
-        mkdir("/meridian", 0777);
-        mkdir("/meridian/bins", 0777);
-        mkdir("/meridian/logs", 0777);
+        if (file_exists("/meridian") != 0)
+        {
+            [self writeText:@"creating /meridian directory..."];
+            mkdir("/meridian", 0777);
+            mkdir("/meridian/logs", 0777);
+            [self writeText:@"done!"];
+        }
+    }
+    
+    // init filemanager
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    {
+        // uncomment if we wanna replace shit
+        [self writeText:@"removing old files..."];
+//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
+//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
         [self writeText:@"done!"];
     }
     
-    // init filemanager n bundlepath
-    NSFileManager *fileMgr = [NSFileManager defaultManager];
-    NSString *bundlePath = [NSString stringWithFormat:@"%s", bundle_path()];
-    
     {
-        // remove old files (this is lazy code, ik)
-        [self writeText:@"removing old files..."];
-        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-        [self writeText:@"done!"];
-        
         // copy in our bins and shit
         [self writeText:@"copying bins..."];
-        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/bootstrap.tar"]
-                         toPath:@"/meridian/bootstrap.tar"
-                          error:nil];
-        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/dropbear"]
-                         toPath:@"/meridian/dropbear"
-                          error:nil];
-        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/tar"]
-                         toPath:@"/meridian/tar"
-                          error:nil];
-        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/bash"]
-                         toPath:@"/bin/sh"
-                          error:nil];
-        [self writeText:@"done!"];
         
-        // copy cydia
-        [fileMgr copyItemAtPath:[bundlePath stringByAppendingString:@"/cydia.tar"]
-                         toPath:@"/meridian/cydia.tar"
-                          error:nil];
+        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
+        {
+            mkdir("/meridian/bins", 0777);
+            chdir("/meridian/");
+            untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
+        }
         
-        [self writeText:@"setting up the envrionment..."];
+        // unpack bash (dropbear requires it be called 'sh', so)
+        if ([fileMgr fileExistsAtPath:@"/bin/sh"] == NO)
+        {
+            [fileMgr copyItemAtPath:@"/meridian/bins/bash"
+                             toPath:@"/bin/sh"
+                              error:nil];
+        }
         
-        // give our bins perms
-        chmod("/meridian/dropbear", 0777);
-        chmod("/meridian/tar", 0777);
-        chmod("/bin/sh", 0777);
         
-        // create dir's and files for dropbear
-        mkdir("/etc", 0777);
-        mkdir("/etc/dropbear", 0777);
-        mkdir("/var", 0777);
-        mkdir("/var/log", 0777);
-        fclose(fopen("/var/log/lastlog", "ab+"));
-        
-        [self writeText:@"done!"];
-    }
-    
-    {
-        [self writeText:@"injecting bins to trust cache..."];
-        inject_trust("/bin/sh");
-        inject_trust("/meridian/dropbear");
-        inject_trust("/meridian/tar");
-        [self writeText:@"done!"];
-    }
-    
-    {
-        // extract the bootstrap
-        [self writeText:@"extracting the bootstrap and signing..."];
-        execprog(0, "/meridian/tar", (const char**)&(const char*[]) {
-            "/meridian/tar",
-            "-xf",
-            "/meridian/bootstrap.tar",
-            "-C",
-            "/meridian",
-            NULL
-        });
-        
-        // trust all the bins
+        // TEMPORARY
         trust_files("/meridian/bins");
         
         [self writeText:@"done!"];
     }
     
     {
+        // create dir's and files for dropbear
+        [self writeText:@"setting up the envrionment..."];
+        mkdir("/etc", 0777);
+        mkdir("/etc/dropbear", 0777);
+        mkdir("/var", 0777);
+        mkdir("/var/log", 0777);
+        fclose(fopen("/var/log/lastlog", "ab+"));
+        [self writeText:@"done!"];
+    }
+    
+    {
         // install Cydia
-        [self writeText:@"installing cydia..."];
+        if (file_exists("/meridian/.cydia_installed") != 0)
+        {
+            {
+                [self writeText:@"installing cydia..."];
+                
+                // delete old cydia
+                if ([fileMgr fileExistsAtPath:@"/Applications/Cydia.app"] == YES)
+                {
+                    [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
+            
+                    execprog(0, "/meridian/bins/uicache", NULL);
+                }
+                
+                // copy the tar out
+                [fileMgr copyItemAtPath:[NSString stringWithUTF8String:bundled_file("cydia.tar")]
+                                 toPath:@"/meridian/cydia.tar"
+                                  error:nil];
+                
+                // extract to /Applications
+                execprog(0, "/meridian/bins/tar", (const char**)&(const char*[]){
+                    "/meridian/bins/tar",
+                    "-xf",
+                    "/meridian/cydia.tar",
+                    "-C",
+                    "/Applications",
+                    NULL
+                });
+
+                // sign it
+                inject_trust("/Applications/Cydia.app/Cydia");
+            
+                // write the .cydia_installed file
+                touch_file("/meridian/.cydia_installed", 0644);
+                
+                [self writeText:@"done!"];
+            }
+            
+            
+            // run uicache
+            [self writeText:@"running uicache..."];
+            execprog(0, "/meridian/bins/uicache", NULL);
+            [self writeText:@"done!"];
+        }
         
         // nostash
-        close(creat("/.cydia_no_stash", 0644));
-        
-//        // delete old cydia
-//        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
-//
-//        // run uicache
-//        execprog(0, "/meridian/bins/uicache", NULL);
-
-        // extract
-        execprog(0, "/meridian/tar", (const char**)&(const char*[]){
-            "/meridian/tar",
-            "-xf",
-            "/meridian/cydia.tar",
-            "-C",
-            "/Applications",
-            NULL
-        });
-
-        // sign it
-        // trust_files("/Applications/Cydia.app"); // trust_files doesn't seem to work? throws a bad access err
-        inject_trust("/Applications/Cydia.app/Cydia");
-
-        [self writeText:@"done!"];
-        
-        // run uicache
-        [self writeText:@"running uicache..."];
-        execprog(0, "/meridian/bins/uicache", NULL);
-        [self writeText:@"done!"];
+        touch_file("/.cydia_no_stash", 0644);
     }
     
     {
@@ -297,8 +303,8 @@ kptr_t kern_ucred;
     {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
-        execprog(kern_ucred, "/meridian/dropbear", (const char**)&(const char*[]) {
-            "/meridian/dropbear",
+        execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
+            "/meridian/bins/dropbear",
             "-R",
             "-E",
             "-m",
@@ -356,6 +362,12 @@ kptr_t kern_ucred;
     [self.progressSpinner stopAnimating];
 }
 
+- (void)disableApp {
+    [self.goButton setEnabled:NO];
+    self.goButton.alpha = 0.5;
+    [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
+}
+
 - (void)writeText:(NSString *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (![message  isEqual: @"done!"] && ![message isEqual:@"failed!"]) {
@@ -376,155 +388,6 @@ kptr_t kern_ucred;
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
     });
-}
-
-// creds to stek29 on this one
-int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
-    if (args == NULL) {
-        args = (const char **)&(const char*[]){ prog, NULL };
-    }
-    
-    const char *logfile = [NSString stringWithFormat:@"/meridian/logs/%@-%lu",
-                           [[NSMutableString stringWithUTF8String:prog] stringByReplacingOccurrencesOfString:@"/" withString:@"_"],
-                           time(NULL)].UTF8String;
-    printf("Spawning [ ");
-    for (const char **arg = args; *arg != NULL; ++arg) {
-        printf("'%s' ", *arg);
-    }
-    printf("] to logfile [ %s ] \n", logfile);
-    
-    int rv;
-    posix_spawn_file_actions_t child_fd_actions;
-    if ((rv = posix_spawn_file_actions_init (&child_fd_actions))) {
-        perror ("posix_spawn_file_actions_init");
-        return rv;
-    }
-    if ((rv = posix_spawn_file_actions_addopen (&child_fd_actions, STDOUT_FILENO, logfile,
-                                                O_WRONLY | O_CREAT | O_TRUNC, 0666))) {
-        perror ("posix_spawn_file_actions_addopen");
-        return rv;
-    }
-    if ((rv = posix_spawn_file_actions_adddup2 (&child_fd_actions, STDOUT_FILENO, STDERR_FILENO))) {
-        perror ("posix_spawn_file_actions_adddup2");
-        return rv;
-    }
-    
-    pid_t pd;
-    if ((rv = posix_spawn(&pd, prog, &child_fd_actions, NULL, (char**)args, NULL))) {
-        printf("posix_spawn error: %d (%s)\n", rv, strerror(rv));
-        return rv;
-    }
-    
-    printf("process spawned with pid %d \n", pd);
-    
-    #define CS_GET_TASK_ALLOW       0x0000004    /* has get-task-allow entitlement */
-    #define CS_INSTALLER            0x0000008    /* has installer entitlement      */
-    #define CS_HARD                 0x0000100    /* don't load invalid pages       */
-    #define CS_RESTRICT             0x0000800    /* tell dyld to treat restricted  */
-    #define CS_PLATFORM_BINARY      0x4000000    /* this is a platform binary      */
-    
-    /*
-     1. read 8 bytes from proc+0x100 into self_ucred
-     2. read 8 bytes from kern_ucred + 0x78 and write them to self_ucred + 0x78
-     3. write 12 zeros to self_ucred + 0x18
-     */
-    
-    if (kern_ucred != 0) {
-        int tries = 3;
-        while (tries-- > 0) {
-            sleep(1);
-            // allproc is added to kslide
-            // may need 2 be moved 2 an offset ¯\_(ツ)_/¯
-            uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
-            while (proc) {
-                uint32_t pid = rk32(proc + 0x10);
-                if (pid == pd) {
-                    uint32_t csflags = rk32(proc + 0x2a8);
-                    csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW) & ~(CS_RESTRICT  | CS_HARD);
-                    wk32(proc + 0x2a8, csflags);
-                    tries = 0;
-                    
-                    // i don't think this bit is implemented properly (note: it's really not)
-                    uint64_t self_ucred = rk64(proc + 0x100);
-                    uint32_t selfcred_temp = rk32(kern_ucred + 0x78);
-                    wk32(self_ucred + 0x78, selfcred_temp);
-                    
-                    for (int i = 0; i < 12; i++) {
-                        wk32(self_ucred + 0x18 + (i * sizeof(uint32_t)), 0);
-                    }
-                    
-                    printf("gave elevated perms to pid %d \n", pid);
-                    
-                    // original stuff, rewritten above using meridian stuff
-                    // kcall(find_copyout(), 3, proc+0x100, &self_ucred, sizeof(self_ucred));
-                    // kcall(find_bcopy(), 3, kern_ucred + 0x78, self_ucred + 0x78, sizeof(uint64_t));
-                    // kcall(find_bzero(), 2, self_ucred + 0x18, 12);
-                    break;
-                }
-                proc = rk64(proc);
-            }
-        }
-    }
-    
-    int status;
-    waitpid(pd, &status, 0);
-    printf("'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));
-    
-    char buf[65] = {0};
-    int fd = open(logfile, O_RDONLY);
-    if (fd == -1) {
-        perror("open logfile");
-        return 1;
-    }
-    
-    printf("contents of %s: \n ------------------------- \n", logfile);
-    while(read(fd, buf, sizeof(buf) - 1) == sizeof(buf) - 1) {
-        printf("%s", buf);
-    }
-    printf("%s", buf);
-    printf("\n-------------------------\n");
-    
-    close(fd);
-    remove(logfile);
-    
-    return 0;
-}
-
-void get_files(const char *path) {
-    NSArray* dirs = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%s", path]
-                                                                        error:NULL];
-    [dirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSLog(@"%@", (NSString *)obj);
-    }];
-}
-
-void read_file(const char *path) {
-    char buf[65] = {0};
-    int fd = open(path, O_RDONLY);
-    if (fd == -1) {
-        perror("open path");
-        return;
-    }
-    
-    printf("contents of %s: \n ------------------------- \n", path);
-    while(read(fd, buf, sizeof(buf) - 1) == sizeof(buf) - 1) {
-        printf("%s", buf);
-    }
-    printf("%s", buf);
-    printf("\n-------------------------\n");
-    
-    close(fd);
-}
-
-char* bundle_path() {
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-    int len = 4096;
-    char* path = malloc(len);
-    
-    CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8*)path, len);
-    
-    return path;
 }
 
 @end
