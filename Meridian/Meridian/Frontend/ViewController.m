@@ -166,6 +166,22 @@ kptr_t kern_ucred;
     }
     
     {
+        // patch amfi
+        
+        [self writeText:@"patching amfi..."];
+        
+        int patch = patch_amfi();
+        if (patch != 0) {
+            [self writeText:@"failed to patch amfi!"];
+            return 1;
+        }
+        
+        sleep(2);
+        
+        [self writeText:@"done!"];
+    }
+    
+    {
         // create dirs for meridian
         if (file_exists("/meridian") != 0)
         {
@@ -181,14 +197,14 @@ kptr_t kern_ucred;
     
     {
         // uncomment if we wanna replace shit
-        [self writeText:@"removing old files..."];
+//        [self writeText:@"removing old files..."];
 //        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
 //        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
 //        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
 //        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
 //        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
 //        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-        [self writeText:@"done!"];
+//        [self writeText:@"done!"];
     }
     
     {
@@ -209,10 +225,6 @@ kptr_t kern_ucred;
                              toPath:@"/bin/sh"
                               error:nil];
         }
-        
-        
-        // TEMPORARY
-        trust_files("/meridian/bins");
         
         [self writeText:@"done!"];
     }
@@ -259,7 +271,7 @@ kptr_t kern_ucred;
                 });
 
                 // sign it
-                inject_trust("/Applications/Cydia.app/Cydia");
+                // inject_trust("/Applications/Cydia.app/Cydia");
             
                 // write the .cydia_installed file
                 touch_file("/meridian/.cydia_installed", 0644);
@@ -297,6 +309,14 @@ kptr_t kern_ucred;
                            attributes:nil];
         }
         
+        [self writeText:@"done!"];
+    }
+    
+    {
+        // trust dropbear & sh
+        [self writeText:@"trusting files..."];
+        inject_trust("/meridian/bins/dropbear");
+        inject_trust("/bin/sh");
         [self writeText:@"done!"];
     }
     
