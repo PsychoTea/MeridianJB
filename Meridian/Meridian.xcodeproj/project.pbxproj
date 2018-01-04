@@ -23,7 +23,6 @@
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
-		B595327F1FFE55CB00022CEE /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B595327E1FFE55CB00022CEE /* untar.c */; };
 		B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */ = {isa = PBXBuildFile; fileRef = B59532811FFE5FC000022CEE /* amfid_payload.dylib */; };
 		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
 		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
@@ -66,8 +65,6 @@
 		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B595327D1FFE55CB00022CEE /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
-		B595327E1FFE55CB00022CEE /* untar.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
 		B59532811FFE5FC000022CEE /* amfid_payload.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = amfid_payload.dylib; sourceTree = "<group>"; };
 		B59532841FFE6B7B00022CEE /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
 		B59532851FFE6B7B00022CEE /* v0rtex.h.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
@@ -157,8 +154,6 @@
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
-				B595327D1FFE55CB00022CEE /* untar.h */,
-				B595327E1FFE55CB00022CEE /* untar.c */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
 				B59532851FFE6B7B00022CEE /* v0rtex.h.new */,
@@ -272,7 +267,6 @@
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
-				B595327F1FFE55CB00022CEE /* untar.c in Sources */,
 				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);

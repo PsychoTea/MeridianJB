@@ -318,8 +318,6 @@ kptr_t kernprocaddr;
     {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
-        chmod("/meridian/bins/dropbear", 0777);
-        chmod("/bin/sh", 0777);
         execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",
