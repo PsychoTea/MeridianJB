@@ -160,8 +160,7 @@ kptr_t kernprocaddr;
     
     {
         // create dirs for meridian
-        if (file_exists("/meridian") != 0)
-        {
+        if (file_exists("/meridian") != 0) {
             [self writeText:@"creating /meridian directory..."];
             mkdir("/meridian", 0777);
             mkdir("/meridian/logs", 0777);
