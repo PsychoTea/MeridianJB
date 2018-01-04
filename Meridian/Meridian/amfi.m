@@ -246,10 +246,10 @@ uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
     // handle post-call argument cleanup/copying:
     for (int i = 0; i < MAX_REMOTE_ARGS; i++){
         arg_desc* arg = args[i];
-        if (arg == NULL){
+        if (arg == NULL) {
             break;
         }
-        switch (arg->type){
+        switch (arg->type) {
             case ARG_BUFFER:
             {
                 remote_free(task_port, remote_buffers[i], arg->length);
@@ -325,13 +325,6 @@ int patch_amfi() {
     }
     
     amfiTask = (mach_port_t)remoteTask;
-    
-    uint64_t actual_addr = binary_load_address(remoteTask);
-    
-    if (actual_addr == -1) {
-        NSLog(@"[inject] Couldn't find the address");
-        return 1;
-    }
     
     call_remote(remoteTask, setuid, 1, REMOTE_LITERAL(0));
     
