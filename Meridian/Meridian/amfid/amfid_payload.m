@@ -380,7 +380,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
             length = CC_SHA256_DIGEST_LENGTH;
         }
         
-        NSLog(@"[amfid_payload] Got cd_hash of length %d (SHA%s)", length, (length == 20 ? "1" : "256"));
+        NSLog(@"[amfid_payload] Got cd_hash of length %d (SHA%s, size: %lu)", length, (length == 20 ? "1" : "256"), sizeof(cd_hash));
         
         [*info setValue:[[NSData alloc] initWithBytes:cd_hash length:length]
                  forKey:@"CdHash"];

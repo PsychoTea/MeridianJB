@@ -14,7 +14,7 @@
 #import "root-rw.h"
 #import "offsets.h"
 #import "helpers.h"
-#import "libjb.h"
+#import "untar.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
 #import <sys/spawn.h>
@@ -33,6 +33,7 @@ task_t tfp0;
 kptr_t kslide;
 kptr_t kernel_base;
 kptr_t kern_ucred;
+kptr_t kernprocaddr;
 
 @implementation ViewController
 
@@ -73,16 +74,7 @@ kptr_t kern_ucred;
     
     [self writeTextPlain:@"> ready."];
     
-    printf("%s \n", bundle_path());
-    
-    if (!file_exists("/meridian"))
-    {
-        printf("the dir does exist \n");
-    }
-    else
-    {
-        printf("the dir does not exist \n");
-    }
+    printf("App bundle directory: %s \n", bundle_path());
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
@@ -105,7 +97,7 @@ kptr_t kern_ucred;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex(&tfp0, &kslide, &kern_ucred);
+        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
@@ -138,10 +130,11 @@ kptr_t kern_ucred;
 -(int) makeShitHappen {
     kernel_base = kslide + 0xFFFFFFF007004000;
     
-    printf("tfp0: %u \n", tfp0);
-    printf("kslide: %llu \n", kslide);
-    printf("kernel_base: %llu \n", kernel_base);
-    printf("kern_ucred: %llu \n", kern_ucred);
+    printf("tfp0: %x \n", tfp0);
+    printf("kslide: %llx \n", kslide);
+    printf("kernel_base: %llx \n", kernel_base);
+    printf("kern_ucred: %llx \n", kern_ucred);
+    printf("kernprocaddr = %llx \n", kernprocaddr);
     
     {
         // set up stuff
@@ -166,6 +159,17 @@ kptr_t kern_ucred;
     }
     
     {
+        // create dirs for meridian
+        if (file_exists("/meridian") != 0)
+        {
+            [self writeText:@"creating /meridian directory..."];
+            mkdir("/meridian", 0777);
+            mkdir("/meridian/logs", 0777);
+            [self writeText:@"done!"];
+        }
+    }
+    
+    {
         // patch amfi
         
         [self writeText:@"patching amfi..."];
@@ -181,30 +185,19 @@ kptr_t kern_ucred;
         [self writeText:@"done!"];
     }
     
-    {
-        // create dirs for meridian
-        if (file_exists("/meridian") != 0)
-        {
-            [self writeText:@"creating /meridian directory..."];
-            mkdir("/meridian", 0777);
-            mkdir("/meridian/logs", 0777);
-            [self writeText:@"done!"];
-        }
-    }
-    
     // init filemanager
     NSFileManager *fileMgr = [NSFileManager defaultManager];
     
     {
         // uncomment if we wanna replace shit
-//        [self writeText:@"removing old files..."];
-//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-//        [self writeText:@"done!"];
+        [self writeText:@"removing old files..."];
+        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
+        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
+        [self writeText:@"done!"];
     }
     
     {
@@ -215,7 +208,7 @@ kptr_t kern_ucred;
         {
             mkdir("/meridian/bins", 0777);
             chdir("/meridian/");
-            untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
+            untar(fopen(bundled_file("bootstrap.tar"), "r+"));
         }
         
         // unpack bash (dropbear requires it be called 'sh', so)
@@ -325,6 +318,8 @@ kptr_t kern_ucred;
         [self writeText:@"launching dropbear..."];
         execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
+            "-p",
+            "2222",
             "-R",
             "-E",
             "-m",

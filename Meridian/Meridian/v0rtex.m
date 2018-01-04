@@ -430,7 +430,7 @@ typedef union
     } b;
 } ktask_t;
 
-kern_return_t v0rtex(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred)
+kern_return_t v0rtex(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t *kernprocaddr)
 {
     kern_return_t retval = KERN_FAILURE,
     ret;
@@ -1215,6 +1215,7 @@ zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp \
     *tfp0 = kernel_task;
     *kslide = slide;
     *kernucred = kern_ucred;
+    *kernprocaddr = kernproc_addr;
     retval = KERN_SUCCESS;
     
 out5:;

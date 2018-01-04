@@ -166,7 +166,6 @@ uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
     arg_desc* args[MAX_REMOTE_ARGS] = {0};
     
     uint64_t remote_buffers[MAX_REMOTE_ARGS] = {0};
-    //uint64_t remote_buffer_sizes[MAX_REMOTE_ARGS] = {0};
     
     for (int i = 0; i < n_params; i++){
         arg_desc* arg = va_arg(ap, arg_desc*);
@@ -285,20 +284,21 @@ int patch_amfi() {
         printf("[amfi] copying in our payload \n");
         
         unlink("/meridian/amfid_payload.dylib");
-        cp(bundled_file("amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
-        chmod("/fun_bins/amfid_payload.dylib", 0777);
+        cp(bundled_file("amfid/amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
+        chmod("/meridian/amfid_payload.dylib", 0777);
     }
     
     {
         // trust our payload
         printf("[amfi] trusting our payload \n");
-        inject_trust("/fun_bins/amfid_payload.dylib");
+        inject_trust("/meridian/amfid_payload.dylib");
     }
     
     printf("finding amfid pid... \n");
     
     uint32_t amfi_pid = 0;
-    uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
+    // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
+    uint64_t proc = rk64(kernprocaddr + 0x08);
     while (proc) {
         uint32_t pid = (uint32_t)rk32(proc + 0x10);
         
@@ -309,7 +309,7 @@ int patch_amfi() {
             amfi_pid = pid;
         }
         
-        proc = rk64(proc);
+        proc = rk64(proc + 0x08);
     }
     
     printf("found amfid pid: %d \n", amfi_pid);
@@ -344,10 +344,10 @@ int patch_amfi() {
         NSLog(@"[inject] No error occured! Payload injected successfully!");
     } else {
         uint64_t len = call_remote(remoteTask, strlen, 1, REMOTE_LITERAL(error));
-        char* local_cstring = malloc(len+1);
+        char* local_cstring = malloc(len +  1);
         remote_read_overwrite(remoteTask, error, (uint64_t)local_cstring, len+1);
         
-        NSLog(@"[inject] Error is %s", local_cstring);
+        NSLog(@"[inject] Error: %s", local_cstring);
         return 1;
     }
     

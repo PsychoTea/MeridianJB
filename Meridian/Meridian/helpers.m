@@ -178,9 +178,8 @@ int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
         int tries = 3;
         while (tries-- > 0) {
             sleep(1);
-            // kslide + (allproc)
-            // may need 2 be moved 2 an offset ¯\_(ツ)_/¯
-            uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
+            uint64_t proc = rk64(kernprocaddr + 0x08);
+            // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
             while (proc) {
                 uint32_t pid = rk32(proc + 0x10);
                 if (pid == pd) {
@@ -208,7 +207,7 @@ int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
                     // kcall(find_bzero(), 2, self_ucred + 0x18, 12);
                     break;
                 }
-                proc = rk64(proc);
+                proc = rk64(proc + 0x08);
             }
         }
     }

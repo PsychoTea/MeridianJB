@@ -19,5 +19,6 @@ char* bundle_path(void);
 void touch_file(char *path, mode_t mode);
 char* concat(const char *s1, const char *s2);
 int execprog(uint64_t kern_ucred, const char *prog, const char* args[]);
+// uint64_t task_self_addr(void);
 
 #endif /* helpers_h */

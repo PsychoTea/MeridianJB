@@ -24,6 +24,7 @@
 		B595326F1FFE25A600022CEE /* amfid in Resources */ = {isa = PBXBuildFile; fileRef = B595326E1FFE25A600022CEE /* amfid */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
+		B595327F1FFE55CB00022CEE /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B595327E1FFE55CB00022CEE /* untar.c */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2A51FF2C6300087619A /* libjb.a */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
@@ -65,6 +66,8 @@
 		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		B595327D1FFE55CB00022CEE /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
+		B595327E1FFE55CB00022CEE /* untar.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2A51FF2C6300087619A /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
 		B5B7C2A61FF2C6300087619A /* libjb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
@@ -95,10 +98,10 @@
 				B514CC871FECD788005F4E6B /* Info.plist */,
 				B514CC791FECD788005F4E6B /* AppDelegate.h */,
 				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
-				B514CC7C1FECD788005F4E6B /* ViewController.h */,
-				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B50F79391FF2248A000D6015 /* CreditsController.h */,
 				B50F79471FF2248B000D6015 /* CreditsController.m */,
+				B514CC7C1FECD788005F4E6B /* ViewController.h */,
+				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B514CC821FECD788005F4E6B /* Assets.xcassets */,
 				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
 				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
@@ -130,13 +133,12 @@
 		B514CC781FECD788005F4E6B /* Meridian */ = {
 			isa = PBXGroup;
 			children = (
-				B50F79671FF224F0000D6015 /* Frontend */,
 				B595326E1FFE25A600022CEE /* amfid */,
+				B50F79671FF224F0000D6015 /* Frontend */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B53DA78C1FF6587000747ED7 /* cydia.tar */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
-				B5B7C29F1FF2BA100087619A /* main.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
 				B582405D1FF75A4000D96DB5 /* helpers.h */,
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
@@ -144,12 +146,15 @@
 				B50F794F1FF2248C000D6015 /* kernel.m */,
 				B5B7C2A61FF2C6300087619A /* libjb.h */,
 				B5B7C2A51FF2C6300087619A /* libjb.a */,
+				B5B7C29F1FF2BA100087619A /* main.m */,
 				B582405C1FF753EC00D96DB5 /* offsets.h */,
 				B582405A1FF7533D00D96DB5 /* offsets.m */,
 				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
+				B595327D1FFE55CB00022CEE /* untar.h */,
+				B595327E1FFE55CB00022CEE /* untar.c */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
 				B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */,
@@ -262,6 +267,7 @@
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
+				B595327F1FFE55CB00022CEE /* untar.c in Sources */,
 				B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */,
 				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,

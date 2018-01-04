@@ -8,11 +8,12 @@ binCount=$(ls -1q  $currDir/bins | wc -l | sed -e 's/^[ `t]*//')
 
 echo "Found $binCount bins"
 
-echo "Giving all bins correct permissions (755)..."
+echo "Giving all bins correct permissions (755) and signing..."
 
 for file in $currDir/bins/*
 do
   chmod 755 $file
+  jtool --sign sha1 --inplace --ent $currDir/ent.plist $file
 done
 
 echo "Packing the binpack..."
