@@ -7,7 +7,6 @@
 //
 
 #import "patchfinder64.h"
-#import "libjb.h"
 #import "kernel.h"
 #import "amfi.h"
 #import "helpers.h"
@@ -284,7 +283,7 @@ int patch_amfi() {
         printf("[amfi] copying in our payload \n");
         
         unlink("/meridian/amfid_payload.dylib");
-        cp(bundled_file("amfid/amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
+        cp(bundled_file("amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
         chmod("/meridian/amfid_payload.dylib", 0777);
     }
     

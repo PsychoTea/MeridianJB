@@ -368,6 +368,11 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
         
         uint8_t* code_dir = get_code_directory(file_path);
         
+        if (code_dir == NULL) {
+            NSLog(@"[amfid_payload] Not patching file - missing code directory (file: %s)", file_path);
+            return 0;
+        }
+        
         uint8_t* cd_hash;
         int length;
         if (is_sha1(code_dir)) {
@@ -416,7 +421,7 @@ void* thd_func(void* arg){
 
     remote_read_overwrite(mach_task_self(), binary_load_address(), (uint64_t)buf, buf_size);
     uint8_t* found_at = memmem(buf, buf_size, &sym, sizeof(sym));
-    if (found_at == NULL){
+    if (found_at == NULL) {
         NSLog(@"[amfid_payload] unable to find MISValidateSignatureAndCopyInfo in __la_symbol_ptr\n");
         return NULL;
     }

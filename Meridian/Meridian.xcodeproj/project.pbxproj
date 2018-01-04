@@ -21,17 +21,17 @@
 		B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B53DA78C1FF6587000747ED7 /* cydia.tar */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
-		B595326F1FFE25A600022CEE /* amfid in Resources */ = {isa = PBXBuildFile; fileRef = B595326E1FFE25A600022CEE /* amfid */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
 		B595327F1FFE55CB00022CEE /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B595327E1FFE55CB00022CEE /* untar.c */; };
+		B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */ = {isa = PBXBuildFile; fileRef = B59532811FFE5FC000022CEE /* amfid_payload.dylib */; };
+		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
+		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
-		B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2A51FF2C6300087619A /* libjb.a */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5B7C2B71FF353980087619A /* v0rtex.m in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B5B7C2B81FF353980087619A /* v0rtex.h in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B61FF353980087619A /* v0rtex.h */; };
 		B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
-		B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,15 +68,17 @@
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B595327D1FFE55CB00022CEE /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
 		B595327E1FFE55CB00022CEE /* untar.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
+		B59532811FFE5FC000022CEE /* amfid_payload.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = amfid_payload.dylib; sourceTree = "<group>"; };
+		B59532841FFE6B7B00022CEE /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
+		B59532851FFE6B7B00022CEE /* v0rtex.h.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
+		B59532881FFE6E9C00022CEE /* dpkg.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = dpkg.tar; sourceTree = "<group>"; };
+		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
+		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B5B7C2A51FF2C6300087619A /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
-		B5B7C2A61FF2C6300087619A /* libjb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
-		B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
-		B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */ = {isa = PBXFileReference; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +87,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
-				B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */,
+				B595328B1FFE786200022CEE /* libjb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,8 +137,10 @@
 			children = (
 				B595326E1FFE25A600022CEE /* amfid */,
 				B50F79671FF224F0000D6015 /* Frontend */,
+				B59532811FFE5FC000022CEE /* amfid_payload.dylib */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B53DA78C1FF6587000747ED7 /* cydia.tar */,
+				B59532881FFE6E9C00022CEE /* dpkg.tar */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
@@ -144,8 +148,8 @@
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
-				B5B7C2A61FF2C6300087619A /* libjb.h */,
-				B5B7C2A51FF2C6300087619A /* libjb.a */,
+				B595328C1FFE786700022CEE /* libjb.h */,
+				B595328A1FFE786100022CEE /* libjb.a */,
 				B5B7C29F1FF2BA100087619A /* main.m */,
 				B582405C1FF753EC00D96DB5 /* offsets.h */,
 				B582405A1FF7533D00D96DB5 /* offsets.m */,
@@ -157,8 +161,8 @@
 				B595327E1FFE55CB00022CEE /* untar.c */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
-				B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */,
-				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
+				B59532851FFE6B7B00022CEE /* v0rtex.h.new */,
+				B59532841FFE6B7B00022CEE /* v0rtex.m.new */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -238,6 +242,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
+				B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */,
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B59532731FFE2B5000022CEE /* README.md in Resources */,
@@ -246,7 +252,6 @@
 				B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
-				B595326F1FFE25A600022CEE /* amfid in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,7 +273,6 @@
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
 				B595327F1FFE55CB00022CEE /* untar.c in Sources */,
-				B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */,
 				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);

@@ -14,7 +14,7 @@
 #import "root-rw.h"
 #import "offsets.h"
 #import "helpers.h"
-#import "untar.h"
+#import "libjb.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
 #import <sys/spawn.h>
@@ -195,6 +195,7 @@ kptr_t kernprocaddr;
         [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
         [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
         [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/dpkg.tar" error:nil];
         [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
         [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
         [self writeText:@"done!"];
@@ -204,11 +205,14 @@ kptr_t kernprocaddr;
         // copy in our bins and shit
         [self writeText:@"copying bins..."];
         
+        // copy dpkg tar
+        cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
+        
         if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
         {
             mkdir("/meridian/bins", 0777);
             chdir("/meridian/");
-            untar(fopen(bundled_file("bootstrap.tar"), "r+"));
+            untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
         }
         
         // unpack bash (dropbear requires it be called 'sh', so)
@@ -234,8 +238,12 @@ kptr_t kernprocaddr;
     }
     
     {
+        // nostash
+        touch_file("/.cydia_no_stash", 0644);
+        
         // install Cydia
-        if (file_exists("/meridian/.cydia_installed") != 0)
+        if (file_exists("/meridian/.cydia_installed") != 0 &&
+            file_exists("/Applications/Cydia.app") != 0)
         {
             {
                 [self writeText:@"installing cydia..."];
@@ -263,9 +271,6 @@ kptr_t kernprocaddr;
                     NULL
                 });
 
-                // sign it
-                // inject_trust("/Applications/Cydia.app/Cydia");
-            
                 // write the .cydia_installed file
                 touch_file("/meridian/.cydia_installed", 0644);
                 
@@ -278,9 +283,6 @@ kptr_t kernprocaddr;
             execprog(0, "/meridian/bins/uicache", NULL);
             [self writeText:@"done!"];
         }
-        
-        // nostash
-        touch_file("/.cydia_no_stash", 0644);
     }
     
     {
@@ -316,6 +318,8 @@ kptr_t kernprocaddr;
     {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
+        chmod("/meridian/bins/dropbear", 0777);
+        chmod("/bin/sh", 0777);
         execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",

@@ -174,44 +174,42 @@ int execprog(uint64_t kern_ucred, const char *prog, const char* args[]) {
      3. write 12 zeros to self_ucred + 0x18
      */
     
-    if (kern_ucred != 0) {
-        int tries = 3;
-        while (tries-- > 0) {
-            sleep(1);
-            uint64_t proc = rk64(kernprocaddr + 0x08);
-            // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
-            while (proc) {
-                uint32_t pid = rk32(proc + 0x10);
-                if (pid == pd) {
-                    uint32_t csflags = rk32(proc + 0x2a8);
-                    csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW) & ~(CS_RESTRICT  | CS_HARD);
-                    wk32(proc + 0x2a8, csflags);
-                    tries = 0;
-                    
-                    // i don't think this bit is implemented properly (note: it's really not)
-                    // i'll fix it at some point. promise.
-                    uint64_t self_ucred = rk64(proc + 0x100);
-                    uint32_t selfcred_temp = rk32(kern_ucred + 0x78);
-                    wk32(self_ucred + 0x78, selfcred_temp);
-                    
-                    for (int i = 0; i < 12; i++) {
-                        wk32(self_ucred + 0x18 + (i * sizeof(uint32_t)), 0);
-                    }
-                    
-                    printf("gave elevated perms to pid %d \n", pid);
-                    // did we though?
-                    
-                    // original shit
-                    // kcall(find_copyout(), 3, proc+0x100, &self_ucred, sizeof(self_ucred));
-                    // kcall(find_bcopy(), 3, kern_ucred + 0x78, self_ucred + 0x78, sizeof(uint64_t));
-                    // kcall(find_bzero(), 2, self_ucred + 0x18, 12);
-                    break;
-                }
-                proc = rk64(proc + 0x08);
+    int tries = 3;
+    while (tries-- > 0) {
+        sleep(1);
+        uint64_t proc = rk64(kernprocaddr + 0x08);
+        // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
+        while (proc) {
+            uint32_t pid = rk32(proc + 0x10);
+            if (pid == pd) {
+                uint32_t csflags = rk32(proc + 0x2a8);
+                csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW) & ~(CS_RESTRICT  | CS_HARD);
+                wk32(proc + 0x2a8, csflags);
+                tries = 0;
+                
+                // i don't think this bit is implemented properly (note: it's really not)
+                // i'll fix it at some point. promise.
+                /*uint64_t self_ucred = rk64(proc + 0x100);
+                uint32_t selfcred_temp = rk32(kern_ucred + 0x78);
+                wk32(self_ucred + 0x78, selfcred_temp);
+                
+                for (int i = 0; i < 12; i++) {
+                    wk32(self_ucred + 0x18 + (i * sizeof(uint32_t)), 0);
+                }*/
+                
+                printf("gave elevated perms to pid %d \n", pid);
+                // did we though?
+                
+                // original shit
+                // kcall(find_copyout(), 3, proc+0x100, &self_ucred, sizeof(self_ucred));
+                // kcall(find_bcopy(), 3, kern_ucred + 0x78, self_ucred + 0x78, sizeof(uint64_t));
+                // kcall(find_bzero(), 2, self_ucred + 0x18, 12);
+                break;
             }
+            proc = rk64(proc + 0x08);
         }
     }
-    
+        
     int status;
     waitpid(pd, &status, 0);
     printf("'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));

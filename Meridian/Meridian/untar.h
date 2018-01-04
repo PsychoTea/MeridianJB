@@ -6,4 +6,4 @@
 //  Copyright © 2018 Ben Sparkes. All rights reserved.
 //
 
-static void untar(FILE *a);
+// void untar(FILE *a);

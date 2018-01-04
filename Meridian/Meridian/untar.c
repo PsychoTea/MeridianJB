@@ -131,22 +131,22 @@ verify_checksum(const char *p)
 }
 
 /* Extract a tar archive. */
-static void
-untar(FILE *a)
+void untar(FILE *a)
 {
     char buff[512];
     FILE *f = NULL;
     size_t bytes_read;
     int filesize;
+    int filecount = 0;
     
     for (;;) {
         bytes_read = fread(buff, 1, 512, a);
         if (bytes_read < 512) {
-            fprintf(stderr,
-                    "Short read: expected 512, got %d\n", bytes_read);
+            fprintf(stderr, "Short read: expected 512, got %zu\n", bytes_read);
             return;
         }
         if (is_end_of_archive(buff)) {
+            printf("Extracted %d files. \n", filecount);
             return;
         }
         if (!verify_checksum(buff)) {
@@ -176,15 +176,14 @@ untar(FILE *a)
                 printf(" Ignoring FIFO %s\n", buff);
                 break;
             default:
-                printf(" Extracting file %s\n", buff);
                 f = create_file(buff, parseoct(buff + 100, 8));
+                filecount++;
                 break;
         }
         while (filesize > 0) {
             bytes_read = fread(buff, 1, 512, a);
             if (bytes_read < 512) {
-                fprintf(stderr,
-                        "Short read: Expected 512, got %d\n", bytes_read);
+                fprintf(stderr, "Short read: Expected 512, got %zu\n", bytes_read);
                 return;
             }
             if (filesize < 512)
@@ -200,6 +199,8 @@ untar(FILE *a)
             }
             filesize -= bytes_read;
         }
+        chmod(buff, 0777);
+        printf("%s \n", buff);
         if (f != NULL) {
             fclose(f);
             f = NULL;
