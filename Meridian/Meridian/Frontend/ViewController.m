@@ -291,15 +291,15 @@ kptr_t kernprocaddr;
         [self writeText:@"creating .profile files..."];
         
         if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/mobile/profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=$PATH:/meridian/bins"]
+            [fileMgr createFileAtPath:@"/var/mobile/.profile"
+                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
                                        dataUsingEncoding:NSASCIIStringEncoding]
                            attributes:nil];
         }
         
         if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
             [fileMgr createFileAtPath:@"/var/root/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=$PATH:/meridian/bins"]
+                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
                                        dataUsingEncoding:NSASCIIStringEncoding]
                            attributes:nil];
         }
