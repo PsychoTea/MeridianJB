@@ -1,8 +1,8 @@
 # MeridianJB
-An iOS 10.3.x Jailbreak for all 64-bit devices.
+An iOS 10.x Jailbreak for all 64-bit devices.
 
-# UI Concepts
+Website: https://meridian.sparkes.zone
 
-Here is a rough draft... what are your thoughts?
+All credits can be found on the website. Thanks to everyone who helped.
 
-<img width="375" src="concept_1.png" alt="Screenshot"/>
+Feel free to create a PR if you believe there is area for improvement - it's not perfect I know.

@@ -17,3 +17,4 @@ task_t tfp0;
 kptr_t kslide;
 kptr_t kernel_base;
 kptr_t kern_ucred;
+kptr_t kernprocaddr;

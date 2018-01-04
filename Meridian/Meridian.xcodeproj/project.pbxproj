@@ -7,14 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B50F79561FF2248D000D6015 /* tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F793F1FF2248A000D6015 /* tar */; };
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
-		B50F795A1FF2248D000D6015 /* dropbear in Resources */ = {isa = PBXBuildFile; fileRef = B50F79441FF2248B000D6015 /* dropbear */; };
 		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
 		B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79471FF2248B000D6015 /* CreditsController.m */; };
 		B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F79491FF2248B000D6015 /* bootstrap.tar */; };
 		B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794A1FF2248B000D6015 /* AppDelegate.m */; };
-		B50F79611FF2248D000D6015 /* bash in Resources */ = {isa = PBXBuildFile; fileRef = B50F794B1FF2248C000D6015 /* bash */; };
 		B50F79631FF2248D000D6015 /* kernel.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794F1FF2248C000D6015 /* kernel.m */; };
 		B50F79641FF2248D000D6015 /* amfi.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79531FF2248D000D6015 /* amfi.m */; };
 		B514CC811FECD788005F4E6B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC7F1FECD788005F4E6B /* Main.storyboard */; };
@@ -24,27 +21,27 @@
 		B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B53DA78C1FF6587000747ED7 /* cydia.tar */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
+		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
+		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
+		B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */ = {isa = PBXBuildFile; fileRef = B59532811FFE5FC000022CEE /* amfid_payload.dylib */; };
+		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
+		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
-		B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2A51FF2C6300087619A /* libjb.a */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5B7C2B71FF353980087619A /* v0rtex.m in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B5B7C2B81FF353980087619A /* v0rtex.h in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B61FF353980087619A /* v0rtex.h */; };
 		B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
-		B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
-		B50F793F1FF2248A000D6015 /* tar */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = tar; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
-		B50F79441FF2248B000D6015 /* dropbear */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = dropbear; sourceTree = "<group>"; };
 		B50F79461FF2248B000D6015 /* root-rw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "root-rw.m"; sourceTree = "<group>"; };
 		B50F79471FF2248B000D6015 /* CreditsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
 		B50F79481FF2248B000D6015 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B50F79491FF2248B000D6015 /* bootstrap.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = bootstrap.tar; sourceTree = "<group>"; };
 		B50F794A1FF2248B000D6015 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		B50F794B1FF2248C000D6015 /* bash */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = bash; sourceTree = "<group>"; };
 		B50F794C1FF2248C000D6015 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
 		B50F794E1FF2248C000D6015 /* amfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfi.h; sourceTree = "<group>"; };
 		B50F794F1FF2248C000D6015 /* kernel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = kernel.m; sourceTree = "<group>"; };
@@ -65,15 +62,20 @@
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
+		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
+		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		B59532811FFE5FC000022CEE /* amfid_payload.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = amfid_payload.dylib; sourceTree = "<group>"; };
+		B59532841FFE6B7B00022CEE /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
+		B59532851FFE6B7B00022CEE /* v0rtex.h.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
+		B59532881FFE6E9C00022CEE /* dpkg.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = dpkg.tar; sourceTree = "<group>"; };
+		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
+		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B5B7C2A51FF2C6300087619A /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
-		B5B7C2A61FF2C6300087619A /* libjb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
-		B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
-		B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */ = {isa = PBXFileReference; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,7 +84,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
-				B5B7C2A71FF2C6300087619A /* libjb.a in Frameworks */,
+				B595328B1FFE786200022CEE /* libjb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,10 +97,10 @@
 				B514CC871FECD788005F4E6B /* Info.plist */,
 				B514CC791FECD788005F4E6B /* AppDelegate.h */,
 				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
-				B514CC7C1FECD788005F4E6B /* ViewController.h */,
-				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B50F79391FF2248A000D6015 /* CreditsController.h */,
 				B50F79471FF2248B000D6015 /* CreditsController.m */,
+				B514CC7C1FECD788005F4E6B /* ViewController.h */,
+				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B514CC821FECD788005F4E6B /* Assets.xcassets */,
 				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
 				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
@@ -109,6 +111,8 @@
 		B514CC6D1FECD787005F4E6B = {
 			isa = PBXGroup;
 			children = (
+				B59532701FFE2B5000022CEE /* LICENSE */,
+				B59532711FFE2B5000022CEE /* README.md */,
 				B50F79651FF224B4000D6015 /* BinPackCreator */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
@@ -128,22 +132,22 @@
 		B514CC781FECD788005F4E6B /* Meridian */ = {
 			isa = PBXGroup;
 			children = (
+				B595326E1FFE25A600022CEE /* amfid */,
 				B50F79671FF224F0000D6015 /* Frontend */,
-				B50F794B1FF2248C000D6015 /* bash */,
+				B59532811FFE5FC000022CEE /* amfid_payload.dylib */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B53DA78C1FF6587000747ED7 /* cydia.tar */,
-				B50F79441FF2248B000D6015 /* dropbear */,
-				B50F793F1FF2248A000D6015 /* tar */,
+				B59532881FFE6E9C00022CEE /* dpkg.tar */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
-				B5B7C29F1FF2BA100087619A /* main.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
 				B582405D1FF75A4000D96DB5 /* helpers.h */,
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
-				B5B7C2A61FF2C6300087619A /* libjb.h */,
-				B5B7C2A51FF2C6300087619A /* libjb.a */,
+				B595328C1FFE786700022CEE /* libjb.h */,
+				B595328A1FFE786100022CEE /* libjb.a */,
+				B5B7C29F1FF2BA100087619A /* main.m */,
 				B582405C1FF753EC00D96DB5 /* offsets.h */,
 				B582405A1FF7533D00D96DB5 /* offsets.m */,
 				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
@@ -152,8 +156,8 @@
 				B50F79461FF2248B000D6015 /* root-rw.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
-				B5B7C2BC1FF3586E0087619A /* v0rtex.h.new */,
-				B5B7C2BA1FF3586B0087619A /* v0rtex.m.new */,
+				B59532851FFE6B7B00022CEE /* v0rtex.h.new */,
+				B59532841FFE6B7B00022CEE /* v0rtex.m.new */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -233,16 +237,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B50F79611FF2248D000D6015 /* bash in Resources */,
+				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
+				B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */,
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
-				B50F795A1FF2248D000D6015 /* dropbear in Resources */,
+				B59532731FFE2B5000022CEE /* README.md in Resources */,
 				B5B7C2B81FF353980087619A /* v0rtex.h in Resources */,
 				B5B7C2B71FF353980087619A /* v0rtex.m in Resources */,
 				B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
+				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
-				B50F79561FF2248D000D6015 /* tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,7 +267,6 @@
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
-				B5B7C2BB1FF3586B0087619A /* v0rtex.m.new in Sources */,
 				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);
@@ -398,7 +402,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;
@@ -423,7 +427,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;

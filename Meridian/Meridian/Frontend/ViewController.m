@@ -33,6 +33,7 @@ task_t tfp0;
 kptr_t kslide;
 kptr_t kernel_base;
 kptr_t kern_ucred;
+kptr_t kernprocaddr;
 
 @implementation ViewController
 
@@ -73,16 +74,7 @@ kptr_t kern_ucred;
     
     [self writeTextPlain:@"> ready."];
     
-    printf("%s \n", bundle_path());
-    
-    if (!file_exists("/meridian"))
-    {
-        printf("the dir does exist \n");
-    }
-    else
-    {
-        printf("the dir does not exist \n");
-    }
+    printf("App bundle directory: %s \n", bundle_path());
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
@@ -105,7 +97,7 @@ kptr_t kern_ucred;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex(&tfp0, &kslide, &kern_ucred);
+        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
@@ -138,10 +130,11 @@ kptr_t kern_ucred;
 -(int) makeShitHappen {
     kernel_base = kslide + 0xFFFFFFF007004000;
     
-    printf("tfp0: %u \n", tfp0);
-    printf("kslide: %llu \n", kslide);
-    printf("kernel_base: %llu \n", kernel_base);
-    printf("kern_ucred: %llu \n", kern_ucred);
+    printf("tfp0: %x \n", tfp0);
+    printf("kslide: %llx \n", kslide);
+    printf("kernel_base: %llx \n", kernel_base);
+    printf("kern_ucred: %llx \n", kern_ucred);
+    printf("kernprocaddr = %llx \n", kernprocaddr);
     
     {
         // set up stuff
@@ -176,24 +169,44 @@ kptr_t kern_ucred;
         }
     }
     
+    {
+        // patch amfi
+        
+        [self writeText:@"patching amfi..."];
+        
+        int patch = patch_amfi();
+        if (patch != 0) {
+            [self writeText:@"failed to patch amfi!"];
+            return 1;
+        }
+        
+        sleep(2);
+        
+        [self writeText:@"done!"];
+    }
+    
     // init filemanager
     NSFileManager *fileMgr = [NSFileManager defaultManager];
     
     {
         // uncomment if we wanna replace shit
         [self writeText:@"removing old files..."];
-//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/dpkg.tar" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
+        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
         [self writeText:@"done!"];
     }
     
     {
         // copy in our bins and shit
         [self writeText:@"copying bins..."];
+        
+        // copy dpkg tar
+        cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
         
         if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
         {
@@ -210,10 +223,6 @@ kptr_t kern_ucred;
                               error:nil];
         }
         
-        
-        // TEMPORARY
-        trust_files("/meridian/bins");
-        
         [self writeText:@"done!"];
     }
     
@@ -229,8 +238,12 @@ kptr_t kern_ucred;
     }
     
     {
+        // nostash
+        touch_file("/.cydia_no_stash", 0644);
+        
         // install Cydia
-        if (file_exists("/meridian/.cydia_installed") != 0)
+        if (file_exists("/meridian/.cydia_installed") != 0 &&
+            file_exists("/Applications/Cydia.app") != 0)
         {
             {
                 [self writeText:@"installing cydia..."];
@@ -258,9 +271,6 @@ kptr_t kern_ucred;
                     NULL
                 });
 
-                // sign it
-                inject_trust("/Applications/Cydia.app/Cydia");
-            
                 // write the .cydia_installed file
                 touch_file("/meridian/.cydia_installed", 0644);
                 
@@ -273,9 +283,6 @@ kptr_t kern_ucred;
             execprog(0, "/meridian/bins/uicache", NULL);
             [self writeText:@"done!"];
         }
-        
-        // nostash
-        touch_file("/.cydia_no_stash", 0644);
     }
     
     {
@@ -284,15 +291,15 @@ kptr_t kern_ucred;
         [self writeText:@"creating .profile files..."];
         
         if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/mobile/profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=$PATH:/meridian/bins"]
+            [fileMgr createFileAtPath:@"/var/mobile/.profile"
+                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
                                        dataUsingEncoding:NSASCIIStringEncoding]
                            attributes:nil];
         }
         
         if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
             [fileMgr createFileAtPath:@"/var/root/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=$PATH:/meridian/bins"]
+                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
                                        dataUsingEncoding:NSASCIIStringEncoding]
                            attributes:nil];
         }
@@ -301,10 +308,20 @@ kptr_t kern_ucred;
     }
     
     {
+        // trust dropbear & sh
+        [self writeText:@"trusting files..."];
+        inject_trust("/meridian/bins/dropbear");
+        inject_trust("/bin/sh");
+        [self writeText:@"done!"];
+    }
+    
+    {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
         execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
+            "-p",
+            "2222",
             "-R",
             "-E",
             "-m",
