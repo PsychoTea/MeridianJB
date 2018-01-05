@@ -320,7 +320,7 @@ int patch_amfi() {
     task_t remoteTask = task_for_pid_workaround(amfi_pid);
     if (remoteTask == MACH_PORT_NULL) {
         NSLog(@"[inject] Failed to get task for amfid!");
-        return 1;
+        return 2;
     }
     
     amfiTask = (mach_port_t)remoteTask;
@@ -339,7 +339,7 @@ int patch_amfi() {
         remote_read_overwrite(remoteTask, error, (uint64_t)local_cstring, len+1);
         
         NSLog(@"[inject] Error: %s", local_cstring);
-        return 1;
+        return 3;
     }
     
     printf("[amfi] get fucked ya silyl little cunT ;) \n");
