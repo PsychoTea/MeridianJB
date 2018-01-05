@@ -18,9 +18,9 @@
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
-		B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B53DA78C1FF6587000747ED7 /* cydia.tar */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
+		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
 		B59532831FFE611000022CEE /* amfid_payload.dylib in Resources */ = {isa = PBXBuildFile; fileRef = B59532811FFE5FC000022CEE /* amfid_payload.dylib */; };
@@ -57,11 +57,11 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		B53DA78C1FF6587000747ED7 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B582405A1FF7533D00D96DB5 /* offsets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
+		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -136,7 +136,7 @@
 				B50F79671FF224F0000D6015 /* Frontend */,
 				B59532811FFE5FC000022CEE /* amfid_payload.dylib */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
-				B53DA78C1FF6587000747ED7 /* cydia.tar */,
+				B59022351FFF8CCB00691423 /* cydia.tar */,
 				B59532881FFE6E9C00022CEE /* dpkg.tar */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
@@ -242,9 +242,9 @@
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B59532731FFE2B5000022CEE /* README.md in Resources */,
+				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
 				B5B7C2B81FF353980087619A /* v0rtex.h in Resources */,
 				B5B7C2B71FF353980087619A /* v0rtex.m in Resources */,
-				B53DA78D1FF6587000747ED7 /* cydia.tar in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,

@@ -47,9 +47,6 @@ bool jailbreak_has_run = false;
     _websiteButton.layer.cornerRadius = 5;
     _sourceButton.layer.cornerRadius = 5;
     
-    UILongPressGestureRecognizer *goButtonGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(goButtonHold:)];
-    [_goButton addGestureRecognizer:goButtonGesture];
-
     // Log current device and version info
     NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
@@ -69,7 +66,7 @@ bool jailbreak_has_run = false;
         [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
         [self writeTextPlain:@"> Please report this to @iBSparkes on Twitter."];
         [self writeTextPlain:@"> Make sure to include a screenshot of this page."];
-        [self disableApp];
+        [self noOffsets];
         return;
     }
     
@@ -85,6 +82,7 @@ bool jailbreak_has_run = false;
 - (IBAction)goButtonPressed:(UIButton *)sender {
     
     if (jailbreak_has_run) {
+        [self presentPopupSheet];
         return;
     }
     
@@ -134,44 +132,6 @@ bool jailbreak_has_run = false;
             [self exploitSucceeded];
         });
     });
-}
-
--(void) goButtonHold:(UILongPressGestureRecognizer *)sender {
-    if (sender.state != UIGestureRecognizerStateBegan) {
-        return;
-    }
-    
-    if (!jailbreak_has_run) {
-        return;
-    }
-    
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
-                                                                         message:nil
-                                                                  preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Reinstall Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self installCydia];
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self extractDpkg];
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Re-extract Bootstrap" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self extractBootstrap];
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [self presentViewController:actionSheet animated:YES completion:nil];
 }
 
 - (IBAction)websiteButtonPressed:(UIButton *)sender {
@@ -270,10 +230,6 @@ bool jailbreak_has_run = false;
         // copy in our bins and shit
         [self writeText:@"copying bins..."];
         
-        // copy cydia & dpkg tar's
-        cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
-        cp(bundled_file("cydia.tar"), "/meridian/cydia.tar");
-        
         if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
         {
             [self extractBootstrap];
@@ -371,6 +327,42 @@ bool jailbreak_has_run = false;
     return 0;
 }
 
+-(void) presentPopupSheet {
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
+                                                                         message:nil
+                                                                  preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Reinstall Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+            [self installCydia];
+        });
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+            [self extractDpkg];
+        });
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Re-extract Bootstrap" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+            [self extractBootstrap];
+        });
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [self presentViewController:actionSheet animated:YES completion:nil];
+}
+
 - (void)installCydia {
     [self writeText:@"installing cydia..."];
     
@@ -391,9 +383,7 @@ bool jailbreak_has_run = false;
     }
     
     // copy the tar out
-    [fileMgr copyItemAtPath:[NSString stringWithUTF8String:bundled_file("cydia.tar")]
-                     toPath:@"/meridian/cydia.tar"
-                      error:nil];
+    cp(bundled_file("cydia.tar"), "/meridian/cydia.tar");
     
     // extract to /Applications
     chdir("/Applications");
@@ -418,6 +408,10 @@ bool jailbreak_has_run = false;
 - (void)extractDpkg {
     [self writeText:@"extracting dpkg..."];
     
+    // copy the tar out
+    cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
+    
+    // extract
     chdir("/");
     untar(fopen("/meridian/dpkg.tar", "r+"), "dpkg");
     
@@ -437,12 +431,12 @@ bool jailbreak_has_run = false;
 }
 
 - (void)exploitSucceeded {
-    [self writeTextPlain:@"\n> your device has been freed!"];
+    [self writeTextPlain:@"\n> your device has been freed!\n"];
     
     [self.progressSpinner stopAnimating];
     
+    [self.goButton setEnabled:YES];
     [self.goButton setHidden:NO];
-    self.goButton.alpha = 0.5;
     [self.goButton setTitle:@"done" forState:UIControlStateNormal];
     
     [self.creditsButton setEnabled:YES];
@@ -469,7 +463,7 @@ bool jailbreak_has_run = false;
     [self.progressSpinner stopAnimating];
 }
 
-- (void)disableApp {
+- (void)noOffsets {
     [self.goButton setEnabled:NO];
     self.goButton.alpha = 0.5;
     [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
