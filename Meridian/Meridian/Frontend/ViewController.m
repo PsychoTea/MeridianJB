@@ -35,6 +35,8 @@ kptr_t kernel_base;
 kptr_t kern_ucred;
 kptr_t kernprocaddr;
 
+bool jailbreak_has_run = false;
+
 @implementation ViewController
 
 - (void)viewDidLoad {
@@ -44,6 +46,9 @@ kptr_t kernprocaddr;
     _creditsButton.layer.cornerRadius = 5;
     _websiteButton.layer.cornerRadius = 5;
     _sourceButton.layer.cornerRadius = 5;
+    
+    UILongPressGestureRecognizer *goButtonGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(goButtonHold:)];
+    [_goButton addGestureRecognizer:goButtonGesture];
 
     // Log current device and version info
     NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
@@ -78,6 +83,10 @@ kptr_t kernprocaddr;
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
+    
+    if (jailbreak_has_run) {
+        return;
+    }
     
     // lets run dat ting
     
@@ -127,7 +136,59 @@ kptr_t kernprocaddr;
     });
 }
 
+-(void) goButtonHold:(UILongPressGestureRecognizer *)sender {
+    if (sender.state != UIGestureRecognizerStateBegan) {
+        return;
+    }
+    
+    if (!jailbreak_has_run) {
+        return;
+    }
+    
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
+                                                                         message:nil
+                                                                  preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Reinstall Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self installCydia];
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self extractDpkg];
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Re-extract Bootstrap" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self extractBootstrap];
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [self presentViewController:actionSheet animated:YES completion:nil];
+}
+
+- (IBAction)websiteButtonPressed:(UIButton *)sender {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://meridian.sparkes.zone"]
+                                       options:@{}
+                             completionHandler:nil];
+}
+
+- (IBAction)sourceButtonPressed:(UIButton *)sender {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/PsychoTea/MeridianJB"]
+                                       options:@{}
+                             completionHandler:nil];
+}
+
 -(int) makeShitHappen {
+    int rv;
+    
     kernel_base = kslide + 0xFFFFFFF007004000;
     
     printf("tfp0: %x \n", tfp0);
@@ -146,12 +207,18 @@ kptr_t kernprocaddr;
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        int remount = mount_root(tfp0, kslide);
-        LOG("remount: %d", remount);
-        if (remount != 0) {
+        rv = mount_root(tfp0, kslide);
+        LOG("remount: %d", rv);
+        if (rv != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", remount]];
-            [self exploitFailed];
+            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
+            return 1;
+        }
+     
+        // check we can write to root
+        if (can_write_root() != 0) {
+            [self writeTextPlain:@"failed!"];
+            [self writeTextPlain:@"note, this is currently not working on <10.3."];
             return 1;
         }
         
@@ -173,13 +240,12 @@ kptr_t kernprocaddr;
         
         [self writeText:@"patching amfi..."];
         
-        int patch = patch_amfi();
-        if (patch != 0) {
-            [self writeText:@"failed to patch amfi!"];
+        rv = patch_amfi();
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
             return 1;
         }
-        
-        sleep(2);
         
         [self writeText:@"done!"];
     }
@@ -189,29 +255,28 @@ kptr_t kernprocaddr;
     
     {
         // uncomment if we wanna replace shit
-        [self writeText:@"removing old files..."];
-        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
+//        [self writeText:@"removing old files..."];
+//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
         [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
+//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
         [fileMgr removeItemAtPath:@"/meridian/dpkg.tar" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-        [self writeText:@"done!"];
+//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
+//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
+//        [self writeText:@"done!"];
     }
     
     {
         // copy in our bins and shit
         [self writeText:@"copying bins..."];
         
-        // copy dpkg tar
+        // copy cydia & dpkg tar's
         cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
+        cp(bundled_file("cydia.tar"), "/meridian/cydia.tar");
         
         if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
         {
-            mkdir("/meridian/bins", 0777);
-            chdir("/meridian/");
-            untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
+            [self extractBootstrap];
         }
         
         // unpack bash (dropbear requires it be called 'sh', so)
@@ -244,43 +309,7 @@ kptr_t kernprocaddr;
         if (file_exists("/meridian/.cydia_installed") != 0 &&
             file_exists("/Applications/Cydia.app") != 0)
         {
-            {
-                [self writeText:@"installing cydia..."];
-                
-                // delete old cydia
-                if ([fileMgr fileExistsAtPath:@"/Applications/Cydia.app"] == YES)
-                {
-                    [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
-            
-                    execprog(0, "/meridian/bins/uicache", NULL);
-                }
-                
-                // copy the tar out
-                [fileMgr copyItemAtPath:[NSString stringWithUTF8String:bundled_file("cydia.tar")]
-                                 toPath:@"/meridian/cydia.tar"
-                                  error:nil];
-                
-                // extract to /Applications
-                execprog(0, "/meridian/bins/tar", (const char**)&(const char*[]){
-                    "/meridian/bins/tar",
-                    "-xf",
-                    "/meridian/cydia.tar",
-                    "-C",
-                    "/Applications",
-                    NULL
-                });
-
-                // write the .cydia_installed file
-                touch_file("/meridian/.cydia_installed", 0644);
-                
-                [self writeText:@"done!"];
-            }
-            
-            
-            // run uicache
-            [self writeText:@"running uicache..."];
-            execprog(0, "/meridian/bins/uicache", NULL);
-            [self writeText:@"done!"];
+            [self installCydia];
         }
     }
     
@@ -307,7 +336,7 @@ kptr_t kernprocaddr;
     }
     
     {
-        // trust dropbear & sh
+        // trust dropbear & sh (idk why we still need to do this, *shrug*)
         [self writeText:@"trusting files..."];
         inject_trust("/meridian/bins/dropbear");
         inject_trust("/bin/sh");
@@ -317,7 +346,8 @@ kptr_t kernprocaddr;
     {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
-        execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
+        
+        rv = execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",
             "2222",
@@ -328,22 +358,82 @@ kptr_t kernprocaddr;
             "/",
             NULL
         });
+        
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn", rv]];
+            return 1;
+        }
+        
         [self writeText:@"done!"];
     }
     
     return 0;
 }
 
-- (IBAction)websiteButtonPressed:(UIButton *)sender {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://meridian.sparkes.zone"]
-                                       options:@{}
-                             completionHandler:nil];
+- (void)installCydia {
+    [self writeText:@"installing cydia..."];
+    
+    int rv;
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    // delete old cydia
+    if ([fileMgr fileExistsAtPath:@"/Applications/Cydia.app"] == YES)
+    {
+        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
+        
+        rv = execprog(0, "/meridian/bins/uicache", NULL);
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (1)", rv]];
+            return;
+        }
+    }
+    
+    // copy the tar out
+    [fileMgr copyItemAtPath:[NSString stringWithUTF8String:bundled_file("cydia.tar")]
+                     toPath:@"/meridian/cydia.tar"
+                      error:nil];
+    
+    // extract to /Applications
+    chdir("/Applications");
+    untar(fopen("/meridian/cydia.tar", "r+"), "cydia");
+    
+    // write the .cydia_installed file
+    touch_file("/meridian/.cydia_installed", 0644);
+    
+    [self writeText:@"done!"];
+    
+    // run uicache
+    [self writeText:@"running uicache..."];
+    rv = execprog(0, "/meridian/bins/uicache", NULL);
+    if (rv != 0) {
+        [self writeText:@"failed!"];
+        [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (2)", rv]];
+        return;
+    }
+    [self writeText:@"done!"];
 }
 
-- (IBAction)sourceButtonPressed:(UIButton *)sender {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/PsychoTea/MeridianJB"]
-                                       options:@{}
-                             completionHandler:nil];
+- (void)extractDpkg {
+    [self writeText:@"extracting dpkg..."];
+    
+    chdir("/");
+    untar(fopen("/meridian/dpkg.tar", "r+"), "dpkg");
+    
+    [self writeText:@"done!"];
+}
+
+- (void)extractBootstrap {
+    [self writeText:@"extracting bootstrap..."];
+    
+    unlink("/meridian/bins");
+    
+    mkdir("/meridian/bins", 0777);
+    chdir("/meridian/");
+    untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
+    
+    [self writeText:@"done!"];
 }
 
 - (void)exploitSucceeded {
@@ -351,7 +441,6 @@ kptr_t kernprocaddr;
     
     [self.progressSpinner stopAnimating];
     
-    [self.goButton setEnabled:NO];
     [self.goButton setHidden:NO];
     self.goButton.alpha = 0.5;
     [self.goButton setTitle:@"done" forState:UIControlStateNormal];
@@ -362,6 +451,8 @@ kptr_t kernprocaddr;
     self.websiteButton.alpha = 1;
     // [self.sourceButton setEnabled:YES];
     // self.sourceButton.alpha = 1;
+    
+    jailbreak_has_run = true;
 }
 
 - (void)exploitFailed {
