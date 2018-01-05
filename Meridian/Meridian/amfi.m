@@ -296,7 +296,6 @@ int patch_amfi() {
     printf("finding amfid pid... \n");
     
     uint32_t amfi_pid = 0;
-    // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
     uint64_t proc = rk64(kernprocaddr + 0x08);
     while (proc) {
         uint32_t pid = (uint32_t)rk32(proc + 0x10);
@@ -367,7 +366,7 @@ void inject_trust(const char *path) {
     
     uint8_t *codeDir = getCodeDirectory(path);
     if (codeDir == NULL) {
-        printf("[amfi] was given null code dir for %s ! \n", path);
+        printf("[amfi] was given null code dir for %s! \n", path);
         return;
     }
     
