@@ -7347,7 +7347,7 @@ int load_offsets(void)
         // 10.1.1
         if(!strcmp(osversion, "14B100"))
         {
-            OFFSET_ZONE_MAP                        = 0xfffffff0070c8090;
+            OFFSET_ZONE_MAP                        = 0xfffffff00759a160;
             OFFSET_KERNEL_MAP                      = 0xfffffff0075f6058;
             OFFSET_KERNEL_TASK                     = 0xfffffff0075f6050;
             OFFSET_REALHOST                        = 0xfffffff00757c898;
@@ -7362,9 +7362,9 @@ int load_offsets(void)
             OFFSET_IPC_KOBJECT_SET                 = 0xfffffff0070f1d14;
             OFFSET_IPC_PORT_MAKE_SEND              = 0xfffffff0070de7e0;
             OFFSET_IOSURFACEROOTUSERCLIENT_VTAB    = 0xfffffff006e521e0;
-            OFFSET_ROP_ADD_X0_X0_0x10              = 0x00b5d2b8;
+            OFFSET_ROP_ADD_X0_X0_0x10              = 0xfffffff0063ed29c;
             OFFSET_OSSERIALIZER_SERIALIZE          = 0xfffffff0074916b4;
-            OFFSET_ROP_LDR_X0_X0_0x10              = 0x00261a98;
+            OFFSET_ROP_LDR_X0_X0_0x10              = 0xfffffff0064b4854;
             
             
         }

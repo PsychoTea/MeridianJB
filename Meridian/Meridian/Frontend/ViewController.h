@@ -18,3 +18,5 @@ kptr_t kslide;
 kptr_t kernel_base;
 kptr_t kern_ucred;
 kptr_t kernprocaddr;
+
+void log_message(NSString *message);

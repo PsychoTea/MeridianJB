@@ -29,6 +29,7 @@
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
 @end
 
+id thisClass;
 task_t tfp0;
 kptr_t kslide;
 kptr_t kernel_base;
@@ -41,6 +42,7 @@ bool jailbreak_has_run = false;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    thisClass = self;
     
     _goButton.layer.cornerRadius = 5;
     _creditsButton.layer.cornerRadius = 5;
@@ -360,6 +362,14 @@ bool jailbreak_has_run = false;
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
     
+    [actionSheet.popoverPresentationController setPermittedArrowDirections:0];
+    
+    CGRect rect = self.view.frame;
+    rect.origin.x = self.view.frame.size.width / 20;
+    rect.origin.y = self.view.frame.size.height / 20;
+    actionSheet.popoverPresentationController.sourceView = self.view;
+    actionSheet.popoverPresentationController.sourceRect = rect;
+    
     [self presentViewController:actionSheet animated:YES completion:nil];
 }
 
@@ -431,6 +441,8 @@ bool jailbreak_has_run = false;
 }
 
 - (void)exploitSucceeded {
+    jailbreak_has_run = true;
+    
     [self writeTextPlain:@"\n> your device has been freed!\n"];
     
     [self.progressSpinner stopAnimating];
@@ -445,8 +457,6 @@ bool jailbreak_has_run = false;
     self.websiteButton.alpha = 1;
     // [self.sourceButton setEnabled:YES];
     // self.sourceButton.alpha = 1;
-    
-    jailbreak_has_run = true;
 }
 
 - (void)exploitFailed {
@@ -489,6 +499,10 @@ bool jailbreak_has_run = false;
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
     });
+}
+
+void log_message(NSString *message) {
+    [thisClass writeTextPlain:message];
 }
 
 @end

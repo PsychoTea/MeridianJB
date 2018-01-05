@@ -7,7 +7,7 @@
 //
 
 void init_amfi(task_t task_for_port0);
-int patch_amfi();
+int patch_amfi(void);
 void inject_trust(const char *path);
 
 uint8_t *getCodeDirectory(const char* name);
