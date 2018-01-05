@@ -246,10 +246,10 @@ uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
     // handle post-call argument cleanup/copying:
     for (int i = 0; i < MAX_REMOTE_ARGS; i++){
         arg_desc* arg = args[i];
-        if (arg == NULL){
+        if (arg == NULL) {
             break;
         }
-        switch (arg->type){
+        switch (arg->type) {
             case ARG_BUFFER:
             {
                 remote_free(task_port, remote_buffers[i], arg->length);
@@ -296,7 +296,6 @@ int patch_amfi() {
     printf("finding amfid pid... \n");
     
     uint32_t amfi_pid = 0;
-    // uint64_t proc = rk64(kslide + 0xFFFFFFF0075E66F0);
     uint64_t proc = rk64(kernprocaddr + 0x08);
     while (proc) {
         uint32_t pid = (uint32_t)rk32(proc + 0x10);
@@ -321,17 +320,10 @@ int patch_amfi() {
     task_t remoteTask = task_for_pid_workaround(amfi_pid);
     if (remoteTask == MACH_PORT_NULL) {
         NSLog(@"[inject] Failed to get task for amfid!");
-        return 1;
+        return 2;
     }
     
     amfiTask = (mach_port_t)remoteTask;
-    
-    uint64_t actual_addr = binary_load_address(remoteTask);
-    
-    if (actual_addr == -1) {
-        NSLog(@"[inject] Couldn't find the address");
-        return 1;
-    }
     
     call_remote(remoteTask, setuid, 1, REMOTE_LITERAL(0));
     
@@ -347,7 +339,7 @@ int patch_amfi() {
         remote_read_overwrite(remoteTask, error, (uint64_t)local_cstring, len+1);
         
         NSLog(@"[inject] Error: %s", local_cstring);
-        return 1;
+        return 3;
     }
     
     printf("[amfi] get fucked ya silyl little cunT ;) \n");
@@ -374,7 +366,7 @@ void inject_trust(const char *path) {
     
     uint8_t *codeDir = getCodeDirectory(path);
     if (codeDir == NULL) {
-        printf("[amfi] was given null code dir for %s ! \n", path);
+        printf("[amfi] was given null code dir for %s! \n", path);
         return;
     }
     

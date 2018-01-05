@@ -58,7 +58,7 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qVU-s8-Wog">
-                                <rect key="frame" x="16" y="384" width="382" height="280"/>
+                                <rect key="frame" x="16" y="398" width="382" height="266"/>
                                 <color key="backgroundColor" red="0.25745558375634514" green="0.25745558375634514" blue="0.25745558375634514" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="textColor" red="0.99019607843137258" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -77,8 +77,8 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Liz-C3-Qax">
-                                <rect key="frame" x="16" y="157" width="382" height="70"/>
-                                <string key="text">Exploit may take 10+ tries before it runs. Your device getting hot and restarting is normal. All offsets for supported devices have already been added. This will run on pre-10.3.x however is not guaranteed to work. Proceed at your own risk. THIS IS WORK IN PROGRESS SOFTWARE. NO SUBSTRATE (yet).</string>
+                                <rect key="frame" x="16" y="157" width="382" height="84"/>
+                                <string key="text">Exploit may take 10+ tries before it runs. Your device getting hot and restarting is normal. Currently broken on pre-10.3. No substrate (yet).  PLEASE DO NOT USE THIS APP UNLESS YOU DOWNLOADED IT FROM MERIDIAN.SPARKES.ZONE (use the website link below)</string>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="12"/>
                                 <color key="textColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -95,7 +95,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LaC-2w-KjF">
-                                <rect key="frame" x="75" y="267" width="264" height="65"/>
+                                <rect key="frame" x="75" y="281" width="264" height="65"/>
                                 <color key="backgroundColor" red="0.93511650466657925" green="0.94075858160621761" blue="0.93640597041924367" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="65" id="dRK-kk-ceE"/>
@@ -109,9 +109,9 @@
                                 </connections>
                             </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
-                                <rect key="frame" x="150" y="289" width="114" height="20"/>
+                                <rect key="frame" x="150" y="303" width="114" height="20"/>
                             </activityIndicatorView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MeridianJB: Public Beta 1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U4e-5a-D7X">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MeridianJB: Public Beta 2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U4e-5a-D7X">
                                 <rect key="frame" x="20" y="724" width="378" height="12"/>
                                 <fontDescription key="fontDescription" type="italicSystem" pointSize="10"/>
                                 <color key="textColor" red="0.44269511421319796" green="0.42654402157192894" blue="0.42609065115014477" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -207,7 +207,7 @@
                                             <font key="NSFont" size="14" name=".SFNSText"/>
                                         </attributes>
                                     </fragment>
-                                    <fragment content=": for originally finding and reporting the CVE-2017-13861 exploit ">
+                                    <fragment content=": originally finding and reporting the CVE-2017-13861 exploit ">
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -240,7 +240,7 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <string key="content">  FoxletFox: Meridian logo(s) &amp; bits and pieces with the website  Sticktron: the UI OG boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </string>
+                                        <string key="content">  FoxletFox: Meridian logo(s) &amp; bits and pieces with the website  Sticktron: the OG UI boi  https://twitter.com/sticktron  nullpixel: for answering my dumb questions https://twitter.com/nullriver  arpolix: general help, moral support, and exploit research </string>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -274,7 +274,7 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <string key="content">  Comsecuris UG: for creating dropbear-ios   If you believe you have contributed to the project and haven't been credited, please contact me and I will amend this page as soon as possible.  My Twitter: @iBSparkes https://twitter.com/ibsparkes</string>
+                                        <string key="content">  Comsecuris UG: for creating dropbear-ios   If you believe you have contributed to the project and haven't been credited, please contact me and I will amend this page as soon as possible.  My Twitter (@iBSparkes) https://twitter.com/ibsparkes</string>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>

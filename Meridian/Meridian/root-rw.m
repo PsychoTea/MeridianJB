@@ -9,6 +9,8 @@
 #include "root-rw.h"
 #include "kernel.h"
 #include "offsets.h"
+#include <stdio.h>
+#include <unistd.h>
 
 // For '/' remount (not offsets)
 #define KSTRUCT_OFFSET_MOUNT_MNT_FLAG   0x70
@@ -35,4 +37,10 @@ int mount_root(task_t tfp0, uint64_t kslide) {
     wk32(v_mount + KSTRUCT_OFFSET_MOUNT_MNT_FLAG + 1, v_flag);
     
     return rv;
+}
+
+int can_write_root() {
+    FILE *f = fopen("/.root_test", "w");
+    unlink("/.root_test");
+    return f == 0;
 }

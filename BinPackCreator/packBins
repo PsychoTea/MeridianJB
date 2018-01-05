@@ -23,4 +23,4 @@ tar -cf bootstrap.tar ./bins/*
 
 echo "Packed $binCount bins from $currDir/bins into $currDir/bootstrap.tar!"
 
-echo "Please copy the bootstrap.tar file into the Xcode project!"
+cp $currDir/bootstrap.tar $currDir/../Meridian/Meridian/bootstrap.tar

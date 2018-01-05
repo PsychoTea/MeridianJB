@@ -1004,9 +1004,9 @@ addr_t find_bcopy(void) {
 
 addr_t find_trustcache(void) {
     addr_t call, func, val;
-    addr_t ref = find_strref("com.apple.MobileFileIntegrity", 1, 1);
+    addr_t ref = find_strref("amfi_prevent_old_entitled_platform_binaries", 1, 1);
     if (!ref) {
-        ref = find_strref("amfi_prevent_old_entitled_platform_binaries", 1, 1);
+        ref = find_strref("com.apple.MobileFileIntegrity", 1, 1);
     }
     if (!ref) {
         printf("didnt find string ref\n");
@@ -1033,9 +1033,9 @@ addr_t find_trustcache(void) {
 
 addr_t find_amficache(void) {
     addr_t call, func, bof, val;
-    addr_t ref = find_strref("com.apple.MobileFileIntegrity", 1, 1);
+    addr_t ref = find_strref("amfi_prevent_old_entitled_platform_binaries", 1, 1);
     if (!ref) {
-        ref = find_strref("amfi_prevent_old_entitled_platform_binaries", 1, 1);
+        ref = find_strref("com.apple.MobileFileIntegrity", 1, 1);
     }
     if (!ref) {
         printf("didnt find string ref\n");
