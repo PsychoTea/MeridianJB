@@ -40,7 +40,5 @@ int mount_root(task_t tfp0, uint64_t kslide) {
 }
 
 int can_write_root() {
-    FILE *f = fopen("/.root_test", "w");
-    unlink("/.root_test");
-    return f == 0;
+    return access("/", W_OK);
 }
