@@ -66,8 +66,6 @@
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B59532811FFE5FC000022CEE /* amfid_payload.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = amfid_payload.dylib; sourceTree = "<group>"; };
-		B59532841FFE6B7B00022CEE /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
-		B59532851FFE6B7B00022CEE /* v0rtex.h.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.h.new; sourceTree = "<group>"; };
 		B59532881FFE6E9C00022CEE /* dpkg.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = dpkg.tar; sourceTree = "<group>"; };
 		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
 		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
@@ -156,8 +154,6 @@
 				B50F79461FF2248B000D6015 /* root-rw.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
-				B59532851FFE6B7B00022CEE /* v0rtex.h.new */,
-				B59532841FFE6B7B00022CEE /* v0rtex.m.new */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";

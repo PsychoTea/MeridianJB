@@ -4,7 +4,10 @@
 #include <mach/mach.h>
 
 #include "common.h"
+#include "offsets.h"
 
-kern_return_t v0rtex(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t *kernprocaddr);
+typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, kptr_t kernucred, kptr_t kernproc_addr);
+
+kern_return_t v0rtex(v0rtex_cb_t callback, void *cb_data);
 
 #endif
