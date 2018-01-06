@@ -82,9 +82,8 @@ bool jailbreak_has_run = false;
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
-    
     if (jailbreak_has_run) {
-        [self presentPopupSheet];
+        [self presentPopupSheet: sender];
         return;
     }
     
@@ -287,12 +286,6 @@ bool jailbreak_has_run = false;
     }
     
     {
-        // create .profile files
-        
-        
-    }
-    
-    {
         // trust dropbear & sh (idk why we still need to do this, *shrug*)
         // I guess the amfi patch takes a moment to come into effect...?
         [self writeText:@"trusting files..."];
@@ -329,7 +322,7 @@ bool jailbreak_has_run = false;
     return 0;
 }
 
--(void) presentPopupSheet {
+-(void) presentPopupSheet:(UIButton *)sender {
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
                                                                          message:nil
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
@@ -362,13 +355,11 @@ bool jailbreak_has_run = false;
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
     
-    [actionSheet.popoverPresentationController setPermittedArrowDirections:UIPopoverArrowDirectionUp];
+    [actionSheet.popoverPresentationController setPermittedArrowDirections:UIPopoverArrowDirectionAny];
     
-    CGRect rect = self.view.frame;
-    rect.origin.x = self.view.center.x - (rect.size.width / 2);
-    rect.origin.y = self.view.center.y - (rect.size.height / 2);
-    actionSheet.popoverPresentationController.sourceView = self.view;
-    actionSheet.popoverPresentationController.sourceRect = rect;
+    UIPopoverPresentationController *popPresender = [actionSheet popoverPresentationController];
+    popPresender.sourceView = sender;
+    popPresender.sourceRect = sender.bounds;
     
     [self presentViewController:actionSheet animated:YES completion:nil];
 }
