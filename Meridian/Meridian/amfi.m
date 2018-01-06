@@ -339,6 +339,7 @@ int patch_amfi() {
         remote_read_overwrite(remoteTask, error, (uint64_t)local_cstring, len+1);
         
         NSLog(@"[inject] Error: %s", local_cstring);
+        log_message([NSString stringWithFormat:@"amfi error: %s", local_cstring]);
         return 3;
     }
     
