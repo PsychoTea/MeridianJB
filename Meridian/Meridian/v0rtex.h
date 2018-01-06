@@ -8,6 +8,6 @@
 
 typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, kptr_t kernucred, kptr_t kernproc_addr);
 
-kern_return_t v0rtex(v0rtex_cb_t callback, void *cb_data);
+kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback, void *cb_data);
 
 #endif
