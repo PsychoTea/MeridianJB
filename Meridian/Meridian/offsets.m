@@ -49,7 +49,7 @@ uint64_t OFFSET_KAUTH_CRED_REF;
 uint64_t OFFSET_OSSERIALIZER_SERIALIZE;
 uint64_t OFFSET_ROP_LDR_X0_X0_0x10;
 
-static offsets_t struct_offsets = (offsets_t) {
+offsets_t struct_offsets = (offsets_t) {
     .base                               = 0xfffffff007004000,
     .sizeof_task                        = 0x550,
     .task_itk_self                      = 0xd8,

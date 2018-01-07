@@ -46,7 +46,7 @@ uint64_t OFFSET_KAUTH_CRED_REF;
 uint64_t OFFSET_OSSERIALIZER_SERIALIZE;
 uint64_t OFFSET_ROP_LDR_X0_X0_0x10;
 
-static offsets_t struct_offsets;
+offsets_t struct_offsets;
 
 int load_offsets(void);
 
