@@ -6,85 +6,70 @@
 //  Copyright © 2018 Ben Sparkes. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "fucksigningservices.h"
 
-@class fucksigningservices_class;
+@interface NSString (profileHelper)
+- (id)dictionaryFromString;
+@end
 
-@implementation fucksigningservices : fucksigningservices_class
+@implementation NSString (profileHelper)
 
-+ (NSMutableDictionary *)provisioningDictionaryFromFilePath:(NSString *)profilePath
+// convert basic XML plist string from the profile and convert it into a mutable nsdictionary
+- (id)dictionaryFromString
 {
-    NSString *fileContents = [NSString stringWithContentsOfFile:profilePath encoding:NSASCIIStringEncoding error:nil];
+    NSData *theData = [self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    id theDict = [NSPropertyListSerialization propertyListWithData:theData
+                                                           options:NSPropertyListMutableContainersAndLeaves
+                                                            format:nil
+                                                             error:nil];
+    return theDict;
+}
+
+@end
+
+@implementation fucksigningservices : NSObject
+
+// creds @nitoTV/lechium the fuckin' madman
+// https://github.com/lechium/ProvisioningProfileCleaner/blob/master/ProvisioningProfileCleaner/KBProfileHelper.m#L648
++ (Boolean)appIsPirated:(NSString *)profilePath
+{
+    NSString *fileContents = [NSString stringWithContentsOfFile:profilePath
+                                                       encoding:NSASCIIStringEncoding
+                                                          error:nil];
     NSUInteger fileLength = [fileContents length];
     if (fileLength == 0)
-        fileContents = [NSString stringWithContentsOfFile:profilePath]; //if ascii doesnt work, have to use the deprecated (thankfully not obsolete!) method
-        
-        fileLength = [fileContents length];
-        if (fileLength == 0)
-            return nil;
-    
-    //find NSRange location of <?xml to pass by all the "garbage" data before our plist
-    
-    NSUInteger startingLocation = [fileContents rangeOfString:@"<?xml"].location;
-    
-    //find NSRange of the end of the plist (there is "junk" cert data after our plist info as well
-    NSRange endingRange = [fileContents rangeOfString:@"</plist>"];
-    
-    //adjust the location of endingRange to include </plist> into our newly trimmed string.
-    NSUInteger endingLocation = endingRange.location + endingRange.length;
-    
-    //offset the ending location to trim out the "garbage" before <?xml
-    NSUInteger endingLocationAdjusted = endingLocation - startingLocation;
-    
-    //create the final range of the string data from <?xml to </plist>
-    
-    NSRange plistRange = NSMakeRange(startingLocation, endingLocationAdjusted);
-    
-    //actually create our string!
-    NSString *plistString = [fileContents substringWithRange:plistRange];
-    
-    //yay categories!! convert the dictionary raw string into an actual NSDictionary
-    NSMutableDictionary *dict = [plistString dictionaryFromString];
-    
-    
-    NSString *appID = [dict[@"Entitlements"] objectForKey:@"application-identifier"];
-    
-    [dict setObject:appID forKey:@"applicationIdentifier"];
-    
-    //since we will always need this data, best to grab it here and make it part of the dictionary for easy re-use / validity check.
-    
-    NSString *ourID = [self validIDFromCerts:dict[@"DeveloperCertificates"]];
-    
-    if (ourID != nil)
     {
-        [dict setValue:ourID forKey:@"CODE_SIGN_IDENTITY"];
-        //in THEORY should set the profile target to Debug or Release depending on if it finds "Developer:" string.
-        if ([ourID rangeOfString:@"Developer:"].location != NSNotFound)
-        {
-            [dict setValue:@"Debug" forKey:@"Target"];
-            
-        } else {
-            
-            [dict setValue:@"Release" forKey:@"Target"];
-        }
+        fileContents = [NSString stringWithContentsOfFile:profilePath];
+        fileLength = [fileContents length];
     }
     
-    //grab all the valid certs, for later logging / debugging for why a profile might be invalid
+    if (fileLength == 0) return false;
     
-    NSArray *validCertIds = [self certIDsFromCerts:dict[@"DeveloperCertificates"]];
+    // find NSRange location of <?xml to pass by all the "garbage" data before our plist
+    NSUInteger startingLocation = [fileContents rangeOfString:@"<?xml"].location;
+    // find NSRange of the end of the plist (there is "junk" cert data after our plist info as well
+    NSRange endingRange = [fileContents rangeOfString:@"</plist>"];
     
-    [dict setValue:validCertIds forKey:@"CodeSignArray"];
+    // adjust the location of endingRange to include </plist> into our newly trimmed string.
+    NSUInteger endingLocation = endingRange.location + endingRange.length;
     
-    // shouldnt need this frivolous data any longer, we know which ID (if any) we have and have all the valid ones too
+    // offset the ending location to trim out the "garbage" before <?xml
+    NSUInteger endingLocationAdjusted = endingLocation - startingLocation;
     
-    [dict removeObjectForKey:@"DeveloperCertificates"];
+    // create the final range of the string data from <?xml to </plist>
+    NSRange plistRange = NSMakeRange(startingLocation, endingLocationAdjusted);
     
+    NSString *plistString = [fileContents substringWithRange:plistRange];
     
+    NSMutableDictionary *dict = [plistString dictionaryFromString];
     
-    //write to file for debug / posterity
-    // [dict writeToFile:[[[self pwd] stringByAppendingPathComponent:dict[@"Name"]] stringByAppendingPathExtension:@"plist"] atomically:TRUE];
+    // Grab provisioning entries
+    NSObject *provisionsAllDevices = [dict objectForKey:@"ProvisionsAllDevices"];
+    NSArray *provisionedDevices = [dict objectForKey:@"ProvisionedDevices"];
     
-    return dict;
+    // Check whether keys are present & evaluate
+    return (provisionsAllDevices != nil &&
+            provisionedDevices == nil);
 }
 
 @end

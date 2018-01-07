@@ -9,5 +9,13 @@
 #ifndef fucksigningservices_h
 #define fucksigningservices_h
 
+#import "ViewController.h"
+#import <Foundation/Foundation.h>
+
+@interface fucksigningservices : NSObject
+
++ (Boolean)appIsPirated:(NSString *)profilePath;
+
+@end
 
 #endif /* fucksigningservices_h */

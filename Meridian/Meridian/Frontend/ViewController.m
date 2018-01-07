@@ -15,6 +15,7 @@
 #import "offsets.h"
 #import "helpers.h"
 #import "libjb.h"
+#import "fucksigningservices.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
 #import <sys/spawn.h>
@@ -63,6 +64,8 @@ bool jailbreak_has_run = false;
     [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
     
     [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
+    
+    [self writeTextPlain:[NSString stringWithFormat:@"> meridian is pirated: %s", [fucksigningservices appIsPirated: [NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]] ? "yes" : "no"]];
     
     if (ver.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
