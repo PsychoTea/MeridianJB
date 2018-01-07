@@ -73,7 +73,7 @@ bool jailbreak_has_run = false;
     }
     
     if (ver.minorVersion < 3) {
-        [self writeTextPlain:@"WARNING: Meridian is UNTESTED on versions lower than iOS 10.3. It should work (in theory), but may bootloop your device. Proceeed at your own risk."];
+        [self writeTextPlain:@"WARNING: Meridian is currently broken on versions below iOS 10.3. Stay tuned for updates."];
     }
     
     [self writeTextPlain:@"> ready."];
@@ -82,9 +82,8 @@ bool jailbreak_has_run = false;
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
-    
     if (jailbreak_has_run) {
-        [self presentPopupSheet];
+        [self presentPopupSheet: sender];
         return;
     }
     
@@ -200,7 +199,6 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
         rv = mount_root(tfp0, kslide);
-        LOG("remount: %d", rv);
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
@@ -281,30 +279,12 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     {
         // create dir's and files for dropbear
         [self writeText:@"setting up the envrionment..."];
+        
         mkdir("/etc", 0777);
         mkdir("/etc/dropbear", 0777);
         mkdir("/var", 0777);
         mkdir("/var/log", 0777);
-        fclose(fopen("/var/log/lastlog", "ab+"));
-        [self writeText:@"done!"];
-    }
-    
-    {
-        // nostash
-        touch_file("/.cydia_no_stash", 0644);
-        
-        // install Cydia
-        if (file_exists("/meridian/.cydia_installed") != 0 &&
-            file_exists("/Applications/Cydia.app") != 0)
-        {
-            [self installCydia];
-        }
-    }
-    
-    {
-        // create .profile files
-        
-        [self writeText:@"creating .profile files..."];
+        touch_file("/var/log/lastlog");
         
         if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
             [fileMgr createFileAtPath:@"/var/mobile/.profile"
@@ -324,7 +304,20 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     }
     
     {
+        // nostash
+        touch_file("/.cydia_no_stash");
+        
+        // install Cydia
+        if (file_exists("/meridian/.cydia_installed") != 0 &&
+            file_exists("/Applications/Cydia.app") != 0)
+        {
+            [self installCydia];
+        }
+    }
+    
+    {
         // trust dropbear & sh (idk why we still need to do this, *shrug*)
+        // I guess the amfi patch takes a moment to come into effect...?
         [self writeText:@"trusting files..."];
         inject_trust("/meridian/bins/dropbear");
         inject_trust("/bin/sh");
@@ -359,7 +352,7 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     return 0;
 }
 
--(void) presentPopupSheet {
+-(void) presentPopupSheet:(UIButton *)sender {
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
                                                                          message:nil
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
@@ -392,13 +385,11 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
     
-    [actionSheet.popoverPresentationController setPermittedArrowDirections:0];
+    [actionSheet.popoverPresentationController setPermittedArrowDirections:UIPopoverArrowDirectionAny];
     
-    CGRect rect = self.view.frame;
-    rect.origin.x = self.view.frame.size.width / 20;
-    rect.origin.y = self.view.frame.size.height / 20;
-    actionSheet.popoverPresentationController.sourceView = self.view;
-    actionSheet.popoverPresentationController.sourceRect = rect;
+    UIPopoverPresentationController *popPresender = [actionSheet popoverPresentationController];
+    popPresender.sourceView = sender;
+    popPresender.sourceRect = sender.bounds;
     
     [self presentViewController:actionSheet animated:YES completion:nil];
 }
@@ -430,7 +421,7 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     untar(fopen("/meridian/cydia.tar", "r+"), "cydia");
     
     // write the .cydia_installed file
-    touch_file("/meridian/.cydia_installed", 0644);
+    touch_file("/meridian/.cydia_installed");
     
     [self writeText:@"done!"];
     
@@ -473,7 +464,9 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
 - (void)exploitSucceeded {
     jailbreak_has_run = true;
     
-    [self writeTextPlain:@"\n> your device has been freed!\n"];
+    [self writeTextPlain:@"\n> your device has been freed! \n"];
+    
+    [self writeTextPlain:@"note: please click 'done' and click 'extract dpkg' if you wish to get Cydia working. \n"];
     
     [self.progressSpinner stopAnimating];
     

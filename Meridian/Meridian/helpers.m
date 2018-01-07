@@ -110,8 +110,8 @@ char* bundle_path() {
     return concat(path, "/");
 }
 
-void touch_file(char *path, mode_t mode) {
-    close(creat(path, mode));
+void touch_file(char *path) {
+    fclose(fopen(path, "w+"));
 }
 
 // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
