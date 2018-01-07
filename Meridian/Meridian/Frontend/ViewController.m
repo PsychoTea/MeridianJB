@@ -27,7 +27,10 @@
 @property (weak, nonatomic) IBOutlet UIButton *sourceButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
+
+NSString* Version = @"Meridian: Public Beta 3 (ALPHA)";
 
 id thisClass;
 task_t tfp0;
@@ -49,11 +52,15 @@ bool jailbreak_has_run = false;
     _websiteButton.layer.cornerRadius = 5;
     _sourceButton.layer.cornerRadius = 5;
     
+    [_versionLabel setText:Version];
+    
     // Log current device and version info
     NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
     struct utsname u;
     uname(&u);
+    
+    [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
     
     [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
     
@@ -404,6 +411,23 @@ bool jailbreak_has_run = false;
         return;
     }
     [self writeText:@"done!"];
+    
+    // enable showing of system apps on springboard
+    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-SIGSTOP",
+        "cfprefsd",
+        NULL
+    });
+    NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
+    [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
+    [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
+    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-9",
+        "cfprefsd",
+        NULL
+    });
 }
 
 - (void)extractDpkg {
