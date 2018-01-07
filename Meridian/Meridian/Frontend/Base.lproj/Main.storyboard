@@ -111,7 +111,7 @@
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
                                 <rect key="frame" x="150" y="303" width="114" height="20"/>
                             </activityIndicatorView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MeridianJB: Public Beta 3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U4e-5a-D7X">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="VERSION LABEL" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U4e-5a-D7X">
                                 <rect key="frame" x="20" y="724" width="378" height="12"/>
                                 <fontDescription key="fontDescription" type="italicSystem" pointSize="10"/>
                                 <color key="textColor" red="0.44269511421319796" green="0.42654402157192894" blue="0.42609065115014477" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -171,6 +171,7 @@
                         <outlet property="progressSpinner" destination="W17-Ed-P2p" id="WiS-RY-2B3"/>
                         <outlet property="sourceButton" destination="OJj-2e-4Ry" id="cgI-j8-6VH"/>
                         <outlet property="textArea" destination="qVU-s8-Wog" id="XGs-Bv-wke"/>
+                        <outlet property="versionLabel" destination="U4e-5a-D7X" id="MeK-bV-w85"/>
                         <outlet property="websiteButton" destination="g0g-df-oPr" id="4Ki-FP-u3F"/>
                     </connections>
                 </viewController>

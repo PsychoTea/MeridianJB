@@ -27,7 +27,10 @@
 @property (weak, nonatomic) IBOutlet UIButton *sourceButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
+
+NSString* Version = @"Meridian: Public Beta 4";
 
 id thisClass;
 task_t tfp0;
@@ -49,11 +52,15 @@ bool jailbreak_has_run = false;
     _websiteButton.layer.cornerRadius = 5;
     _sourceButton.layer.cornerRadius = 5;
     
+    [_versionLabel setText:Version];
+    
     // Log current device and version info
     NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
     struct utsname u;
     uname(&u);
+    
+    [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
     
     [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
     
@@ -153,10 +160,10 @@ bool jailbreak_has_run = false;
     kernel_base = kslide + 0xFFFFFFF007004000;
     
     printf("tfp0: %x \n", tfp0);
-    printf("kslide: %llx \n", kslide);
-    printf("kernel_base: %llx \n", kernel_base);
-    printf("kern_ucred: %llx \n", kern_ucred);
-    printf("kernprocaddr = %llx \n", kernprocaddr);
+    printf("kslide: %llx \n", (uint64_t)kslide);
+    printf("kernel_base: %llx \n", (uint64_t)kernel_base);
+    printf("kern_ucred: %llx \n", (uint64_t)kern_ucred);
+    printf("kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
@@ -176,13 +183,15 @@ bool jailbreak_has_run = false;
         }
      
         // check we can write to root
-        if (can_write_root() != 0) {
+        rv = can_write_root();
+        if (rv != 0) {
             [self writeTextPlain:@"failed!"];
             [self writeTextPlain:@"note, this is currently not working on <10.3."];
             return 1;
         }
         
         [self writeText:@"done!"];
+        [self writeTextPlain:[NSString stringWithFormat:@"root remount returned %d", rv]];
     }
     
     {
@@ -323,16 +332,22 @@ bool jailbreak_has_run = false;
 }
 
 -(void) presentPopupSheet:(UIButton *)sender {
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
-                                                                         message:nil
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Advanced Options"
+                                                                         message:@"Only run these if you specifically need to. These do NOT need to be run after jailbreaking."
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
     
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Reinstall Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Re-install Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
             [self installCydia];
         });
         
         [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Delete Cydia" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [self uninstallCydia];
+        });
     }]];
     
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -404,6 +419,38 @@ bool jailbreak_has_run = false;
         return;
     }
     [self writeText:@"done!"];
+    
+    // enable showing of system apps on springboard
+    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-SIGSTOP",
+        "cfprefsd",
+        NULL
+    });
+    NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
+    [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
+    [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
+    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-9",
+        "cfprefsd",
+        NULL
+    });
+}
+
+- (void)uninstallCydia {
+    [self writeText:@"deleting Cydia..."];
+    unlink("/Applications/Cydia.app");
+    [self writeText:@"done!"];
+    
+    [self writeText:@"running uicache..."];
+    int rv = execprog(0, "/meridian/bins/uicache", NULL);
+    if (rv != 0) {
+        [self writeText:@"failed!"];
+        [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache", rv]];
+        return;
+    }
+    [self writeText:@"done!"];
 }
 
 - (void)extractDpkg {
@@ -436,7 +483,7 @@ bool jailbreak_has_run = false;
     
     [self writeTextPlain:@"\n> your device has been freed! \n"];
     
-    [self writeTextPlain:@"note: please click 'done' and click 'extract dpkg' if you wish to get Cydia working. \n"];
+    [self writeTextPlain:@"note: please click 'done' and click 'extract dpkg' if you wish to fix Cydia not opening. \n"];
     
     [self.progressSpinner stopAnimating];
     
