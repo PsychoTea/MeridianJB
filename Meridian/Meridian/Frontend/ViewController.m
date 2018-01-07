@@ -183,13 +183,15 @@ bool jailbreak_has_run = false;
         }
      
         // check we can write to root
-        if (can_write_root() != 0) {
+        rv = can_write_root();
+        if (rv != 0) {
             [self writeTextPlain:@"failed!"];
             [self writeTextPlain:@"note, this is currently not working on <10.3."];
             return 1;
         }
         
         [self writeText:@"done!"];
+        [self writeTextPlain:[NSString stringWithFormat:@"root remount returned %d", rv]];
     }
     
     {
