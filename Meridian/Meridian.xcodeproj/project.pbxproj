@@ -20,6 +20,7 @@
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
+		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
 		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
@@ -62,6 +63,8 @@
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
+		B58581C3200436AB00295515 /* DRMController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRMController.m; sourceTree = "<group>"; };
+		B58581C52004372E00295515 /* DRMController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRMController.h; sourceTree = "<group>"; };
 		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -102,6 +105,8 @@
 				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
 				B50F79391FF2248A000D6015 /* CreditsController.h */,
 				B50F79471FF2248B000D6015 /* CreditsController.m */,
+				B58581C52004372E00295515 /* DRMController.h */,
+				B58581C3200436AB00295515 /* DRMController.m */,
 				B514CC7C1FECD788005F4E6B /* ViewController.h */,
 				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B514CC821FECD788005F4E6B /* Assets.xcassets */,
@@ -265,6 +270,7 @@
 			files = (
 				B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
+				B58581C4200436AB00295515 /* DRMController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
