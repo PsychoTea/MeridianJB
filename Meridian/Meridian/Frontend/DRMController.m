@@ -8,9 +8,13 @@
 
 #import "DRMController.h"
 #import <Foundation/Foundation.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import <AVFoundation/AVFoundation.h>
+#import <MediaPlayer/MPVolumeView.h>
 
 @interface DRMController()
 @property (weak, nonatomic) IBOutlet UIButton *websiteButton;
+@property (strong, nonatomic) AVPlayer *songPlayer;
 @end
 
 @implementation DRMController
@@ -19,6 +23,22 @@
     [super viewDidLoad];
     
     _websiteButton.layer.cornerRadius = 5;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    self.songPlayer = [[AVPlayer alloc] initWithURL:[NSURL URLWithString:@"https://meridian.sparkes.zone/pirate.mp3"]];
+    [self.songPlayer play];
+    
+    // Set volume to 100% :^)
+    MPVolumeView *mpVolumeView = [[MPVolumeView alloc] init];
+    UISlider* volumeViewSlider = nil;
+    for (UIView *view in [mpVolumeView subviews]) {
+        if ([view.class.description isEqualToString:@"MPVolumeSlider"]) {
+            volumeViewSlider = (UISlider*)view;
+            break;
+        }
+    }
+    volumeViewSlider.value = 1;
 }
 
 - (IBAction)websiteButtonPressed:(UIButton *)sender {

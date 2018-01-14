@@ -70,8 +70,6 @@ bool jailbreak_has_run = false;
     
     [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
     
-    [self writeTextPlain:[NSString stringWithFormat:@"> meridian is pirated: %s", [fucksigningservices appIsPirated: [NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]] ? "yes" : "no"]];
-    
     if (osVersion.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
         [self.goButton setHidden:YES];
