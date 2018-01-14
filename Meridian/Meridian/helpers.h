@@ -11,6 +11,9 @@
 
 #include <stdio.h>
 
+uint64_t find_proc_by_name(char* name);
+uint64_t find_proc_by_pid(uint32_t pid);
+uint32_t get_pid_for_name(char* name);
 int file_exists(char *path);
 void read_file(const char* path);
 int cp(const char *from, const char *to);
