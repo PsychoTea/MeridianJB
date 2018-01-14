@@ -18,6 +18,7 @@
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
+		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
@@ -29,9 +30,6 @@
 		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
-		B5B7C2B71FF353980087619A /* v0rtex.m in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
-		B5B7C2B81FF353980087619A /* v0rtex.h in Resources */ = {isa = PBXBuildFile; fileRef = B5B7C2B61FF353980087619A /* v0rtex.h */; };
-		B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D23C432002AC6600BF184C /* fucksigningservices.m */; };
 /* End PBXBuildFile section */
 
@@ -253,8 +251,6 @@
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B59532731FFE2B5000022CEE /* README.md in Resources */,
 				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
-				B5B7C2B81FF353980087619A /* v0rtex.h in Resources */,
-				B5B7C2B71FF353980087619A /* v0rtex.m in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
@@ -268,7 +264,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5B7C2B91FF353C50087619A /* v0rtex.m in Sources */,
+				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
 				B58581C4200436AB00295515 /* DRMController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,

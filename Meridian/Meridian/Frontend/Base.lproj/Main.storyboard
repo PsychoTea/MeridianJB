@@ -230,7 +230,7 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <mutableString key="content">  xerub: r/w remount patch, libjb, patchfinder https://twitter.com/s1guza  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  theninjaprawn: AMFI patch (based off of Ian Beer's) https://twitter.com/theninjaprawn  ARX8x: finding and formatting all possible offsets needed https://twitter.com/ARX8x   </mutableString>
+                                        <string key="content">  xerub: r/w remount patch, libjb, patchfinder https://twitter.com/s1guza  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  theninjaprawn: AMFI patch (based off of Ian Beer's) https://twitter.com/theninjaprawn  ARX8x: finding and formatting all possible offsets needed https://twitter.com/ARX8x   </string>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -323,7 +323,6 @@
         <!--Controller-->
         <scene sceneID="b2V-El-D5m">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ACI-cC-gd6" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <viewController storyboardIdentifier="DRMController" id="VAe-WQ-ewR" customClass="DRMController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lcL-Ac-qDm">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
@@ -341,7 +340,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <attributedString key="attributedText">
                                     <fragment>
-                                        <mutableString key="content">Stop. Fucking. Pirating. Free. JB. Tools.  I don't care if you don't have a computer. Go and find one.  Siging services break shit, and use outdated builds. Then you complain to me about shit not working.  Go and download Meridian from the link below, and install it with Impactor.  Shout out to AppValley, Signulous, AppDB, @JBRelease, and @mohadu313: FUCK. YOU. Don't </mutableString>
+                                        <string key="content">Stop. Fucking. Pirating. Free. JB. Tools.  I don't care if you don't have a computer. Go and find one.  Siging services break shit, and use outdated builds. Then you complain to me about shit not working.  Go and download Meridian from the link below, and install it with Impactor.  Shout out to AppValley, Signulous, AppDB, @JBRelease, and @mohadu313: FUCK. YOU. Don't </string>
                                         <attributes>
                                             <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
@@ -411,8 +410,9 @@
                         <outlet property="websiteButton" destination="mtp-pi-4fX" id="agv-Wh-6Gn"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ACI-cC-gd6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="837.68115942028987" y="770.38043478260875"/>
+            <point key="canvasLocation" x="1567" y="103"/>
         </scene>
     </scenes>
 </document>
