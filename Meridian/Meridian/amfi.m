@@ -94,6 +94,9 @@ void* amfi_main_destroy_thread(void* args) {
     
     sleep(5);
     
+    // s/o to Jonathan Levin (@Morpheus) for the example on using kqueue/kevent
+    // http://newosxbook.com/QiLin/qilin.pdf (pg 21)
+    
     for (;;) {
         int kq = get_kqueue_for_pid(amfi_pid);
         NSLog(@"[inject] got kq for amfi: %d", kq);
@@ -112,10 +115,9 @@ void* amfi_main_destroy_thread(void* args) {
                 sleep(1);
                 new_amfi_pid = get_pid_for_name("amfid");
             }
-            
             amfi_pid = new_amfi_pid;
-            amfi_task = task_for_pid_workaround(amfi_pid);
             
+            amfi_task = task_for_pid_workaround(amfi_pid);
             patch_amfi(amfi_task);
             
             NSLog(@"[inject] fuck you amfi, PATCHED");
