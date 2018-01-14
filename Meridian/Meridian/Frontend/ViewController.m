@@ -33,8 +33,8 @@
 @end
 
 NSString *Version = @"Meridian: Internal Beta 5";
-
 NSFileManager *fileMgr;
+NSOperatingSystemVersion osVersion;
 
 id thisClass;
 task_t tfp0;
@@ -61,7 +61,7 @@ bool jailbreak_has_run = false;
     [_versionLabel setText:Version];
     
     // Log current device and version info
-    NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
+    osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
     struct utsname u;
     uname(&u);
@@ -72,7 +72,7 @@ bool jailbreak_has_run = false;
     
     [self writeTextPlain:[NSString stringWithFormat:@"> meridian is pirated: %s", [fucksigningservices appIsPirated: [NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]] ? "yes" : "no"]];
     
-    if (ver.majorVersion != 10) {
+    if (osVersion.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
         [self.goButton setHidden:YES];
         return;
@@ -87,13 +87,13 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    if (ver.minorVersion < 3) {
+    if (osVersion.minorVersion < 3) {
         [self writeTextPlain:@"WARNING: Meridian is currently broken on versions below iOS 10.3. Stay tuned for updates."];
     }
     
     [self writeTextPlain:@"> ready."];
     
-    printf("App bundle directory: %s \n", bundle_path());
+    NSLog(@"App bundle directory: %s \n", bundle_path());
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -103,6 +103,12 @@ bool jailbreak_has_run = false;
         [self presentViewController:drmController animated:YES completion:nil];
         return;
     }
+}
+
+kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
+    kernel_base = kbase;
+    NSLog(@"Got v0rtex_callback!");
+    return KERN_SUCCESS;
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
@@ -137,7 +143,8 @@ bool jailbreak_has_run = false;
         
         // run v0rtex itself
         int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
-
+        // int ret = v0rtex(&cb, NULL, &tfp0, &kslide, &kern_ucred);
+        
         if (ret != 0)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -181,25 +188,27 @@ bool jailbreak_has_run = false;
 -(int) makeShitHappen {
     int rv;
     
-    kernel_base = kslide + 0xFFFFFFF007004000;
+    //               kernel base     + aslr kern offset
+    kernel_base = 0xFFFFFFF007004000 + kslide;
     
-    printf("tfp0: %x \n", tfp0);
-    printf("kslide: %llx \n", (uint64_t)kslide);
-    printf("kernel_base: %llx \n", (uint64_t)kernel_base);
-    printf("kern_ucred: %llx \n", (uint64_t)kern_ucred);
-    printf("kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
+    NSLog(@"tfp0: %x \n", tfp0);
+    NSLog(@"kslide: %llx \n", (uint64_t)kslide);
+    NSLog(@"kernel_base: %llx \n", (uint64_t)kernel_base);
+    NSLog(@"kern_ucred: %llx \n", (uint64_t)kern_ucred);
+    NSLog(@"kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
         init_patchfinder(tfp0, kernel_base, NULL);
         init_amfi(tfp0);
-        init_kernel(tfp0);
     }
     
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        rv = mount_root(tfp0, kslide);
+        int pre103 = osVersion.minorVersion < 3 ? 1 : 0;
+        [self writeTextPlain:[NSString stringWithFormat:@"is pre103: %d", pre103]];
+        rv = mount_root(tfp0, kslide, kern_ucred, pre103);
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
@@ -233,11 +242,27 @@ bool jailbreak_has_run = false;
         
         [self writeText:@"patching amfi..."];
         
-        rv = patch_amfi();
+        rv = amfi_main_destroy();
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
             return 1;
+        }
+        
+        [self writeText:@"done!"];
+    }
+    
+    {
+        // patch containermanagerd
+        
+        [self writeText:@"patching containermanagerd..."];
+        
+        uint64_t cmgr = find_proc_by_name("containermanager");
+        if (cmgr == 0) {
+            NSLog(@"unable to find containermanager! \n");
+        } else {
+            wk64(cmgr + 0x100, kern_ucred);
+            NSLog(@"patched containermanager \n");
         }
         
         [self writeText:@"done!"];
@@ -389,6 +414,14 @@ bool jailbreak_has_run = false;
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
     
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Uninstall Meridian" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [self uninstallMeridian];
+        });
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
@@ -514,6 +547,20 @@ bool jailbreak_has_run = false;
     [self writeText:@"done!"];
 }
 
+- (void)uninstallMeridian {
+    
+    [self uninstallCydia];
+    
+    [self writeText:@"uninstalling Meridian..."];
+    
+    // delete '/meridian' dir
+    [fileMgr removeItemAtPath:@"/meridian" error:nil];
+    
+    [self writeText:@"done!"];
+    [self writeTextPlain:@"please delete the Meridian app and reboot to finish uninstallation."];
+    [self writeTextPlain:@"goodbye!"];
+}
+
 - (void)exploitSucceeded {
     jailbreak_has_run = true;
     
@@ -574,6 +621,8 @@ bool jailbreak_has_run = false;
         _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
+        
+        NSLog(@"%@", message);
     });
 }
 
