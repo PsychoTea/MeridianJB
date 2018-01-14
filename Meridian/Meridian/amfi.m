@@ -14,8 +14,11 @@
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <mach-o/loader.h>
+#import <mach-o/dyld_images.h>
 #import <sys/stat.h>
+#import <sys/event.h>
 #import <dlfcn.h>
+#import <pthread.h>
 
 #define MAX_REMOTE_ARGS 8
 
@@ -39,7 +42,7 @@ typedef struct _arg_desc {
 } arg_desc;
 
 task_t tfp0;
-mach_port_t amfiTask;
+mach_port_t amfi_task;
 uint64_t trust_cache;
 uint64_t amficache;
 uint64_t blr_x19_addr = 0;
@@ -53,6 +56,71 @@ void init_amfi(task_t task_for_port0) {
     
     printf("trust_cache = 0x%llx \n", trust_cache);
     printf("amficache = 0x%llx \n", amficache);
+}
+
+int amfi_main_destroy() {
+    pthread_t thread;
+    pthread_create(&thread, NULL, amfi_main_destroy_thread, NULL);
+    NSLog(@"[inject] spawned amfid destroyer thread");
+    return 0;
+}
+
+void* amfi_main_destroy_thread(void* args) {
+    NSLog(@"[inject] amfid destroyer thread has been reached");
+    
+    {
+        // copy some files
+        NSLog(@"[amfi] copying in our payload \n");
+        
+        unlink("/meridian/amfid_payload.dylib");
+        cp(bundled_file("amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
+        chmod("/meridian/amfid_payload.dylib", 0777);
+        
+        NSLog(@"[amfi] payload exists: %d", file_exists("/meridian/amfid_payload.dylib"));
+    }
+    
+    {
+        // trust our payload
+        NSLog(@"[amfi] trusting our payload \n");
+        inject_trust("/meridian/amfid_payload.dylib");
+    }
+    
+    pid_t amfi_pid = get_pid_for_name("amfid");
+    NSLog(@"[inject] got amfid pid: %d", amfi_pid);
+    
+    amfi_task = task_for_pid_workaround(amfi_pid);
+    patch_amfi(amfi_task);
+    NSLog(@"[inject] initial amfid patch complete.");
+    
+    sleep(5);
+    
+    for (;;) {
+        int kq = get_kqueue_for_pid(amfi_pid);
+        NSLog(@"[inject] got kq for amfi: %d", kq);
+        
+        struct kevent ke;
+        memset(&ke, '\0', sizeof(struct kevent));
+        int rc = kevent(kq, NULL, 0, &ke, 1, NULL);
+        NSLog(@"[inject] got kevent rc for amfid: %d", rc);
+        
+        if (rc >= 0) {
+            close(kq);
+            NSLog(@"[inject] amfid is dead!");
+            
+            pid_t new_amfi_pid = get_pid_for_name("amfid");
+            while (!new_amfi_pid) {
+                sleep(1);
+                new_amfi_pid = get_pid_for_name("amfid");
+            }
+            
+            amfi_pid = new_amfi_pid;
+            amfi_task = task_for_pid_workaround(amfi_pid);
+            
+            patch_amfi(amfi_task);
+            
+            NSLog(@"[inject] fuck you amfi, PATCHED");
+        }
+    }
 }
 
 uint64_t find_gadget_candidate(char** alternatives, size_t gadget_length) {
@@ -277,74 +345,49 @@ uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
     return ret_val;
 }
 
-int patch_amfi() {
-    {
-        // copy some files
-        printf("[amfi] copying in our payload \n");
-        
-        unlink("/meridian/amfid_payload.dylib");
-        cp(bundled_file("amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
-        chmod("/meridian/amfid_payload.dylib", 0777);
-    }
-    
-    {
-        // trust our payload
-        printf("[amfi] trusting our payload \n");
-        inject_trust("/meridian/amfid_payload.dylib");
-    }
-    
-    printf("finding amfid pid... \n");
-    
-    uint32_t amfi_pid = 0;
-    uint64_t proc = rk64(kernprocaddr + 0x08);
-    while (proc) {
-        uint32_t pid = (uint32_t)rk32(proc + 0x10);
-        
-        char name[40] = {0};
-        tfp0_kread(proc + 0x268 + 0x4, name, 20);
-        
-        if (strstr(name, "amfid")) {
-            amfi_pid = pid;
-        }
-        
-        proc = rk64(proc + 0x08);
-    }
-    
-    printf("found amfid pid: %d \n", amfi_pid);
-    
-    if (amfi_pid == 0) {
-        printf("amfi pid was not found :( \n");
-        return 1;
-    }
-    
-    task_t remoteTask = task_for_pid_workaround(amfi_pid);
-    if (remoteTask == MACH_PORT_NULL) {
-        NSLog(@"[inject] Failed to get task for amfid!");
-        return 2;
-    }
-    
-    amfiTask = (mach_port_t)remoteTask;
-    
-    call_remote(remoteTask, setuid, 1, REMOTE_LITERAL(0));
+int patch_amfi(mach_port_t amfi_port) {
+    call_remote(amfi_port, setuid, 1, REMOTE_LITERAL(0));
     
     NSLog(@"[inject] amfid uid is now 0 - injecting our dylib");
     
-    call_remote(remoteTask, dlopen, 2, REMOTE_CSTRING("/meridian/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
-    uint64_t error = call_remote(remoteTask, dlerror, 0);
+    call_remote(amfi_port, dlopen, 2, REMOTE_CSTRING("/meridian/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
+    uint64_t error = call_remote(amfi_port, dlerror, 0);
     if (error == 0) {
         NSLog(@"[inject] No error occured! Payload injected successfully!");
     } else {
-        uint64_t len = call_remote(remoteTask, strlen, 1, REMOTE_LITERAL(error));
+        uint64_t len = call_remote(amfi_port, strlen, 1, REMOTE_LITERAL(error));
         char* local_cstring = malloc(len +  1);
-        remote_read_overwrite(remoteTask, error, (uint64_t)local_cstring, len+1);
+        remote_read_overwrite(amfi_port, error, (uint64_t)local_cstring, len+1);
         
         NSLog(@"[inject] Error: %s", local_cstring);
         log_message([NSString stringWithFormat:@"amfi error: %s", local_cstring]);
         return 3;
     }
     
-    printf("[amfi] get fucked ya silyl little cunT ;) \n");
+    NSLog(@"[amfi] get fucked ya silyl little cunT ;) \n");
     return 0;
+}
+
+// creds to Jonathan Levin (@Morpheus)
+int get_kqueue_for_pid(pid_t pid) {
+    struct kevent ke;
+    int kq = kqueue();
+    if (kq == -1) {
+        NSLog(@"[inject] unable to create queue: %s", strerror(errno));
+        return -1;
+    }
+    
+    // Set process fork/exec notifications
+    EV_SET(&ke, pid, EVFILT_PROC, EV_ADD, NOTE_EXIT_DETAIL, 0, NULL);
+    // Register event
+    int rc = kevent(kq, &ke, 1, NULL, 0, NULL);
+    
+    if (rc < 0) {
+        NSLog(@"[inject] unable to get kevent %s", strerror(errno));
+        return -2;
+    }
+    
+    return kq;
 }
 
 // creds to stek29(?)
@@ -365,13 +408,13 @@ void inject_trust(const char *path) {
     *(uint64_t *)&fake_chain.uuid[8] = 0xabadbabeabadbabe;
     fake_chain.count = 1;
     
-    uint8_t *codeDir = getCodeDirectory(path);
+    uint8_t *codeDir = get_code_directory(path);
     if (codeDir == NULL) {
-        printf("[amfi] was given null code dir for %s! \n", path);
+        NSLog(@"[amfi] was given null code dir for %s!", path);
         return;
     }
     
-    uint8_t *hash = getSHA1(codeDir);
+    uint8_t *hash = get_sha1(codeDir);
     memmove(fake_chain.hash[0], hash, 20);
     
     free(hash);
@@ -382,11 +425,11 @@ void inject_trust(const char *path) {
     kwrite(kernel_trust, &fake_chain, sizeof(fake_chain));
     wk64(trust_cache, kernel_trust);
     
-    printf("[amfi] signed %s \n", path);
+    NSLog(@"[amfi] signed %s \n", path);
 }
 
 // creds to nullpixel
-uint8_t *getCodeDirectory(const char* name) {
+uint8_t *get_code_directory(const char* name) {
     FILE* fd = fopen(name, "r");
     
     struct mach_header_64 mh;
@@ -417,7 +460,7 @@ uint8_t *getCodeDirectory(const char* name) {
 }
 
 // creds to nullpixel
-uint8_t *getSHA1(uint8_t* code_dir) {
+uint8_t *get_sha1(uint8_t* code_dir) {
     uint8_t *out = malloc(CC_SHA1_DIGEST_LENGTH);
     
     uint32_t* code_dir_int = (uint32_t*)code_dir;
