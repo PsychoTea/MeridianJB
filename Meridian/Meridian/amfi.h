@@ -6,9 +6,8 @@
 //  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
-void init_amfi(task_t task_for_port0);
-int amfi_main_destroy(void);
-void* amfi_main_destroy_thread(void* args);
+void init_amfi();
+int defecate_amfi(void);
 int patch_amfi(mach_port_t amfi_port);
 int get_kqueue_for_pid(pid_t pid);
 void inject_trust(const char *path);

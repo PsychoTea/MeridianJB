@@ -405,13 +405,13 @@ void* hook_funcs(void* arg) {
 
     /* Finding the location of MISValidateSignatureAndCopyInfo from Ian Beer's triple_fetch */
     void* libmis_handle = dlopen("libmis.dylib", RTLD_NOW);
-    if (libmis_handle == NULL){
+    if (libmis_handle == NULL) {
         NSLog(@"Failed to open the dylib!");
         return NULL;
     }
     
     void* sym = dlsym(libmis_handle, "MISValidateSignatureAndCopyInfo");
-    if (sym == NULL){
+    if (sym == NULL) {
         NSLog(@"[amfid_payload] unable to resolve MISValidateSignatureAndCopyInfo\n");
         return NULL;
     }

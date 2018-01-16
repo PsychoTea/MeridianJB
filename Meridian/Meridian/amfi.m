@@ -11,6 +11,7 @@
 #import "amfi.h"
 #import "helpers.h"
 #import "ViewController.h"
+#import "libjb.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <mach-o/loader.h>
@@ -19,377 +20,68 @@
 #import <sys/event.h>
 #import <dlfcn.h>
 #import <pthread.h>
+#import <sys/spawn.h>
 
-#define MAX_REMOTE_ARGS 8
-
-#define REMOTE_LITERAL(val) &(arg_desc){ARG_LITERAL, (uint64_t)val, (uint64_t)0}
-#define REMOTE_CSTRING(str) &(arg_desc){ARG_BUFFER, (uint64_t)str, (uint64_t)(strlen(str)+1)}
-
-extern void _pthread_set_self(pthread_t p);
-
-enum arg_type {
-    ARG_LITERAL,
-    ARG_BUFFER,
-    ARG_BUFFER_PERSISTENT, // don't free the buffer after the call
-    ARG_OUT_BUFFER,
-    ARG_INOUT_BUFFER
-};
-
-typedef struct _arg_desc {
-    uint64_t type;
-    uint64_t value;
-    uint64_t length;
-} arg_desc;
-
-task_t tfp0;
-mach_port_t amfi_task;
 uint64_t trust_cache;
 uint64_t amficache;
-uint64_t blr_x19_addr = 0;
 
-void init_amfi(task_t task_for_port0) {
-    tfp0 = task_for_port0;
+void init_amfi() {
     trust_cache = find_trustcache();
     amficache = find_amficache();
     
     term_kernel();
     
-    printf("trust_cache = 0x%llx \n", trust_cache);
-    printf("amficache = 0x%llx \n", amficache);
+    NSLog(@"[amfi] trust_cache = 0x%llx \n", trust_cache);
+    NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
 }
 
-int amfi_main_destroy() {
-    pthread_t thread;
-    pthread_create(&thread, NULL, amfi_main_destroy_thread, NULL);
-    NSLog(@"[inject] spawned amfid destroyer thread");
-    return 0;
-}
-
-void* amfi_main_destroy_thread(void* args) {
-    NSLog(@"[inject] amfid destroyer thread has been reached");
+int defecate_amfi() {
+    NSLog(@"[amfi] amfid defecation has been reached");
     
     {
         // copy some files
-        NSLog(@"[amfi] copying in our payload \n");
+        NSLog(@"[amfi] copying in our patches \n");
         
+        unlink("/meridian/amfid_fucker");
         unlink("/meridian/amfid_payload.dylib");
-        cp(bundled_file("amfid_payload.dylib"), "/meridian/amfid_payload.dylib");
-        chmod("/meridian/amfid_payload.dylib", 0777);
         
+        cp(bundled_file("amfid.tar"), "/meridian/amfid.tar");
+        chdir("/meridian");
+        untar(fopen("/meridian/amfid.tar", "r+"), "amfid.tar");
+        
+        NSLog(@"[amfi] fucker exists: %d", file_exists("/meridian/amfid_fucker"));
         NSLog(@"[amfi] payload exists: %d", file_exists("/meridian/amfid_payload.dylib"));
     }
     
     {
         // trust our payload
-        NSLog(@"[amfi] trusting our payload \n");
+        NSLog(@"[amfi] trusting our patches \n");
+        inject_trust("/meridian/amfid_fucker");
         inject_trust("/meridian/amfid_payload.dylib");
     }
     
-    pid_t amfi_pid = get_pid_for_name("amfid");
-    NSLog(@"[inject] got amfid pid: %d", amfi_pid);
+    NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
+    NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
     
-    amfi_task = task_for_pid_workaround(amfi_pid);
-    patch_amfi(amfi_task);
-    NSLog(@"[inject] initial amfid patch complete.");
+    char* prog_args[] =  {
+        "/meridian/amfid_fucker",
+        (char *)[kernprocstring UTF8String],
+        NULL
+    };
     
-    sleep(5);
-    
-    // s/o to Jonathan Levin (@Morpheus) for the example on using kqueue/kevent
-    // http://newosxbook.com/QiLin/qilin.pdf (pg 21)
-    
-    for (;;) {
-        int kq = get_kqueue_for_pid(amfi_pid);
-        NSLog(@"[inject] got kq for amfi: %d", kq);
-        
-        struct kevent ke;
-        memset(&ke, '\0', sizeof(struct kevent));
-        int rc = kevent(kq, NULL, 0, &ke, 1, NULL);
-        NSLog(@"[inject] got kevent rc for amfid: %d", rc);
-        
-        if (rc >= 0) {
-            close(kq);
-            NSLog(@"[inject] amfid is dead!");
-            
-            pid_t new_amfi_pid = get_pid_for_name("amfid");
-            while (!new_amfi_pid) {
-                sleep(1);
-                new_amfi_pid = get_pid_for_name("amfid");
-            }
-            amfi_pid = new_amfi_pid;
-            
-            amfi_task = task_for_pid_workaround(amfi_pid);
-            patch_amfi(amfi_task);
-            
-            NSLog(@"[inject] fuck you amfi, PATCHED");
-        }
+    pid_t pd;
+    int rv = posix_spawn(&pd, "/meridian/amfid_fucker", NULL, NULL, prog_args, NULL);
+    if (rv != 0) {
+        NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
+        return rv;
     }
-}
 
-uint64_t find_gadget_candidate(char** alternatives, size_t gadget_length) {
-    void* haystack_start = (void*)atoi;    // will do...
-    size_t haystack_size = 100*1024*1024; // likewise...
+    // i'm not sure if this is needed but i cba to test it without so w/e
+    grant_csflags(pd);
     
-    for (char* candidate = *alternatives; candidate != NULL; alternatives++) {
-        void* found_at = memmem(haystack_start, haystack_size, candidate, gadget_length);
-        if (found_at != NULL){
-            NSLog(@"[inject] found at: %llx\n", (uint64_t)found_at);
-            return (uint64_t)found_at;
-        }
-    }
+    NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
     
-    return 0;
-}
-
-uint64_t find_blr_x19_gadget() {
-    if (blr_x19_addr != 0){
-        return blr_x19_addr;
-    }
-    char* blr_x19 = "\x60\x02\x3f\xd6";
-    char* candidates[] = { blr_x19, NULL };
-    blr_x19_addr = find_gadget_candidate(candidates, 4);
-    return blr_x19_addr;
-}
-
-// Credits to theninjaprawn & Ian Beer for the amfid patch
-uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
-    if (n_params > MAX_REMOTE_ARGS || n_params < 0){
-        NSLog(@"[inject] unsupported number of arguments to remote function (%d)\n", n_params);
-        return 0;
-    }
-    
-    kern_return_t err;
-    
-    uint64_t remote_stack_base = 0;
-    uint64_t remote_stack_size = 4*1024*1024;
-    
-    remote_stack_base = remote_alloc(task_port, remote_stack_size);
-    
-    uint64_t remote_stack_middle = remote_stack_base + (remote_stack_size/2);
-    
-    // create a new thread in the target
-    // just using the mach thread API doesn't initialize the pthread thread-local-storage
-    // which means that stuff which relies on that will crash
-    // we can sort-of make that work by calling _pthread_set_self(NULL) in the target process
-    // which will give the newly created thread the same TLS region as the main thread
-    
-    
-    _STRUCT_ARM_THREAD_STATE64 thread_state = {0};
-    mach_msg_type_number_t thread_stateCnt = sizeof(thread_state)/4;
-    
-    // we'll start the thread running and call _pthread_set_self first:
-    thread_state.__sp = remote_stack_middle;
-    thread_state.__pc = (uint64_t)_pthread_set_self;
-    
-    // set these up to put us into a predictable state we can monitor for:
-    uint64_t loop_lr = find_blr_x19_gadget();
-    thread_state.__x[19] = loop_lr;
-    thread_state.__lr = loop_lr;
-    
-    // set the argument to NULL:
-    thread_state.__x[0] = 0;
-    
-    mach_port_t thread_port = MACH_PORT_NULL;
-    
-    err = thread_create_running(task_port, ARM_THREAD_STATE64, (thread_state_t)&thread_state, thread_stateCnt, &thread_port);
-    if (err != KERN_SUCCESS){
-        NSLog(@"[inject] error creating thread in child: %s\n", mach_error_string(err));
-        return 0;
-    }
-    NSLog(@"[inject] new thread running in child: %x\n", thread_port);
-    
-    // wait for it to hit the loop:
-    while(1) {
-        // monitor the thread until we see it's in the infinite loop indicating it's done:
-        err = thread_get_state(thread_port, ARM_THREAD_STATE64, (thread_state_t)&thread_state, &thread_stateCnt);
-        if (err != KERN_SUCCESS){
-            NSLog(@"[inject] error getting thread state: %s\n", mach_error_string(err));
-            return 0;
-        }
-        
-        if (thread_state.__pc == loop_lr && thread_state.__x[19] == loop_lr){
-            // thread has returned from the target function
-            break;
-        }
-    }
-    
-    // the thread should now have pthread local storage
-    // pause it:
-    
-    err = thread_suspend(thread_port);
-    if (err != KERN_SUCCESS){
-        NSLog(@"[inject] unable to suspend target thread\n");
-        return 0;
-    }
-    
-    // set up for the actual target call:
-    thread_state.__sp = remote_stack_middle;
-    thread_state.__pc = (uint64_t)fptr;
-    
-    // set these up to put us into a predictable state we can monitor for:
-    thread_state.__x[19] = loop_lr;
-    thread_state.__lr = loop_lr;
-    
-    va_list ap;
-    va_start(ap, n_params);
-    
-    arg_desc* args[MAX_REMOTE_ARGS] = {0};
-    
-    uint64_t remote_buffers[MAX_REMOTE_ARGS] = {0};
-    
-    for (int i = 0; i < n_params; i++){
-        arg_desc* arg = va_arg(ap, arg_desc*);
-        
-        args[i] = arg;
-        
-        switch(arg->type){
-            case ARG_LITERAL:
-            {
-                thread_state.__x[i] = arg->value;
-                break;
-            }
-                
-            case ARG_BUFFER:
-            case ARG_BUFFER_PERSISTENT:
-            case ARG_INOUT_BUFFER:
-            {
-                uint64_t remote_buffer = alloc_and_fill_remote_buffer(task_port, arg->value, arg->length);
-                remote_buffers[i] = remote_buffer;
-                thread_state.__x[i] = remote_buffer;
-                break;
-            }
-                
-            case ARG_OUT_BUFFER:
-            {
-                uint64_t remote_buffer = remote_alloc(task_port, arg->length);
-                // NSLog(@"allocated a remote out buffer: %llx\n", remote_buffer);
-                remote_buffers[i] = remote_buffer;
-                thread_state.__x[i] = remote_buffer;
-                break;
-            }
-                
-            default:
-            {
-                NSLog(@"[inject] invalid argument type!\n");
-            }
-        }
-    }
-    
-    va_end(ap);
-    
-    err = thread_set_state(thread_port, ARM_THREAD_STATE64, (thread_state_t)&thread_state, thread_stateCnt);
-    if (err != KERN_SUCCESS){
-        NSLog(@"[inject] error setting new thread state: %s\n", mach_error_string(err));
-        return 0;
-    }
-    NSLog(@"[inject] thread state updated in target: %x\n", thread_port);
-    
-    err = thread_resume(thread_port);
-    if (err != KERN_SUCCESS){
-        NSLog(@"[inject] unable to resume target thread\n");
-        return 0;
-    }
-    
-    while(1) {
-        // monitor the thread until we see it's in the infinite loop indicating it's done:
-        err = thread_get_state(thread_port, ARM_THREAD_STATE64, (thread_state_t)&thread_state, &thread_stateCnt);
-        if (err != KERN_SUCCESS){
-            NSLog(@"error getting thread state: %s\n", mach_error_string(err));
-            return 0;
-        }
-        
-        if (thread_state.__pc == loop_lr/*&& thread_state.__x[19] == loop_lr*/){
-            // thread has returned from the target function
-            break;
-        }
-        
-        // thread isn't in the infinite loop yet, let it continue
-    }
-    
-    // deallocate the remote thread
-    err = thread_terminate(thread_port);
-    if (err != KERN_SUCCESS){
-        NSLog(@"[inject] failed to terminate thread\n");
-        return 0;
-    }
-    mach_port_deallocate(mach_task_self(), thread_port);
-    
-    // handle post-call argument cleanup/copying:
-    for (int i = 0; i < MAX_REMOTE_ARGS; i++){
-        arg_desc* arg = args[i];
-        if (arg == NULL) {
-            break;
-        }
-        switch (arg->type) {
-            case ARG_BUFFER:
-            {
-                remote_free(task_port, remote_buffers[i], arg->length);
-                break;
-            }
-                
-            case ARG_INOUT_BUFFER:
-            case ARG_OUT_BUFFER:
-            {
-                // copy the contents back:
-                remote_read_overwrite(task_port, remote_buffers[i], arg->value, arg->length);
-                remote_free(task_port, remote_buffers[i], arg->length);
-                break;
-            }
-        }
-    }
-    
-    uint64_t ret_val = thread_state.__x[0];
-    
-    NSLog(@"[inject] remote function call return value: %llx\n", ret_val);
-    
-    // deallocate the stack in the target:
-    remote_free(task_port, remote_stack_base, remote_stack_size);
-    
-    return ret_val;
-}
-
-int patch_amfi(mach_port_t amfi_port) {
-    call_remote(amfi_port, setuid, 1, REMOTE_LITERAL(0));
-    
-    NSLog(@"[inject] amfid uid is now 0 - injecting our dylib");
-    
-    call_remote(amfi_port, dlopen, 2, REMOTE_CSTRING("/meridian/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
-    uint64_t error = call_remote(amfi_port, dlerror, 0);
-    if (error == 0) {
-        NSLog(@"[inject] No error occured! Payload injected successfully!");
-    } else {
-        uint64_t len = call_remote(amfi_port, strlen, 1, REMOTE_LITERAL(error));
-        char* local_cstring = malloc(len +  1);
-        remote_read_overwrite(amfi_port, error, (uint64_t)local_cstring, len+1);
-        
-        NSLog(@"[inject] Error: %s", local_cstring);
-        log_message([NSString stringWithFormat:@"amfi error: %s", local_cstring]);
-        return 3;
-    }
-    
-    NSLog(@"[amfi] get fucked ya silyl little cunT ;) \n");
-    return 0;
-}
-
-// creds to Jonathan Levin (@Morpheus)
-int get_kqueue_for_pid(pid_t pid) {
-    struct kevent ke;
-    int kq = kqueue();
-    if (kq == -1) {
-        NSLog(@"[inject] unable to create queue: %s", strerror(errno));
-        return -1;
-    }
-    
-    // Set process fork/exec notifications
-    EV_SET(&ke, pid, EVFILT_PROC, EV_ADD, NOTE_EXIT_DETAIL, 0, NULL);
-    // Register event
-    int rc = kevent(kq, &ke, 1, NULL, 0, NULL);
-    
-    if (rc < 0) {
-        NSLog(@"[inject] unable to get kevent %s", strerror(errno));
-        return -2;
-    }
-    
-    return kq;
+    return rv;
 }
 
 // creds to stek29(?)
