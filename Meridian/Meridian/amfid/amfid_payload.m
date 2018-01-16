@@ -398,20 +398,20 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     return 0;
 }
 
-void* thd_func(void* arg){
+void* hook_funcs(void* arg) {
     if (binary_load_address() == -1) {
         return NULL;
     }
 
     /* Finding the location of MISValidateSignatureAndCopyInfo from Ian Beer's triple_fetch */
     void* libmis_handle = dlopen("libmis.dylib", RTLD_NOW);
-    if (libmis_handle == NULL){
+    if (libmis_handle == NULL) {
         NSLog(@"Failed to open the dylib!");
         return NULL;
     }
     
     void* sym = dlsym(libmis_handle, "MISValidateSignatureAndCopyInfo");
-    if (sym == NULL){
+    if (sym == NULL) {
         NSLog(@"[amfid_payload] unable to resolve MISValidateSignatureAndCopyInfo\n");
         return NULL;
     }
@@ -443,6 +443,6 @@ void* thd_func(void* arg){
 __attribute__ ((constructor))
 static void ctor(void) {
     NSLog(@"[amfid_payload] Preparing to fuck up amfid :)");
-    pthread_t thd;
-    pthread_create(&thd, NULL, thd_func, NULL);
+    pthread_t thread;
+    pthread_create(&thread, NULL, hook_funcs, NULL);
 }

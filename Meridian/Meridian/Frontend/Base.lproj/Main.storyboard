@@ -230,7 +230,7 @@
                                         </attributes>
                                     </fragment>
                                     <fragment>
-                                        <string key="content">  xerub: r/w remont patch, libjb, patchfinder https://twitter.com/s1guza  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  theninjaprawn: AMFI patch (based off of Ian Beer's) https://twitter.com/theninjaprawn  ARX8x: finding and formatting all possible offsets needed https://twitter.com/ARX8x   </string>
+                                        <string key="content">  xerub: r/w remount patch, libjb, patchfinder https://twitter.com/s1guza  stek29: original inspiration for the project, along with endless help with everything from root remount to AMFI https://twitter.com/stek29  theninjaprawn: AMFI patch (based off of Ian Beer's) https://twitter.com/theninjaprawn  ARX8x: finding and formatting all possible offsets needed https://twitter.com/ARX8x   </string>
                                         <attributes>
                                             <font key="NSFont" metaFont="system" size="14"/>
                                         </attributes>
@@ -319,6 +319,100 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qAG-hS-AfD" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="837.68115942028987" y="102.71739130434783"/>
+        </scene>
+        <!--Controller-->
+        <scene sceneID="b2V-El-D5m">
+            <objects>
+                <viewController storyboardIdentifier="DRMController" id="VAe-WQ-ewR" customClass="DRMController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="lcL-Ac-qDm">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Meridian" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="InS-lf-uE9">
+                                <rect key="frame" x="18" y="20" width="378" height="66"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="55"/>
+                                <color key="textColor" red="1" green="0.9814729436386711" blue="0.93437523421379287" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QcV-6L-5go">
+                                <rect key="frame" x="20" y="94" width="374" height="580"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <attributedString key="attributedText">
+                                    <fragment>
+                                        <string key="content">Stop. Fucking. Pirating. Free. JB. Tools.  I don't care if you don't have a computer. Go and find one.  Siging services break shit, and use outdated builds. Then you complain to me about shit not working.  Go and download Meridian from the link below, and install it with Impactor.  Shout out to AppValley, Signulous, AppDB, @JBRelease, and @mohadu313: FUCK. YOU. Don't </string>
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <font key="NSOriginalFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="fucking">
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-BoldItalic"/>
+                                            <font key="NSOriginalFont" size="20" name="HelveticaNeue-BoldItalic"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content=" rehost my shit without ">
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <font key="NSOriginalFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="my ">
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="permission. ">
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <font key="NSOriginalFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="  Cunts.">
+                                        <attributes>
+                                            <color key="NSColor" red="0.98577856469232295" green="1" blue="0.92849849105208893" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" size="20" name="HelveticaNeue-Medium"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mtp-pi-4fX">
+                                <rect key="frame" x="117" y="667" width="180" height="49"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.93466443290000001" green="0.94391853619999999" blue="0.94391853619999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
+                                <state key="normal" title="website">
+                                    <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="websiteButtonPressed:" destination="VAe-WQ-ewR" eventType="touchUpInside" id="Hph-5l-2Gv"/>
+                                    <action selector="websiteButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ccj-t6-Knb"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <viewLayoutGuide key="safeArea" id="Nk3-IK-DCY"/>
+                    </view>
+                    <connections>
+                        <outlet property="websiteButton" destination="mtp-pi-4fX" id="agv-Wh-6Gn"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ACI-cC-gd6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1567" y="103"/>
         </scene>
     </scenes>
 </document>
