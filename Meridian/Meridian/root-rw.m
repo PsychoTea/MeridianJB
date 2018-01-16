@@ -20,12 +20,7 @@
 #define VNODE_V_UN_OTHER  0xd0
 
 // props to xerub for the original '/' r/w remount code
-int mount_root(task_t tfp0, uint64_t kslide, uint64_t kern_cred, int pre103) {
-    if (pre103 == 1) {
-        // fix containermanagerd ?
-        
-    }
-    
+int mount_root(task_t tfp0, uint64_t kslide) {
     uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     
     NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
@@ -49,12 +44,9 @@ int mount_root(task_t tfp0, uint64_t kslide, uint64_t kern_cred, int pre103) {
     wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~(MNT_ROOTFS >> 8));
     
     // remount
-    kern_return_t rv = KERN_SUCCESS;
-    if (pre103 == 0) {
-        char *nmz = strdup("/dev/disk0s1s1");
-        rv = mount("hfs", "/", MNT_UPDATE, (void *)&nmz);
-        NSLog(@"remounting: %d", rv);
-    }
+    char *nmz = strdup("/dev/disk0s1s1");
+    kern_return_t rv = mount("hfs", "/", MNT_UPDATE, (void *)&nmz);
+    NSLog(@"remounting: %d", rv);
     
     // set original flags back
     v_mount = rk64(rootfs_vnode + off);
