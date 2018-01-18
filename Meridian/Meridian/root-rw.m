@@ -20,13 +20,17 @@
 #define VNODE_V_UN_OTHER  0xd0
 
 // props to xerub for the original '/' r/w remount code
-int mount_root(task_t tfp0, uint64_t kslide) {
-    uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
+int mount_root(task_t tfp0, uint64_t kslide, int pre130) {
+    // uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
+    uint64_t _rootnode = find_gPhysBase() + 0x38;
     
-    NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
+    if (pre130) {
+        _rootnode -= 0x48000;
+    }
+    
+    NSLog(@"offset = %llx", OFFSET_ROOTVNODE + kslide);
     NSLog(@"_rootnode = %llx", _rootnode);
     
-    // uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     uint64_t rootfs_vnode = rk64(_rootnode);
     
     uint64_t off = VNODE_V_UN;
