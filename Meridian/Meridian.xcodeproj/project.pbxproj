@@ -24,7 +24,6 @@
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
 		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
-		B59532731FFE2B5000022CEE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B59532711FFE2B5000022CEE /* README.md */; };
 		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
 		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
@@ -246,13 +245,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
-				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
-				B5E8D92A200E75B70059BCED /* amfid.tar in Resources */,
-				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
-				B59532731FFE2B5000022CEE /* README.md in Resources */,
-				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
+				B5E8D92A200E75B70059BCED /* amfid.tar in Resources */,
+				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
+				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
+				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
+				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 			);

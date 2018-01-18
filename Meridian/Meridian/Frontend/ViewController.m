@@ -225,7 +225,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         if (pre130) {
             [self writeTextPlain:@"is pre-130"];
         }
-        int mount_rt = mount_root(tfp0, kslide, pre130);
+        int mount_rt = mount_root(kslide, pre130);
         if (mount_rt != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
