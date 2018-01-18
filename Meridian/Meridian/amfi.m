@@ -29,8 +29,6 @@ void init_amfi() {
     trust_cache = find_trustcache();
     amficache = find_amficache();
     
-    term_kernel();
-    
     NSLog(@"[amfi] trust_cache = 0x%llx \n", trust_cache);
     NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
 }
