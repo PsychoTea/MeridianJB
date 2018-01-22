@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/utsname.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 #define MOUNT_MNT_FLAG    0x71
 #define VNODE_V_UN        0xd8
@@ -44,7 +46,7 @@ uint64_t ktask_self_addr(void) {
 
     if (cached == 0) {
         uint64_t self_proc = find_proc_by_pid(getpid());
-        cached = rk64(self_proc + OFF_PROC__TASKMeridian/Meridian/amfid.tar);
+        cached = rk64(self_proc + OFF_PROC__TASK);
     }
 
     return cached;
@@ -69,12 +71,22 @@ bool fix_root_iswriteprotected(void) {
 
     uint64_t lwvm_kaddr = rk64(inkernel + OFF_IPC_PORT__IP_KOBJECT);
     uint64_t rootp_kaddr = rk64(lwvm_kaddr + OFF_LWVM__PARTITIONS);
+    uint64_t varp_kaddr = rk64(lwvm_kaddr + OFF_LWVM__PARTITIONS + sizeof(void*));
+
     uint64_t rootp_iswp_addr = rootp_kaddr + OFF_LWVMPART__ISWP;
-    // assert(rk64(rootp_iswp_addr) == 1)
+    uint64_t varp_iswp_addr = varp_kaddr + OFF_LWVMPART__ISWP;
+    if (rk64(varp_iswp_addr) != 0) {
+        printf("rk64(varp_iswp_addr) != 0!\n");
+        return false;
+    }
+    if (rk64(rootp_iswp_addr) != 1) {
+        printf("rk64(rootp_iswp_addr) != 1!\n");
+    }
     wk64(rootp_iswp_addr, 0);
     return true;
 }
 
+#define BOOTARGS_PATCH "rd=mdx"
 bool fake_rootedramdisk(void) {
     unsigned cmdline_offset;
     uint64_t pestate_bootargs = find_boot_args(&cmdline_offset);
@@ -90,8 +102,24 @@ bool fake_rootedramdisk(void) {
     char buf_bootargs[256];
 
     rkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
-    strcat(buf_bootargs, " rd=md0 ");
+    strcat(buf_bootargs, BOOTARGS_PATCH);
     wkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
+
+    bzero(buf_bootargs, sizeof(buf_bootargs));
+    size_t size = sizeof(buf_bootargs);
+    int err = sysctlbyname("kern.bootargs", buf_bootargs, &size, NULL, 0);
+
+    if (err) {
+        printf("sysctlbyname(kern.bootargs) failed\n");
+        return false;
+    }
+
+    if (strstr(buf_bootargs, BOOTARGS_PATCH) == NULL) {
+        printf("kern.bootargs doesn't contain '" BOOTARGS_PATCH "' after patch!\n");
+        printf("kern.bootargs: '%s'\n", buf_bootargs);
+        return false;
+    }
+
     return true;
 }
 
@@ -133,7 +161,8 @@ int remount_root(task_t tfp0, uint64_t kslide) {
 
 
 int mount_root(task_t tfp0, uint64_t kslide) {
-    (fix_root_iswriteprotected() && fake_rootedramdisk());
+    if (!fix_root_iswriteprotected()) printf("fix_root_iswriteprotected fail\n");
+    if (!fake_rootedramdisk()) printf("fake_rootedramdisk fail\n");
 
     return remount_root(tfp0, kslide);
 }
