@@ -32,7 +32,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: Internal Beta 5";
+NSString *Version = @"Meridian: Public Beta 5";
 NSFileManager *fileMgr;
 NSOperatingSystemVersion osVersion;
 
@@ -189,40 +189,60 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     //               kernel base     + aslr kern offset
     kernel_base = 0xFFFFFFF007004000 + kslide;
     
-    NSLog(@"tfp0: %x \n", tfp0);
-    NSLog(@"kslide: %llx \n", (uint64_t)kslide);
-    NSLog(@"kernel_base: %llx \n", (uint64_t)kernel_base);
-    NSLog(@"kern_ucred: %llx \n", (uint64_t)kern_ucred);
-    NSLog(@"kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
+    NSLog(@"tfp0: %x", tfp0);
+    NSLog(@"kslide: %llx", (uint64_t)kslide);
+    NSLog(@"kernel_base: %llx", (uint64_t)kernel_base);
+    NSLog(@"kern_ucred: %llx", (uint64_t)kern_ucred);
+    NSLog(@"kernprocaddr = %llx", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
+        init_kernel(tfp0);
         init_patchfinder(tfp0, kernel_base, NULL);
-        init_amfi(tfp0);
+        init_amfi();
+    }
+    
+    {
+        // patch containermanagerd
+        
+        [self writeText:@"patching containermanagerd..."];
+        
+        uint64_t cmgr = find_proc_by_name("containermanager");
+        if (cmgr == 0) {
+            NSLog(@"unable to find containermanager! \n");
+        } else {
+            wk64(cmgr + 0x100, kern_ucred);
+            NSLog(@"patched containermanager");
+        }
+        
+        [self writeText:@"done!"];
     }
     
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        int pre103 = osVersion.minorVersion < 3 ? 1 : 0;
-        [self writeTextPlain:[NSString stringWithFormat:@"is pre103: %d", pre103]];
-        rv = mount_root(tfp0, kslide, kern_ucred, pre103);
-        if (rv != 0) {
+        int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
+        if (pre130) {
+            [self writeTextPlain:@"is pre-130"];
+        }
+        int mount_rt = mount_root(kslide, pre130);
+        if (mount_rt != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
+            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
+            [self writeTextPlain:[NSString stringWithFormat:@"errno: %u strerror: %s", errno, strerror(errno)]];
             return 1;
         }
      
         // check we can write to root
         rv = can_write_root();
         if (rv != 0) {
-            [self writeTextPlain:@"failed!"];
+            [self writeText:@"failed!"];
             [self writeTextPlain:@"note, this is currently not working on <10.3."];
             return 1;
         }
         
         [self writeText:@"done!"];
-        [self writeTextPlain:[NSString stringWithFormat:@"root remount returned %d", rv]];
+        [self writeTextPlain:[NSString stringWithFormat:@"root remount returned %d & %d", mount_rt, rv]];
     }
     
     {
@@ -240,27 +260,11 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         [self writeText:@"patching amfi..."];
         
-        rv = amfi_main_destroy();
+        rv = defecate_amfi();
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
             return 1;
-        }
-        
-        [self writeText:@"done!"];
-    }
-    
-    {
-        // patch containermanagerd
-        
-        [self writeText:@"patching containermanagerd..."];
-        
-        uint64_t cmgr = find_proc_by_name("containermanager");
-        if (cmgr == 0) {
-            NSLog(@"unable to find containermanager! \n");
-        } else {
-            wk64(cmgr + 0x100, kern_ucred);
-            NSLog(@"patched containermanager \n");
         }
         
         [self writeText:@"done!"];
@@ -339,8 +343,8 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // trust dropbear & sh (idk why we still need to do this, *shrug*)
-        // I guess the amfi patch takes a moment to come into effect...?
+        // amfid patch takes a moment to come into effect, and
+        // i cba to wait, so we'll just trust these manually
         [self writeText:@"trusting files..."];
         inject_trust("/meridian/bins/dropbear");
         inject_trust("/bin/sh");
@@ -351,7 +355,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
         
-        rv = execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
+        rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",
             "2222",
@@ -446,7 +450,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     {
         [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
         
-        rv = execprog(0, "/meridian/bins/uicache", NULL);
+        rv = uicache();
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (1)", rv]];
@@ -471,7 +475,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     
     // run uicache
     [self writeText:@"running uicache..."];
-    rv = execprog(0, "/meridian/bins/uicache", NULL);
+    rv = uicache();
     if (rv != 0) {
         [self writeText:@"failed!"];
         [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (2)", rv]];
@@ -481,7 +485,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     
     // enable showing of system apps on springboard
     // this is some funky killall stuff tho
-    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
         "/meridian/bins/killall",
         "-SIGSTOP",
         "cfprefsd",
@@ -490,7 +494,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
     [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
     [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
-    execprog(0, "/meridian/bins/killall", (const char**)&(const char*[]) {
+    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
         "/meridian/bins/killall",
         "-9",
         "cfprefsd",
@@ -506,7 +510,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     
     // run uicache
     [self writeText:@"running uicache..."];
-    int rv = execprog(0, "/meridian/bins/uicache", NULL);
+    int rv = uicache();
     if (rv != 0) {
         [self writeText:@"failed!"];
         [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache", rv]];

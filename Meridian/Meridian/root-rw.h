@@ -9,5 +9,5 @@
 #include <mach/mach.h>
 #include <sys/mount.h>
 
-int mount_root(task_t tfp0, uint64_t kslide, uint64_t kern_cred, int pre103);
+int mount_root(uint64_t kslide, int pre130);
 int can_write_root(void);

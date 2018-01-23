@@ -229,8 +229,7 @@ mach_port_t task_for_pid_workaround(int pid) {
         exit(1);
     }
     
-    for (int i = 0; i < numTasks; i++)
-    {
+    for (int i = 0; i < numTasks; i++) {
         int t_pid;
         pid_for_task(tasks[i], &t_pid);
         if (pid == t_pid) return (tasks[i]);
