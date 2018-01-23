@@ -159,12 +159,23 @@ int remount_root(task_t tfp0, uint64_t kslide) {
     return rv;
 }
 
+bool can_touch_root(void) {
+    int fd = open("/.test_hfs_patch", O_CREAT | O_WRONLY, 0666);
+    if (fd == -1) {
+        return false;
+    }
+    close(fd);
+    unlink("/.test_hfs_patch");
+    return true;
+}
 
 int mount_root(task_t tfp0, uint64_t kslide) {
     if (!fix_root_iswriteprotected()) printf("fix_root_iswriteprotected fail\n");
     if (!fake_rootedramdisk()) printf("fake_rootedramdisk fail\n");
 
-    return remount_root(tfp0, kslide);
+    int ret = remount_root(tfp0, kslide);
+    if (ret == 0 && !can_touch_root()) ret = -123;
+    return ret;
 }
 
 int can_write_root() {
