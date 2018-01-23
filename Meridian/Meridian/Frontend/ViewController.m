@@ -189,14 +189,15 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     //               kernel base     + aslr kern offset
     kernel_base = 0xFFFFFFF007004000 + kslide;
     
-    NSLog(@"tfp0: %x \n", tfp0);
-    NSLog(@"kslide: %llx \n", (uint64_t)kslide);
-    NSLog(@"kernel_base: %llx \n", (uint64_t)kernel_base);
-    NSLog(@"kern_ucred: %llx \n", (uint64_t)kern_ucred);
-    NSLog(@"kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
+    NSLog(@"tfp0: %x", tfp0);
+    NSLog(@"kslide: %llx", (uint64_t)kslide);
+    NSLog(@"kernel_base: %llx", (uint64_t)kernel_base);
+    NSLog(@"kern_ucred: %llx", (uint64_t)kern_ucred);
+    NSLog(@"kernprocaddr = %llx", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
+        init_kernel(tfp0);
         init_patchfinder(tfp0, kernel_base, NULL);
         init_amfi();
     }
@@ -220,10 +221,15 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        int mount_rt = mount_root(tfp0, kslide);
+        int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
+        if (pre130) {
+            [self writeTextPlain:@"is pre-130"];
+        }
+        int mount_rt = mount_root(kslide, pre130);
         if (mount_rt != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
+            [self writeTextPlain:[NSString stringWithFormat:@"errno: %u strerror: %s", errno, strerror(errno)]];
             return 1;
         }
      
@@ -337,8 +343,8 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // trust dropbear & sh (idk why we still need to do this, *shrug*)
-        // I guess the amfi patch takes a moment to come into effect...?
+        // amfid patch takes a moment to come into effect, and
+        // i cba to wait, so we'll just trust these manually
         [self writeText:@"trusting files..."];
         inject_trust("/meridian/bins/dropbear");
         inject_trust("/bin/sh");
