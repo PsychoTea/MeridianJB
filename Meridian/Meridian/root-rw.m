@@ -22,7 +22,6 @@
 #define VNODE_V_UN        0xd8
 #define VNODE_V_UN_OTHER  0xd0
 
-
 const unsigned OFF_LWVM__PARTITIONS = 0x1a0;
 const unsigned OFF_LWVMPART__ISWP = 0x28;
 const unsigned OFF_PROC__TASK = 0x18;
@@ -41,32 +40,12 @@ CFMutableDictionaryRef IOServiceMatching(const char *name) CF_RETURNS_RETAINED;
 io_service_t IOServiceGetMatchingService(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT);
 kern_return_t IOServiceOpen(io_service_t service, task_port_t owningTask, uint32_t type, io_connect_t *connect);
 
-uint64_t ktask_self_addr(void) {
-    uint64_t cached = 0;
-
-    if (cached == 0) {
-        uint64_t self_proc = find_proc_by_pid(getpid());
-        cached = rk64(self_proc + OFF_PROC__TASK);
-    }
-
-    return cached;
-}
-
-// from Ian Beer's find_port.c
-uint64_t find_port_address(mach_port_name_t port) {
-    uint64_t task_addr = ktask_self_addr();
-    uint64_t itk_space = rk64(task_addr + OFF_TASK__ITK_SPACE);
-    uint64_t is_table = rk64(itk_space + OFF_IPC_SPACE__IS_TABLE);
-
-    uint32_t port_index = port >> 8;
-    uint64_t port_addr = rk64(is_table + (port_index * SIZ_IPC_ENTRY_T));
-    return port_addr;
-}
-
-bool fix_root_iswriteprotected(void) {
+bool fix_root_iswriteprotected() {
     io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("LightweightVolumeManager"));
-    if (!MACH_PORT_VALID(service)) return false;
-
+    if (!MACH_PORT_VALID(service)) {
+        return false;
+    }
+    
     uint64_t inkernel = find_port_address(service);
 
     uint64_t lwvm_kaddr = rk64(inkernel + OFF_IPC_PORT__IP_KOBJECT);
@@ -75,13 +54,16 @@ bool fix_root_iswriteprotected(void) {
 
     uint64_t rootp_iswp_addr = rootp_kaddr + OFF_LWVMPART__ISWP;
     uint64_t varp_iswp_addr = varp_kaddr + OFF_LWVMPART__ISWP;
+    
+    // Check we found the right values
     if (rk64(varp_iswp_addr) != 0) {
-        printf("rk64(varp_iswp_addr) != 0!\n");
+        NSLog(@"rk64(varp_iswp_addr) != 0!");
         return false;
     }
     if (rk64(rootp_iswp_addr) != 1) {
-        printf("rk64(rootp_iswp_addr) != 1!\n");
+        NSLog(@"rk64(rootp_iswp_addr) != 1!");
     }
+    
     wk64(rootp_iswp_addr, 0);
     return true;
 }
@@ -110,13 +92,13 @@ bool fake_rootedramdisk(void) {
     int err = sysctlbyname("kern.bootargs", buf_bootargs, &size, NULL, 0);
 
     if (err) {
-        printf("sysctlbyname(kern.bootargs) failed\n");
+        NSLog(@"sysctlbyname(kern.bootargs) failed");
         return false;
     }
 
     if (strstr(buf_bootargs, BOOTARGS_PATCH) == NULL) {
-        printf("kern.bootargs doesn't contain '" BOOTARGS_PATCH "' after patch!\n");
-        printf("kern.bootargs: '%s'\n", buf_bootargs);
+        NSLog(@"kern.bootargs doesn't contain '%s' after patch!", BOOTARGS_PATCH);
+        NSLog(@"kern.bootargs: '%s'", buf_bootargs);
         return false;
     }
 
@@ -124,7 +106,7 @@ bool fake_rootedramdisk(void) {
 }
 
 // props to xerub for the original '/' r/w remount code
-int remount_root(task_t tfp0, uint64_t kslide) {
+int remount_root(uint64_t kslide) {
     uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     
     NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
@@ -159,23 +141,20 @@ int remount_root(task_t tfp0, uint64_t kslide) {
     return rv;
 }
 
-bool can_touch_root(void) {
-    int fd = open("/.test_hfs_patch", O_CREAT | O_WRONLY, 0666);
-    if (fd == -1) {
-        return false;
+int mount_root(uint64_t kslide, int pre130) {
+    if (pre130) {
+        NSLog(@"pre-10.3 detected: patching lwvm...");
+        if (!fix_root_iswriteprotected()) {
+            NSLog(@"fix_root_iswriteprotected failed!");
+            return -61;
+        }
+        if (!fake_rootedramdisk()) {
+            NSLog(@"fake_rootedramdisk failed!");
+            return -62;
+        }
     }
-    close(fd);
-    unlink("/.test_hfs_patch");
-    return true;
-}
-
-int mount_root(task_t tfp0, uint64_t kslide) {
-    if (!fix_root_iswriteprotected()) printf("fix_root_iswriteprotected fail\n");
-    if (!fake_rootedramdisk()) printf("fake_rootedramdisk fail\n");
-
-    int ret = remount_root(tfp0, kslide);
-    if (ret == 0 && !can_touch_root()) ret = -123;
-    return ret;
+    
+    return remount_root(kslide);
 }
 
 int can_write_root() {
