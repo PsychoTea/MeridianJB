@@ -32,7 +32,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: Public Beta 5";
+NSString *Version = @"Meridian: Public Beta 6";
 NSFileManager *fileMgr;
 NSOperatingSystemVersion osVersion;
 
@@ -189,21 +189,21 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     //               kernel base     + aslr kern offset
     kernel_base = 0xFFFFFFF007004000 + kslide;
     
-    NSLog(@"tfp0: %x \n", tfp0);
-    NSLog(@"kslide: %llx \n", (uint64_t)kslide);
-    NSLog(@"kernel_base: %llx \n", (uint64_t)kernel_base);
-    NSLog(@"kern_ucred: %llx \n", (uint64_t)kern_ucred);
-    NSLog(@"kernprocaddr = %llx \n", (uint64_t)kernprocaddr);
+    NSLog(@"tfp0: %x", tfp0);
+    NSLog(@"kslide: %llx", (uint64_t)kslide);
+    NSLog(@"kernel_base: %llx", (uint64_t)kernel_base);
+    NSLog(@"kern_ucred: %llx", (uint64_t)kern_ucred);
+    NSLog(@"kernprocaddr = %llx", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
+        init_kernel(tfp0);
         init_patchfinder(tfp0, kernel_base, NULL);
         init_amfi();
     }
     
     {
-        // patch containermanagerd
-        
+        // patch containermanagerd (why? who knows. fun.)
         [self writeText:@"patching containermanagerd..."];
         
         uint64_t cmgr = find_proc_by_name("containermanager");
@@ -220,10 +220,12 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        int mount_rt = mount_root(tfp0, kslide);
+        int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
+        int mount_rt = mount_root(kslide, pre130);
         if (mount_rt != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
+            [self writeTextPlain:[NSString stringWithFormat:@"errno: %u strerror: %s", errno, strerror(errno)]];
             return 1;
         }
      
@@ -231,12 +233,10 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         rv = can_write_root();
         if (rv != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:@"note, this is currently not working on <10.3."];
             return 1;
         }
         
         [self writeText:@"done!"];
-        [self writeTextPlain:[NSString stringWithFormat:@"root remount returned %d & %d", mount_rt, rv]];
     }
     
     {
@@ -250,8 +250,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // patch amfi
-        
+        // patch amfi ;)
         [self writeText:@"patching amfi..."];
         
         rv = defecate_amfi();
@@ -265,63 +264,48 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // uncomment if we wanna replace shit
-//        [self writeText:@"removing old files..."];
-//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/dpkg.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-//        [self writeText:@"done!"];
-    }
-    
-    {
-        // copy in our bins and shit
-        [self writeText:@"copying bins..."];
+        // TEMPORARY: remove old bins
+        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
         
-        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
-        {
+        // extract our bootstrap
+        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO) {
+            [self writeText:@"extracting binaries..."];
+            
             [self extractBootstrap];
+            
+            [self writeText:@"done!"];
         }
-        
-        // unpack bash (dropbear requires it be called 'sh', so)
-        if ([fileMgr fileExistsAtPath:@"/bin/sh"] == NO)
-        {
-            [fileMgr copyItemAtPath:@"/meridian/bins/bash"
-                             toPath:@"/bin/sh"
-                              error:nil];
-        }
-        
-        [self writeText:@"done!"];
     }
     
     {
         // create dir's and files for dropbear
-        [self writeText:@"setting up the envrionment..."];
-        
-        mkdir("/etc", 0777);
-        mkdir("/etc/dropbear", 0777);
-        mkdir("/var", 0777);
-        mkdir("/var/log", 0777);
-        touch_file("/var/log/lastlog");
-        
-        if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/mobile/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                       dataUsingEncoding:NSASCIIStringEncoding]
-                           attributes:nil];
+        if (file_exists("/etc/dropbear") != 0 ||
+            file_exists("/var/log/lastlog") != 0 ||
+            file_exists("/var/root/.profile") != 0) {
+            [self writeText:@"setting up the envrionment..."];
+            
+            mkdir("/etc", 0777);
+            mkdir("/etc/dropbear", 0777);
+            mkdir("/var", 0777);
+            mkdir("/var/log", 0777);
+            touch_file("/var/log/lastlog");
+            
+            if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
+                [fileMgr createFileAtPath:@"/var/mobile/.profile"
+                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
+                                           dataUsingEncoding:NSASCIIStringEncoding]
+                               attributes:nil];
+            }
+            
+            if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
+                [fileMgr createFileAtPath:@"/var/root/.profile"
+                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
+                                           dataUsingEncoding:NSASCIIStringEncoding]
+                               attributes:nil];
+            }
+            
+            [self writeText:@"done!"];
         }
-        
-        if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/root/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                       dataUsingEncoding:NSASCIIStringEncoding]
-                           attributes:nil];
-        }
-        
-        [self writeText:@"done!"];
     }
     
     {
@@ -330,24 +314,18 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         // install Cydia
         if (file_exists("/meridian/.cydia_installed") != 0 &&
-            file_exists("/Applications/Cydia.app") != 0)
-        {
+            file_exists("/Applications/Cydia.app") != 0) {
             [self installCydia];
         }
     }
     
     {
-        // trust dropbear & sh (idk why we still need to do this, *shrug*)
-        // I guess the amfi patch takes a moment to come into effect...?
-        [self writeText:@"trusting files..."];
-        inject_trust("/meridian/bins/dropbear");
-        inject_trust("/bin/sh");
-        [self writeText:@"done!"];
-    }
-    
-    {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
+    
+        // amfid patch takes a moment to come into effect, and
+        // i cba to wait, so we'll just trust this manually
+        inject_trust("/meridian/bins/dropbear");
         
         rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
@@ -363,7 +341,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         if (rv != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn", rv]];
+            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn: %s", rv, strerror(rv)]];
             return 1;
         }
         

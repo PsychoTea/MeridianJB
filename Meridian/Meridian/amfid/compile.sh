@@ -1,3 +1,5 @@
+export PATH="$PATH:$HOME/bin"
+
 currDir=$(dirname $0)
 
 cd $currDir

@@ -8,6 +8,7 @@
 
 #include "kernel.h"
 #include "common.h"
+#include "helpers.h"
 #include <mach/mach.h>
 
 task_t tfp0;
@@ -202,6 +203,11 @@ uint64_t binary_load_address(mach_port_t tp) {
     return target_first_addr;
 }
 
+uint64_t ktask_self_addr() {
+    uint64_t self_proc = find_proc_by_pid(getpid());
+    return rk64(self_proc + 0x18);
+}
+
 // credits to Jonathan Levin (Morpheus) for this awesome workaround
 // http://newosxbook.com/articles/PST2.html
 mach_port_t task_for_pid_workaround(int pid) {
@@ -236,4 +242,15 @@ mach_port_t task_for_pid_workaround(int pid) {
     }
     
     return MACH_PORT_NULL;
+}
+
+// from Ian Beer's find_port.c
+uint64_t find_port_address(mach_port_name_t port) {
+    uint64_t task_addr = ktask_self_addr();
+    uint64_t itk_space = rk64(task_addr + 0x300);
+    uint64_t is_table = rk64(itk_space + 0x20);
+    
+    uint32_t port_index = port >> 8;
+    uint64_t port_addr = rk64(is_table + (port_index * 0x18));
+    return port_addr;
 }
