@@ -32,7 +32,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: Internal Beta 6";
+NSString *Version = @"Meridian: Public Beta 6";
 NSFileManager *fileMgr;
 NSOperatingSystemVersion osVersion;
 
