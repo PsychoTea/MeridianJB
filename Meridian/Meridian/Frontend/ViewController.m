@@ -85,10 +85,6 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    if (osVersion.minorVersion < 3) {
-        [self writeTextPlain:@"WARNING: Meridian is currently broken on versions below iOS 10.3. Stay tuned for updates."];
-    }
-    
     [self writeTextPlain:@"> ready."];
     
     NSLog(@"App bundle directory: %s \n", bundle_path());
