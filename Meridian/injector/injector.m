@@ -1,6 +1,3 @@
-/* code comes from IB's triple_fetch patch_amfid.c */
-/* cheers to theninjaprawn                         */
-
 #include <dlfcn.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -48,13 +45,6 @@ kern_return_t mach_vm_region(vm_map_t target_task,
                              mach_port_t *object_name);
 
 mach_port_t tfp0 = 0;
-uint64_t kernprocaddr = 0;
-
-/*uint64_t kalloc(vm_size_t size) {
-	mach_vm_address_t address = 0;
-	mach_vm_allocate(tfp0, (mach_vm_address_t *)&address, size, VM_FLAGS_ANYWHERE);
-	return address;
-}*/
 
 size_t kread(uint64_t where, void *p, size_t size) {
 	int rv;
@@ -66,7 +56,7 @@ size_t kread(uint64_t where, void *p, size_t size) {
 		}
 		rv = mach_vm_read_overwrite(tfp0, where + offset, chunk, (mach_vm_address_t)p + offset, &sz);
 		if (rv || sz == 0) {
-			printf("[fun_utils] error on kread(0x%016llx)\n", (offset + where));
+			printf("[injector] error on kread(0x%016llx)\n", (offset + where));
 			break;
 		}
 		offset += sz;
@@ -96,23 +86,13 @@ size_t kwrite(uint64_t where, const void *p, size_t size) {
 		}
 		rv = mach_vm_write(tfp0, where + offset, (mach_vm_offset_t)p + offset, chunk);
 		if (rv) {
-			printf("[fun_utils] error on kwrite(0x%016llx)\n", (offset + where));
+			printf("[injector] error on kwrite(0x%016llx)\n", (offset + where));
 			break;
 		}
 		offset += chunk;
 	}
 	return offset;
 }
-
-/*void kwrite32(uint64_t where, uint32_t what) {
-	uint32_t _what = what;
-	kwrite(where, &_what, sizeof(uint32_t));
-}*/
-
-/*void kwrite64(uint64_t where, uint64_t what) {
-	uint64_t _what = what;
-	kwrite(where, &_what, sizeof(uint64_t));
-}*/
 
 uint64_t remote_alloc(mach_port_t task_port, uint64_t size) {
   kern_return_t err;
@@ -173,20 +153,6 @@ void remote_read_overwrite(mach_port_t task_port,
   }
 }
 
-/*void remote_write(mach_port_t remote_task_port,
-                  uint64_t remote_address,
-                  uint64_t local_address,
-                  uint64_t length) {
-  kern_return_t err = mach_vm_write(remote_task_port,
-                                    (mach_vm_address_t)remote_address,
-                                    (vm_offset_t)local_address,
-                                    (mach_msg_type_number_t)length);
-  if (err != KERN_SUCCESS) {
-    NSLog(@"remote write failed: %s %x\n", mach_error_string(err), err);
-    return;
-  }
-}*/
-
 enum arg_type {
   ARG_LITERAL,
   ARG_BUFFER,
@@ -204,94 +170,6 @@ typedef struct _arg_desc {
 #define REMOTE_LITERAL(val) &(arg_desc){ARG_LITERAL, (uint64_t)val, (uint64_t)0}
 #define REMOTE_BUFFER(ptr, size) &(arg_desc){ARG_BUFFER, (uint64_t)ptr, (uint64_t)size}
 #define REMOTE_CSTRING(str) &(arg_desc){ARG_BUFFER, (uint64_t)str, (uint64_t)(strlen(str)+1)}
-
-uint64_t find_proc_by_name(char* name) {
-    uint64_t proc = kread64(kernprocaddr + 0x08);
-    
-    while (proc) {
-        char proc_name[40] = { 0 };
-        
-        kread(proc + 0x26c, proc_name, 40);
-        
-        if (!strcmp(proc_name, name)) {
-            return proc;
-        }
-        
-        proc = kread64(proc + 0x08);
-    }
-    
-    return 0;
-}
-
-uint32_t get_pid_for_name(char* name) {
-    uint64_t proc = find_proc_by_name(name);
-    if (proc == 0) {
-        return 0;
-    }
-    
-    return kread32(proc + 0x10);
-}
-
-// credits to Jonathan Levin (Morpheus) for this awesome workaround
-// http://newosxbook.com/articles/PST2.html
-// not really necessary to use, but i'm lazy to change it
-mach_port_t task_for_pid_workaround(int pid) {
-    host_t myhost = mach_host_self();
-    mach_port_t psDefault;
-    mach_port_t psDefault_control;
-    
-    task_array_t tasks;
-    mach_msg_type_number_t numTasks;
-    
-    kern_return_t kr;
-    
-    kr = processor_set_default(myhost, &psDefault);
-    
-    kr = host_processor_set_priv(myhost, psDefault, &psDefault_control);
-    if (kr != KERN_SUCCESS) {
-        fprintf(stderr, "host_processor_set_priv failed with error %x\n", kr);
-        mach_error("host_processor_set_priv", kr);
-        exit(1);
-    }
-    
-    kr = processor_set_tasks(psDefault_control, &tasks, &numTasks);
-    if (kr != KERN_SUCCESS) {
-        fprintf(stderr, "processor_set_tasks failed with error %x\n", kr);
-        exit(1);
-    }
-    
-    for (int i = 0; i < numTasks; i++) {
-        int t_pid;
-        pid_for_task(tasks[i], &t_pid);
-        if (pid == t_pid) {
-            return tasks[i];
-        }
-    }
-    
-    return MACH_PORT_NULL;
-}
-
-// creds to Jonathan Levin (@Morpheus)
-int get_kqueue_for_pid(pid_t pid) {
-    struct kevent ke;
-    int kq = kqueue();
-    if (kq == -1) {
-        NSLog(@"[inject] unable to create queue: %s", strerror(errno));
-        return -1;
-    }
-    
-    // Set process fork/exec notifications
-    EV_SET(&ke, pid, EVFILT_PROC, EV_ADD, NOTE_EXIT_DETAIL, 0, NULL);
-    // Register event
-    int rc = kevent(kq, &ke, 1, NULL, 0, NULL);
-    
-    if (rc < 0) {
-        NSLog(@"[inject] unable to get kevent %s", strerror(errno));
-        return -2;
-    }
-    
-    return kq;
-}
 
 uint64_t find_gadget_candidate(char** alternatives, size_t gadget_length) {
   void* haystack_start = (void*)atoi;    // will do...
@@ -530,97 +408,53 @@ uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...) {
   return ret_val;
 }
 
-pid_t amfid_pid;
-
-mach_port_t get_amfid_task() {
-    pid_t new_amfid_pid = get_pid_for_name("amfid");
-    while (!new_amfid_pid) {
-        sleep(1);
-        new_amfid_pid = get_pid_for_name("amfid");
-    }
-    NSLog(@"[amfid_fucker] got amfid pid %d", new_amfid_pid);
-    amfid_pid = new_amfid_pid;
-    
-    mach_port_t amfid_task = task_for_pid_workaround(amfid_pid);
-    NSLog(@"[amfid_fucker] got amfid task %llx", amfid_task);
-    
-    return amfid_task;
-}
-
-int patch_amfid(mach_port_t amfi_port) {
-    call_remote(amfi_port, setuid, 1, REMOTE_LITERAL(0));
-    
-    NSLog(@"[amfid_fucker] amfid uid is now 0 - injecting our dylib");
-    
-    call_remote(amfi_port, dlopen, 2, REMOTE_CSTRING("/meridian/amfid/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
-    uint64_t error = call_remote(amfi_port, dlerror, 0);
-    if (error == 0) {
-        NSLog(@"[amfid_fucker] No error occured! Payload injected successfully!");
-    } else {
-        uint64_t len = call_remote(amfi_port, strlen, 1, REMOTE_LITERAL(error));
-        char* local_cstring = malloc(len +  1);
-        remote_read_overwrite(amfi_port, error, (uint64_t)local_cstring, len+1);
-        
-        NSLog(@"[amfid_fucker] Error: %s", local_cstring);
-        return 3;
-    }
-    
-    NSLog(@"[amfid_fucker] get fucked ya silyl little cunT ;) \n");
-    return 0;
-}
-
 int main(int argc, char* argv[]) {
-    NSLog(@"[amfid_fucker] Hey there :^)");
+    NSLog(@"[injector] Hey there :)");
     
-    // Sleep for csflags
-    sleep(1);
+    /*
+     args:
+     0: path to this binary (default)
+     1: pid of proc to inject into
+     2: path of dylib
+     */
     
-    // get tfp0 via hgsp4
-    kern_return_t kr_tfp = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
-    NSLog(@"[amfid_fucker] got tfp0 = %llx (%s)", tfp0, mach_error_string(kr_tfp));
-    
-    if (argc < 2) {
-        NSLog(@"[amfid_fucker] Please pass kernproc as the first arg >.< amfid_fucker [kernproc_addr]");
+    if (argc < 3) {
+        NSLog(@"[injector] Incorrect usage. Usage: 'amfid_fucker [pid] [dylib]'");
         return -1;
     }
     
-    // the addr of kernproc should be passed as the first arg, so grab that
-    char *endptr;
-    kernprocaddr = strtoull(argv[1], &endptr, 10);
-    NSLog(@"[amfid_fucker] got value 0x%llx for kernprocaddr", kernprocaddr);
+    // grab pid of proc from args
+    uint32_t pd = atoi(argv[1]);
     
-    mach_port_t amfid_task = get_amfid_task();
-    patch_amfid(amfid_task);
-    NSLog(@"[amfid_fucker] Inital amfid patch complete");
+    // grab path of dylib
+    char *dylibPath = argv[2];
     
-    // Not sleeping before hopping into the loop
-    // would cause werid shit to happen, so this'll do
-    sleep(3);
+    NSLog(@"[inject] pid: %d, dylib: %s", pd, dylibPath);
     
-    // s/o to Jonathan Levin (@Morpheus) for the example on using kqueue/kevent
-    // http://newosxbook.com/QiLin/qilin.pdf (pg 21)
-    
-    while (true) {
-        int kq = get_kqueue_for_pid(amfid_pid);
-        NSLog(@"[amfid_fucker] got kq for amfi: %d", kq);
-        
-        struct kevent ke;
-        memset(&ke, '\0', sizeof(struct kevent));
-        int rc = kevent(kq, NULL, 0, &ke, 1, NULL);
-        NSLog(@"[amfid_fucker] got kevent rc for amfid: %d", rc);
-        
-        if (rc >= 0) {
-            close(kq);
-            NSLog(@"[amfid_fucker] amfid is dead!");
-            
-            mach_port_t amfid_task = get_amfid_task();
-            patch_amfid(amfid_task);
-            
-            NSLog(@"[amfid_fucker] fuck you amfid, PATCHED!");
-        }
-        
-        sleep(1);
+    // Grab the task of the process we wanna inject to
+    mach_port_t task_port;
+    kern_return_t task_ret = task_for_pid(mach_task_self(), pd, &task_port);
+    if (task_ret != KERN_SUCCESS ||
+        task_port == MACH_PORT_NULL) {
+        NSLog(@"[injector] failed to get task port for pid %d: %s", pd, mach_error_string(task_ret));
+        return -2;
     }
     
-    return 69;
+    tfp0 = task_port;
+    
+    // inject
+    call_remote(task_port, dlopen, 2, REMOTE_CSTRING(dylibPath), REMOTE_LITERAL(RTLD_NOW));
+    uint64_t error = call_remote(task_port, dlerror, 0);
+    if (error != 0) {
+        uint64_t len = call_remote(task_port, strlen, 1, REMOTE_LITERAL(error));
+        char* local_cstring = malloc(len +  1);
+        remote_read_overwrite(task_port, error, (uint64_t)local_cstring, len+1);
+        
+        NSLog(@"[injector] Error: %s", local_cstring);
+        return -3;
+    }
+    
+    NSLog(@"[injector] injected successfully :)");
+    
+    return 0;
 }

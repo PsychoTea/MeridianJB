@@ -2,14 +2,18 @@
 
 export PATH="$PATH:$HOME/bin"
 
+inputFile="injector.m"
+outputFile="injector"
+tarName="injector.tar"
+
 currDir=$(dirname $0)
 
-xcrun -sdk iphoneos gcc -arch arm64 -framework Foundation -o $currDir/injector $currDir/injector.m
-jtool --sign sha1 --inplace --ent $currDir/ent.plist $currDir/amfid_payload
-chmod 0755 $currDir/injector
+xcrun -sdk iphoneos gcc -arch arm64 -framework Foundation -o $currDir/$outputFile $currDir/$inputFile
+jtool --sign sha1 --inplace --ent $currDir/ent.plist $currDir/$outputFile
+chmod 0755 $currDir/$outputFile
 
-tar -cf $currDir/injector.tar $currDir/injector
+tar -cf $currDir/$tarName $currDir/$outputFile
 
-rm $currDir/injector
+rm $currDir/$outputFile
 
-mv $currDir/injector.tar $currDir/../Meridian/injector.tar
+mv $currDir/$tarName $currDir/../Meridian/$tarName
