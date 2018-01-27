@@ -40,35 +40,38 @@ int defecate_amfi() {
         // copy some files
         NSLog(@"[amfi] copying in our patches \n");
         
-        unlink("/meridian/amfid_fucker");
-        unlink("/meridian/amfid_payload.dylib");
+        unlink("/meridian/amfid.tar"); // temporary
+        unlink("/meridian/amfid_payload.dylib"); // temporary
+        unlink("/meridian/amfid_fucker"); // temporary
+        unlink("/meridian/amfid/amfid_fucker");
+        unlink("/meridian/amfid/amfid_payload.dylib");
         
-        cp(bundled_file("amfid.tar"), "/meridian/amfid.tar");
-        chdir("/meridian");
-        untar(fopen("/meridian/amfid.tar", "r+"), "amfid.tar");
+        mkdir("/meridian/amfid", 0755);
         
-        NSLog(@"[amfi] fucker exists: %d", file_exists("/meridian/amfid_fucker"));
-        NSLog(@"[amfi] payload exists: %d", file_exists("/meridian/amfid_payload.dylib"));
+        cp(bundled_file("amfid.tar"), "/meridian/amfid/amfid.tar");
+        chdir("/meridian/amfid");
+        untar(fopen("/meridian/amfid/amfid.tar", "r+"), "amfid.tar");
+        unlink("/meridian/amfid/amfid.tar");
     }
     
     {
         // trust our payload
         NSLog(@"[amfi] trusting our patches \n");
-        inject_trust("/meridian/amfid_fucker");
-        inject_trust("/meridian/amfid_payload.dylib");
+        inject_trust("/meridian/amfid/amfid_fucker");
+        inject_trust("/meridian/amfid/amfid_payload.dylib");
     }
     
     NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
     NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
     
     char* prog_args[] =  {
-        "/meridian/amfid_fucker",
+        "/meridian/amfid/amfid_fucker",
         (char *)[kernprocstring UTF8String],
         NULL
     };
     
     pid_t pd;
-    int rv = posix_spawn(&pd, "/meridian/amfid_fucker", NULL, NULL, prog_args, NULL);
+    int rv = posix_spawn(&pd, "/meridian/amfid/amfid_fucker", NULL, NULL, prog_args, NULL);
     if (rv != 0) {
         NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
         return rv;

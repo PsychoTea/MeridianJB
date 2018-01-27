@@ -552,7 +552,7 @@ int patch_amfid(mach_port_t amfi_port) {
     
     NSLog(@"[amfid_fucker] amfid uid is now 0 - injecting our dylib");
     
-    call_remote(amfi_port, dlopen, 2, REMOTE_CSTRING("/meridian/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
+    call_remote(amfi_port, dlopen, 2, REMOTE_CSTRING("/meridian/amfid/amfid_payload.dylib"), REMOTE_LITERAL(RTLD_NOW));
     uint64_t error = call_remote(amfi_port, dlerror, 0);
     if (error == 0) {
         NSLog(@"[amfid_fucker] No error occured! Payload injected successfully!");
@@ -575,10 +575,16 @@ int main(int argc, char* argv[]) {
     // Sleep for csflags
     sleep(1);
     
-    // get tfp0 via hgsp4 (I finally found our waht this means!)
+    // get tfp0 via hgsp4
     kern_return_t kr_tfp = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
     NSLog(@"[amfid_fucker] got tfp0 = %llx (%s)", tfp0, mach_error_string(kr_tfp));
     
+    if (argc < 2) {
+        NSLog(@"[amfid_fucker] Please pass kernproc as the first arg >.< amfid_fucker [kernproc_addr]");
+        return -1;
+    }
+    
+    // the addr of kernproc should be passed as the first arg, so grab that
     char *endptr;
     kernprocaddr = strtoull(argv[1], &endptr, 10);
     NSLog(@"[amfid_fucker] got value 0x%llx for kernprocaddr", kernprocaddr);
