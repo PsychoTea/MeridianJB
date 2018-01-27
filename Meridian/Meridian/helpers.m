@@ -9,6 +9,7 @@
 #include "helpers.h"
 #include "ViewController.h"
 #include "kernel.h"
+#include "libjb.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
@@ -164,6 +165,21 @@ char* bundle_path() {
     CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8*)path, len);
     
     return concat(path, "/");
+}
+
+void extract_bundle(char* bundle_name, char* directory) {
+    char *tarFile = "";
+    strcpy(tarFile, directory);
+    strcpy(tarFile, "/");
+    strcpy(tarFile, bundle_name);
+    
+    cp(bundled_file(bundle_name), tarFile);
+    
+    chdir(directory);
+    
+    untar(fopen(tarFile, "r"), bundle_name);
+    
+    unlink(tarFile);
 }
 
 void touch_file(char *path) {

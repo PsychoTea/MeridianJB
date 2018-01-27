@@ -21,6 +21,7 @@ void read_file(const char* path);
 int cp(const char *from, const char *to);
 char* bundled_file(char *filename);
 char* bundle_path(void);
+void extract_bundle(char* bundle_name, char* directory);
 void touch_file(char *path);
 char* concat(const char *s1, const char *s2);
 void grant_csflags(pid_t pd);

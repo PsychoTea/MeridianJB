@@ -40,6 +40,8 @@ int defecate_amfi() {
         // copy some files
         NSLog(@"[amfi] copying in our patches \n");
         
+        // TODO: replace all this shit with extract_bundle
+        
         unlink("/meridian/amfid.tar"); // temporary
         unlink("/meridian/amfid_payload.dylib"); // temporary
         unlink("/meridian/amfid_fucker"); // temporary

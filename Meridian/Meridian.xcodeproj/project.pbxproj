@@ -22,6 +22,12 @@
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
+		B589517F201D07DB002E0EAD /* amfid in Resources */ = {isa = PBXBuildFile; fileRef = B589517E201D07DB002E0EAD /* amfid */; };
+		B5895181201D07EC002E0EAD /* binpack_creator in Resources */ = {isa = PBXBuildFile; fileRef = B5895180201D07EC002E0EAD /* binpack_creator */; };
+		B5895183201D07FD002E0EAD /* injector in Resources */ = {isa = PBXBuildFile; fileRef = B5895182201D07FD002E0EAD /* injector */; };
+		B5895185201D15BF002E0EAD /* injector.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895184201D15BF002E0EAD /* injector.tar */; };
+		B5895187201D15E7002E0EAD /* pspawn_hook in Resources */ = {isa = PBXBuildFile; fileRef = B5895186201D15E7002E0EAD /* pspawn_hook */; };
+		B5895189201D185F002E0EAD /* pspawn_hook.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895188201D185F002E0EAD /* pspawn_hook.tar */; };
 		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
@@ -47,7 +53,6 @@
 		B50F79511FF2248C000D6015 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
 		B50F79521FF2248C000D6015 /* root-rw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "root-rw.h"; sourceTree = "<group>"; };
 		B50F79531FF2248D000D6015 /* amfi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = amfi.m; sourceTree = "<group>"; };
-		B50F79651FF224B4000D6015 /* BinPackCreator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BinPackCreator; path = ../BinPackCreator; sourceTree = "<group>"; };
 		B514CC761FECD788005F4E6B /* Meridian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Meridian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B514CC791FECD788005F4E6B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		B514CC7C1FECD788005F4E6B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
@@ -62,8 +67,13 @@
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B58581C3200436AB00295515 /* DRMController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRMController.m; sourceTree = "<group>"; };
 		B58581C52004372E00295515 /* DRMController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRMController.h; sourceTree = "<group>"; };
+		B589517E201D07DB002E0EAD /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
+		B5895180201D07EC002E0EAD /* binpack_creator */ = {isa = PBXFileReference; lastKnownFileType = folder; path = binpack_creator; sourceTree = "<group>"; };
+		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
+		B5895184201D15BF002E0EAD /* injector.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = injector.tar; sourceTree = "<group>"; };
+		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
+		B5895188201D185F002E0EAD /* pspawn_hook.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = pspawn_hook.tar; sourceTree = "<group>"; };
 		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
-		B595326E1FFE25A600022CEE /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B59532841FFE6B7B00022CEE /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
@@ -118,7 +128,10 @@
 			children = (
 				B59532701FFE2B5000022CEE /* LICENSE */,
 				B59532711FFE2B5000022CEE /* README.md */,
-				B50F79651FF224B4000D6015 /* BinPackCreator */,
+				B589517E201D07DB002E0EAD /* amfid */,
+				B5895180201D07EC002E0EAD /* binpack_creator */,
+				B5895182201D07FD002E0EAD /* injector */,
+				B5895186201D15E7002E0EAD /* pspawn_hook */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
@@ -137,12 +150,13 @@
 		B514CC781FECD788005F4E6B /* Meridian */ = {
 			isa = PBXGroup;
 			children = (
-				B595326E1FFE25A600022CEE /* amfid */,
 				B50F79671FF224F0000D6015 /* Frontend */,
 				B5E8D929200E75B70059BCED /* amfid.tar */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B59022351FFF8CCB00691423 /* cydia.tar */,
 				B59532881FFE6E9C00022CEE /* dpkg.tar */,
+				B5895184201D15BF002E0EAD /* injector.tar */,
+				B5895188201D185F002E0EAD /* pspawn_hook.tar */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
@@ -246,13 +260,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
+				B5895187201D15E7002E0EAD /* pspawn_hook in Resources */,
 				B5E8D92A200E75B70059BCED /* amfid.tar in Resources */,
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
+				B5895185201D15BF002E0EAD /* injector.tar in Resources */,
+				B5895183201D07FD002E0EAD /* injector in Resources */,
 				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
 				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
+				B5895181201D07EC002E0EAD /* binpack_creator in Resources */,
+				B589517F201D07DB002E0EAD /* amfid in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
+				B5895189201D185F002E0EAD /* pspawn_hook.tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,13 +285,16 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Meridian/amfid/compile.sh",
+				"$(SRCROOT)/binpack_creator/packbins.sh",
+				"$(SRCROOT)/amfid/compile.sh",
+				"$(SRCROOT)/injector/compile.sh",
+				"$(SRCROOT)/pspawn_hook/compile.sh",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "FILE=${SCRIPT_INPUT_FILE_0}\n`$FILE`";
+			shellScript = "for ((i=0; i<SCRIPT_INPUT_FILE_COUNT;i++))\ndo\n  inputFile=`eval echo '$SCRIPT_INPUT_FILE_'$i`\n  echo Running $inputFile...\n  `$inputFile`\ndone";
 		};
 /* End PBXShellScriptBuildPhase section */
 

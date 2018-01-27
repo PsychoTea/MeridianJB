@@ -260,20 +260,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // TEMPORARY: remove old bins
-        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-        
-        // extract our bootstrap
-        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO) {
-            [self writeText:@"extracting binaries..."];
-            
-            [self extractBootstrap];
-            
-            [self writeText:@"done!"];
-        }
-    }
-    
-    {
         // create dir's and files for dropbear
         if (file_exists("/etc/dropbear") != 0 ||
             file_exists("/var/log/lastlog") != 0 ||
@@ -342,6 +328,26 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         }
         
         [self writeText:@"done!"];
+    }
+    
+    {
+        // Injecting substitute and shit
+        
+        // Extract injector & pspawn payload
+        extract_bundle("injector.tar", "/meridian");
+        extract_bundle("pspawn_hook.tar", "/meridian");
+        
+        NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
+        
+        // inject pspawn_hook to launchd
+        rv = execprog("/meridian/injector", (const char**)&(const char*[]) {
+            "/meridian/injector",
+            itoa(1), // launchd pid
+            "/meridian/pspawn_hook.dylib",
+            NULL
+        });
+        
+        [self writeText:[NSString stringWithFormat:@"inject for launchd returned %d", rv]];
     }
     
     return 0;
