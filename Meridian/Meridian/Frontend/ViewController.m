@@ -345,8 +345,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         extract_bundle("substitute.tar", "/usr/lib");
         extract_bundle("safemode.tar", "/Applications");
         
-        uicache();
-        
         mkdir("/meridian/SBInject", 0755);
         
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
@@ -374,6 +372,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         pid_t pid = 0;
         
+        inject_trust("/meridian/bins/launchctl");
         int rv = posix_spawn(&pid, "/meridian/bins/launchctl", NULL, NULL, (char **)&(const char*[]){ "launchctl", "load", "-w", "/meridian/jailbreakd.plist", NULL }, NULL);
         if (rv == -1) {
             return -1;

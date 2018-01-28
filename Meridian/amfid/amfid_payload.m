@@ -437,6 +437,8 @@ void* hook_funcs(void* arg) {
 
     NSLog(@"[amfid_payload] The MISValidateSignatureAndCopyInfo function has been successfully hooked!");
     
+    fclose(fopen("/var/tmp/amfid_payload.alive", "w+"));
+    
     return NULL;
 }
 

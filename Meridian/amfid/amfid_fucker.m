@@ -572,8 +572,8 @@ int patch_amfid(mach_port_t amfi_port) {
 int main(int argc, char* argv[]) {
     NSLog(@"[amfid_fucker] Hey there :^)");
     
-    // Sleep for csflags
-    sleep(1);
+    // Sleep for csflags (0.5 sec)
+    usleep(500000);
     
     // get tfp0 via hgsp4
     kern_return_t kr_tfp = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
@@ -595,7 +595,7 @@ int main(int argc, char* argv[]) {
     
     // Not sleeping before hopping into the loop
     // would cause werid shit to happen, so this'll do
-    sleep(3);
+    // sleep(3);
     
     // s/o to Jonathan Levin (@Morpheus) for the example on using kqueue/kevent
     // http://newosxbook.com/QiLin/qilin.pdf (pg 21)

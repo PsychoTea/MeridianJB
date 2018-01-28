@@ -60,6 +60,8 @@ int defecate_amfi() {
         inject_trust("/meridian/amfid/amfid_payload.dylib");
     }
     
+    unlink("/var/tmp/amfid_payload.alive");
+    
     NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
     NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
     
@@ -80,6 +82,11 @@ int defecate_amfi() {
     grant_csflags(pd);
     
     NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
+    
+    while (!file_exists("/var/tmp/amfid_payload.alive")) {
+        NSLog(@"waiting for amfid patch...");
+        usleep(100000); // 0.1 sec
+    }
     
     return rv;
 }
