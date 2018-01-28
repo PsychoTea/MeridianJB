@@ -3,7 +3,7 @@
 #include "sandbox.h"
 #include "patchfinder64.h"
 #include "kexecute.h"
-
+#include <Foundation/Foundation.h>
 
 typedef uint64_t extension_hdr_t;
 typedef uint64_t extension_t;
@@ -30,24 +30,24 @@ struct extension {
 };
 
 uint64_t _smalloc(uint64_t size) {
-	return kexecute(find_smalloc(), size, 0, 0, 0, 0, 0, 0);
+    return kexecute(find_smalloc(), size, 0, 0, 0, 0, 0, 0);
 }
 
 uint64_t smalloc(uint64_t size) {
-	uint64_t ret = _smalloc(size);
-	
-	if (ret != 0) {
-		// IOAlloc's of small size go to zalloc
-		ret = zm_fix_addr(ret);
-	}
+    uint64_t ret = _smalloc(size);
 
-	return ret;
+    if (ret != 0) {
+        // IOAlloc's of small size go to zalloc
+        ret = zm_fix_addr(ret);
+    }
+
+    return ret;
 }
 
 uint64_t sstrdup(const char* s) {
 	size_t slen = strlen(s) + 1;
 
-	uint64_t ks = smalloc(slen);
+	uint64_t ks = malloc(slen);
 	if (ks) {
 		kwrite(ks, s, slen);
 	}
@@ -64,12 +64,19 @@ uint64_t extension_create_file(const char* path, uint64_t nextptr) {
 		return 0;
 	}
 
+    NSLog(@"adding %s to proc", path);
+    
+    NSLog(@"malloc");
 	uint64_t ext_p = smalloc(sizeof(struct extension));
+    NSLog(@"post malloc");
 	uint64_t ks = sstrdup(path);
-
+    NSLog(@"post sstrdup");
+    
 	if (ext_p && ks) {
 		struct extension ext;
+        NSLog(@"bzero");
 		bzero(&ext, sizeof(ext));
+        NSLog(@"post bzero");
 		ext.next = nextptr;
 		ext.desc = 0xffffffffffffffff;
 		
@@ -79,7 +86,9 @@ uint64_t extension_create_file(const char* path, uint64_t nextptr) {
 		ext.data = ks;
 		ext.data_len = slen;
 
+        NSLog(@"preparing to write %d bytes", sizeof(ext));
 		kwrite(ext_p, &ext, sizeof(ext));
+        NSLog(@"written?");
 	} else {
 		// XXX oh no a leak
 	}
@@ -148,7 +157,7 @@ uint64_t make_ext_hdr(const char* key, uint64_t ext_lst) {
 	struct extension_hdr hdr;
 
 	uint64_t khdr = smalloc(sizeof(hdr));
-
+    
 	if (khdr) {
 		// we add headers to end
 		hdr.next = 0;
@@ -237,6 +246,7 @@ int has_file_extension(uint64_t sb, const char* path) {
 				uint64_t data = rk64(ext_lst + offsetof(struct extension, data));
 				kread(data, exist, plen);
 
+                fprintf(stderr, "comparing path %s vs exist %s", path, exist);
 				if (strcmp(path, exist) == 0) {
 					found = 1;
 					break;

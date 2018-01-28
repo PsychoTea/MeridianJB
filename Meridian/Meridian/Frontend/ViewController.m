@@ -347,7 +347,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         extract_bundle("injector.tar", "/meridian");
         extract_bundle("pspawn_hook.tar", "/meridian");
         extract_bundle("jailbreakd.tar", "/meridian");
-        extract_bundle("SBInject.tar", "/meridian");
+        // extract_bundle("SBInject.tar", "/meridian");
         extract_bundle("substitute.tar", "/usr/lib");
         extract_bundle("safemode.tar", "/Applications");
         
@@ -362,7 +362,8 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         // worry about team validation and shit
         inject_trust("/meridian/pspawn_hook.dylib");
         inject_trust("/meridian/bins/launchctl");
-        inject_trust("/meridian/SBInject.dylib");
+        // inject_trust("/meridian/SBInject.dylib");
+        inject_trust("/usr/lib/SBInject.dylib");
         
         unlink("/var/tmp/jailbreakd.pid");
         
