@@ -22,12 +22,14 @@
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
-		B589517F201D07DB002E0EAD /* amfid in Resources */ = {isa = PBXBuildFile; fileRef = B589517E201D07DB002E0EAD /* amfid */; };
-		B5895181201D07EC002E0EAD /* binpack_creator in Resources */ = {isa = PBXBuildFile; fileRef = B5895180201D07EC002E0EAD /* binpack_creator */; };
-		B5895183201D07FD002E0EAD /* injector in Resources */ = {isa = PBXBuildFile; fileRef = B5895182201D07FD002E0EAD /* injector */; };
 		B5895185201D15BF002E0EAD /* injector.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895184201D15BF002E0EAD /* injector.tar */; };
-		B5895187201D15E7002E0EAD /* pspawn_hook in Resources */ = {isa = PBXBuildFile; fileRef = B5895186201D15E7002E0EAD /* pspawn_hook */; };
 		B5895189201D185F002E0EAD /* pspawn_hook.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895188201D185F002E0EAD /* pspawn_hook.tar */; };
+		B589518B201D21F2002E0EAD /* amfid.tar in Resources */ = {isa = PBXBuildFile; fileRef = B589518A201D21F2002E0EAD /* amfid.tar */; };
+		B589518F201D4280002E0EAD /* jailbreakd.tar in Resources */ = {isa = PBXBuildFile; fileRef = B589518E201D4280002E0EAD /* jailbreakd.tar */; };
+		B5895191201D42A0002E0EAD /* SBInject.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895190201D42A0002E0EAD /* SBInject.tar */; };
+		B5895193201D436D002E0EAD /* safemode.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895192201D436D002E0EAD /* safemode.tar */; };
+		B5895195201D4744002E0EAD /* substitute.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895194201D4744002E0EAD /* substitute.tar */; };
+		B5895197201D4B10002E0EAD /* jailbreakd.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5895196201D4B10002E0EAD /* jailbreakd.plist */; };
 		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
 		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
 		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
@@ -35,7 +37,6 @@
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D23C432002AC6600BF184C /* fucksigningservices.m */; };
-		B5E8D92A200E75B70059BCED /* amfid.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5E8D929200E75B70059BCED /* amfid.tar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +74,13 @@
 		B5895184201D15BF002E0EAD /* injector.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = injector.tar; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B5895188201D185F002E0EAD /* pspawn_hook.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = pspawn_hook.tar; sourceTree = "<group>"; };
+		B589518A201D21F2002E0EAD /* amfid.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = amfid.tar; sourceTree = "<group>"; };
+		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
+		B589518E201D4280002E0EAD /* jailbreakd.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = jailbreakd.tar; sourceTree = "<group>"; };
+		B5895190201D42A0002E0EAD /* SBInject.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = SBInject.tar; sourceTree = "<group>"; };
+		B5895192201D436D002E0EAD /* safemode.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = safemode.tar; sourceTree = "<group>"; };
+		B5895194201D4744002E0EAD /* substitute.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = substitute.tar; sourceTree = "<group>"; };
+		B5895196201D4B10002E0EAD /* jailbreakd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = jailbreakd.plist; sourceTree = "<group>"; };
 		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -88,7 +96,6 @@
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
 		B5D23C432002AC6600BF184C /* fucksigningservices.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fucksigningservices.m; sourceTree = "<group>"; };
 		B5D23C452002B0C600BF184C /* fucksigningservices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fucksigningservices.h; sourceTree = "<group>"; };
-		B5E8D929200E75B70059BCED /* amfid.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = amfid.tar; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +139,7 @@
 				B5895180201D07EC002E0EAD /* binpack_creator */,
 				B5895182201D07FD002E0EAD /* injector */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
+				B589518C201D4018002E0EAD /* jailbreakd */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
@@ -151,12 +159,17 @@
 			isa = PBXGroup;
 			children = (
 				B50F79671FF224F0000D6015 /* Frontend */,
-				B5E8D929200E75B70059BCED /* amfid.tar */,
+				B589518A201D21F2002E0EAD /* amfid.tar */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B59022351FFF8CCB00691423 /* cydia.tar */,
 				B59532881FFE6E9C00022CEE /* dpkg.tar */,
 				B5895184201D15BF002E0EAD /* injector.tar */,
+				B589518E201D4280002E0EAD /* jailbreakd.tar */,
 				B5895188201D185F002E0EAD /* pspawn_hook.tar */,
+				B5895192201D436D002E0EAD /* safemode.tar */,
+				B5895190201D42A0002E0EAD /* SBInject.tar */,
+				B5895194201D4744002E0EAD /* substitute.tar */,
+				B5895196201D4B10002E0EAD /* jailbreakd.plist */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
@@ -260,19 +273,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
-				B5895187201D15E7002E0EAD /* pspawn_hook in Resources */,
-				B5E8D92A200E75B70059BCED /* amfid.tar in Resources */,
-				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
-				B5895185201D15BF002E0EAD /* injector.tar in Resources */,
-				B5895183201D07FD002E0EAD /* injector in Resources */,
-				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
-				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
-				B5895181201D07EC002E0EAD /* binpack_creator in Resources */,
-				B589517F201D07DB002E0EAD /* amfid in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
+				B5895197201D4B10002E0EAD /* jailbreakd.plist in Resources */,
+				B589518B201D21F2002E0EAD /* amfid.tar in Resources */,
+				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
+				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
+				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
+				B5895185201D15BF002E0EAD /* injector.tar in Resources */,
+				B589518F201D4280002E0EAD /* jailbreakd.tar in Resources */,
 				B5895189201D185F002E0EAD /* pspawn_hook.tar in Resources */,
+				B5895193201D436D002E0EAD /* safemode.tar in Resources */,
+				B5895191201D42A0002E0EAD /* SBInject.tar in Resources */,
+				B5895195201D4744002E0EAD /* substitute.tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,10 +299,10 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/binpack_creator/packbins.sh",
 				"$(SRCROOT)/amfid/compile.sh",
 				"$(SRCROOT)/injector/compile.sh",
 				"$(SRCROOT)/pspawn_hook/compile.sh",
+				"$(SRCROOT)/jailbreakd/compile.sh",
 			);
 			outputPaths = (
 			);

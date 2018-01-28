@@ -50,10 +50,7 @@ int defecate_amfi() {
         
         mkdir("/meridian/amfid", 0755);
         
-        cp(bundled_file("amfid.tar"), "/meridian/amfid/amfid.tar");
-        chdir("/meridian/amfid");
-        untar(fopen("/meridian/amfid/amfid.tar", "r+"), "amfid.tar");
-        unlink("/meridian/amfid/amfid.tar");
+        extract_bundle("amfid.tar", "/meridian/amfid");
     }
     
     {

@@ -168,10 +168,10 @@ char* bundle_path() {
 }
 
 void extract_bundle(char* bundle_name, char* directory) {
-    char *tarFile = "";
+    char tarFile[100];
     strcpy(tarFile, directory);
-    strcpy(tarFile, "/");
-    strcpy(tarFile, bundle_name);
+    strcat(tarFile, "/");
+    strcat(tarFile, bundle_name);
     
     cp(bundled_file(bundle_name), tarFile);
     
