@@ -78,3 +78,4 @@ extern mach_port_t tfpzero;
 extern uint64_t kernel_base;
 extern uint64_t kernel_slide;
 
+uint64_t kernprocaddr;

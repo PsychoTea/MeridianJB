@@ -128,7 +128,7 @@ int runserver(){
     char buf[1024];
 
     socklen_t clientlen = sizeof(clientaddr);
-    while (1){
+    while (1) {
         bzero(buf, 1024);
         int size = recvfrom(sockfd, buf, 1024, 0, (struct sockaddr *)&clientaddr, &clientlen);
         if (size < 0){
@@ -240,6 +240,8 @@ int main(int argc, char **argv, char **envp)
 {
     char *endptr;
     kernel_base = strtoull(getenv("KernelBase"), &endptr, 16);
+    char *endptr2;
+    kernprocaddr = strtoull(getenv("KernProcAddr"), &endptr2, 16);
     // setpgid(getpid(), 0);
 
     int ret = runserver();

@@ -333,9 +333,15 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     {
         // Injecting substitute and shit
         
+        // Delete all the old shit 
         unlink("/meridian/injector");
         unlink("/meridian/pspawn_hook.dylib");
-        
+        unlink("/meridian/jailbreakd");
+        unlink("/meridian/SBInject.dylib");
+        unlink("/usr/lib/SBInject.dylib");
+        unlink("/usr/lib/libsubstitute.0.dylib");
+        unlink("/usr/lib/libsubstitute.dylib");
+        unlink("/usr/lib/libsubstrate.dylib");
         
         // Extract all the shit
         extract_bundle("injector.tar", "/meridian");
@@ -347,18 +353,16 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         mkdir("/meridian/SBInject", 0755);
         
+        [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
+        
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
         symlink("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", "/lib/usr/libsubstrate.dylib");
         
         // chuck our lib in trust cache so we don't have to
         // worry about team validation and shit
-        // oh, amfid patch prolly won't be active at this point
-        // so, we kinda gotta do it anyway
-        inject_trust("/meridian/injector"); // not needed
         inject_trust("/meridian/pspawn_hook.dylib");
-        inject_trust("/meridian/SBInject.dylib"); // not needed
-        inject_trust("/meridian/jailbreakd"); // not needed
-        
+        inject_trust("/meridian/bins/launchctl");
+        inject_trust("/meridian/SBInject.dylib");
         
         unlink("/var/tmp/jailbreakd.pid");
         
@@ -366,25 +370,24 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
         
         job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+        job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
         [job writeToFile:@"/meridian/jailbreakd.plist" atomically:YES];
         chmod("/meridian/jailbreakd.plist", 0600);
         chown("/meridian/jailbreakd.plist", 0, 0);
         
-        pid_t pid = 0;
+        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
+            "/meridian/bins/launchctl",
+            "load",
+            "-w",
+            "/meridian/jailbreakd.plist",
+            NULL
+        });
         
-        inject_trust("/meridian/bins/launchctl");
-        int rv = posix_spawn(&pid, "/meridian/bins/launchctl", NULL, NULL, (char **)&(const char*[]){ "launchctl", "load", "-w", "/meridian/jailbreakd.plist", NULL }, NULL);
-        if (rv == -1) {
-            return -1;
-        }
-        
-        int ex = 0;
-        waitpid(pid, &ex, 0);
         [self writeText:[NSString stringWithFormat:@"launchctl returned %d", rv]];
         NSLog(@"The dragon becomes me!");
         NSLog(@"once it is drawn, it cannot be sheathed without causing death");
         
-        while (!file_exists("/var/tmp/jailbreakd.pid")) {
+        while (!file_exist("/var/tmp/jailbreakd.pid")) {
             printf("Waiting for jailbreakd \n");
             usleep(100000);
         }
@@ -398,8 +401,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         });
         
         [self writeText:[NSString stringWithFormat:@"inject for launchd returned %d", rv]];
-        
-        
     }
     
     return 0;

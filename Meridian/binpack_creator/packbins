@@ -1,0 +1,30 @@
+#!/bin/sh
+
+export PATH="$PATH:$HOME/bin"
+
+currDir=$(dirname $0)
+
+binCount=$(ls -1q  $currDir/bins | wc -l | sed -e 's/^[ `t]*//')
+
+echo "Packing $binCount bins..."
+
+for file in $currDir/bins/*
+do
+  jtool --sign sha1 --inplace --ent $currDir/ent.plist $file
+  chmod 0755 $file
+done
+
+echo "Signed and granted correct permissions to all binaries."
+
+cd $currDir
+tar -cf bootstrap.tar ./bins/*
+
+echo "Packed the binaries into bootstrap.tar."
+
+cp $currDir/bootstrap.tar $currDir/../Meridian/bootstrap.tar
+
+echo "Copied to the destination."
+
+rm $currDir/bootstrap.tar
+
+echo "Done!"

@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <sys/fcntl.h>
 #include <sys/spawn.h>
+#include <sys/stat.h>
 #import <Foundation/Foundation.h>
 
 uint64_t find_proc_by_name(char* name) {
@@ -74,6 +75,12 @@ char *itoa(long n) {
 
 int file_exists(char *path) {
     return access(path, F_OK) == -1;
+}
+
+int file_exist(char *filename) {
+    struct stat buffer;
+    int r = stat(filename, &buffer);
+    return (r == 0);
 }
 
 void read_file(const char *path) {

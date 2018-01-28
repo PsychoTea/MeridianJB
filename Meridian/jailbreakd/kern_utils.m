@@ -39,18 +39,21 @@
 #define CS_DEV_CODE         0x40000000  /* code is dev signed, cannot be loaded into prod signed code (will go away with rdar://problem/28322552) */
 
 uint64_t proc_find(int pd, int tries) {
-  // TODO use kcall(proc_find) + ZM_FIX_ADDR
-  while (tries-- > 0) {
-    uint64_t proc = rk64(find_allproc());
-    while (proc) {
-      uint32_t pid = rk32(proc + offsetof_p_pid);
-      if (pid == pd) {
-        return proc;
-      }
-      proc = rk64(proc);
+    while (tries-- > 0) {
+        uint64_t proc = rk64(kernprocaddr + 0x08);
+        
+        while (proc) {
+            uint32_t proc_pid = rk32(proc + 0x10);
+            
+            if (proc_pid == pd) {
+                return proc;
+            }
+        
+            proc = rk64(proc + 0x08);
+        }
     }
-  }
-  return 0;
+    
+    return 0;
 }
 
 CACHED_FIND(uint64_t, our_task_addr) {

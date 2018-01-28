@@ -17,6 +17,7 @@ uint32_t get_pid_for_name(char* name);
 int uicache(void);
 char *itoa(long n);
 int file_exists(char *path);
+int file_exist(char *filename);
 void read_file(const char* path);
 int cp(const char *from, const char *to);
 char* bundled_file(char *filename);

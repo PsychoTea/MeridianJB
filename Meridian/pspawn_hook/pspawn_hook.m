@@ -211,11 +211,23 @@ void rebind_pspawns(void) {
     rebind_symbols(rebindings, 2);
 }
 
+void* thd_func(void* arg) {
+    NSLog(@"in a new thread!");
+    rebind_pspawns();
+    return NULL;
+}
+
 __attribute__ ((constructor))
 static void ctor(void) {
     current_process = (getpid() == 1) ? PROCESS_LAUNCHD : PROCESS_XPCPROXY;
     
     DEBUGLOG("hello from pid %d", getpid());
+    
+    if (current_process == PROCESS_LAUNCHD) {
+        pthread_t thd;
+        pthread_create(&thd, NULL, thd_func, NULL);
+        return;
+    }
     
     rebind_pspawns();
 }

@@ -712,41 +712,6 @@ CACHED_FIND_UINT64(find_add_x0_x0_0x40_ret) {
 	return 0;
 }
 
-CACHED_FIND_UINT64(find_allproc) {
-	// Find the first reference to the string
-	addr_t ref = find_strref("\"pgrp_add : pgrp is dead adding process\"", 1, 0);
-	if (!ref) {
-		return 0;
-	}
-	ref -= kerndumpbase;
-	
-	uint64_t start = bof64(kernel, xnucore_base, ref);
-	if (!start) {
-		return 0;
-	}
-	
-	// Find AND W8, W8, #0xFFFFDFFF - it's a pretty distinct instruction
-	addr_t weird_instruction = 0;
-	for (int i = 4; i < 4*0x100; i+=4) {
-		uint32_t op = *(uint32_t *)(kernel + ref + i);
-		if (op == 0x12127908) {
-			weird_instruction = ref+i;
-			break;
-		}
-	}
-	if (!weird_instruction) {
-		return 0;
-	}
-	
-	uint64_t val = calc64(kernel, start, weird_instruction - 8, 8);
-	if (!val) {
-		printf("Failed to calculate x8");
-		return 0;
-	}
-	
-	return val + kerndumpbase;
-}
-
 CACHED_FIND_UINT64(find_OSBoolean_True) {
     addr_t val;
     addr_t ref = find_strref("Delay Autounload", 0, 0);
