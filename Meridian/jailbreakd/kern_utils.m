@@ -7,9 +7,7 @@
 #import "osobject.h"
 #import "sandbox.h"
 
-#define JAILBREAKDDEBUG 1
-
-#define TF_PLATFORM 0x400
+#define JAILBREAKDDEBUG
 
 #define	CS_VALID		0x0000001	/* dynamically valid */
 #define CS_ADHOC		0x0000002	/* ad hoc signed */
@@ -119,20 +117,6 @@ void set_csflags(uint64_t proc) {
     wk32(proc + offsetof_p_csflags, csflags);
 }
 
-void set_tfplatform(uint64_t proc) {
-    // task.t_flags & TF_PLATFORM
-    uint64_t task = rk64(proc + offsetof_task);
-    uint32_t t_flags = rk32(task + offsetof_t_flags);
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"Old t_flags: 0x%x", t_flags);
-#endif
-    t_flags |= TF_PLATFORM;
-    wk32(task+offsetof_t_flags, t_flags);
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"New t_flags: 0x%x", t_flags);
-#endif
-}
-
 void set_csblob(uint64_t proc) {
     uint64_t textvp = rk64(proc + offsetof_p_textvp); //vnode of executable
     off_t textoff = rk64(proc + offsetof_p_textoff);
@@ -223,15 +207,11 @@ void set_sandbox_extensions(uint64_t proc) {
     return;
   }
 
-    NSLog(@"0.5");
-    
   if (has_file_extension(sandbox, abs_path_exceptions[0])) {
     NSLog(@"already has '%s', skipping", abs_path_exceptions[0]);
     return;
   }
 
-    NSLog(@"1");
-    
   uint64_t ext = 0;
   const char** path = abs_path_exceptions;
   while (*path != NULL) {
@@ -242,17 +222,11 @@ void set_sandbox_extensions(uint64_t proc) {
     ++path;
   }
     
-    NSLog(@"2");
-
   NSLog(@"last extension_create_file ext: 0x%llx", ext);
 
-    NSLog(@"3");
-    
   if (ext != 0) {
     extension_add(ext, sandbox, exc_key);
   }
-    
-    NSLog(@"4");
 }
 
 void set_amfi_entitlements(uint64_t proc) {
@@ -266,6 +240,8 @@ void set_amfi_entitlements(uint64_t proc) {
     NSLog(@"Setting Entitlements... (%llx)", amfi_entitlements);
 #endif
 
+    NSLog(@"amfi_entitlements = %llx", amfi_entitlements);
+    
     NSLog(@"trueVal = %llx", find_OSBoolean_True());
     OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
     
@@ -275,12 +251,9 @@ void set_amfi_entitlements(uint64_t proc) {
     
     uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
 
-    NSLog(@"ent 2");
-    
     int rv = 0;
 
     if (present == 0) {
-        NSLog(@"ent 3");
       rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
     } else if (present != get_exception_osarray()) {
         unsigned int itemCount = OSArray_ItemCount(present);
@@ -320,11 +293,11 @@ void set_amfi_entitlements(uint64_t proc) {
 
 int setcsflagsandplatformize(int pid){
   uint64_t proc = proc_find(pid, 3);
+    NSLog(@"touching pid %d in weird ways: %llx", pid, proc);
   if (proc != 0) {
     set_csflags(proc);
-//    set_tfplatform(proc); /* near 100% sure this doesn't apply to os 10 */
     set_amfi_entitlements(proc);
-    set_sandbox_extensions(proc);
+//    set_sandbox_extensions(proc);
     set_csblob(proc);
     NSLog(@"setcsflagsandplatformize on PID %d", pid);
     return 0;

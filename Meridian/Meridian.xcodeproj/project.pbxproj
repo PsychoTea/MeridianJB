@@ -273,9 +273,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
+				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
-				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B5895197201D4B10002E0EAD /* jailbreakd.plist in Resources */,
 				B589518B201D21F2002E0EAD /* amfid.tar in Resources */,
 				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,

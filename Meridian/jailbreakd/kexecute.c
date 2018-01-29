@@ -4,6 +4,11 @@
 #include "patchfinder64.h"
 #include "offsetof.h"
 
+// TODO : Fix this using KCALL macro code from v0rtex
+// probably just rewrite the whole thing using the struct etc
+// offsets are zzzzzz
+// goodnight 
+
 mach_port_t prepare_user_client(void) {
   kern_return_t err;
   mach_port_t user_client;
@@ -91,6 +96,8 @@ void term_kexecute(void) {
 }
 
 uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4, uint64_t x5, uint64_t x6) {
+    
+    
     while (kexecute_lock){
       printf("Kexecute locked. Waiting for 10ms.");
       usleep(10000);

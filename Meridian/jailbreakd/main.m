@@ -68,7 +68,7 @@ int remove_memory_limit(void) {
 
 extern unsigned offsetof_ip_kobject;
 
-int runserver(){
+int runserver() {
     NSLog(@"[jailbreakd] Process Start!");
     remove_memory_limit();
 
@@ -79,14 +79,13 @@ int runserver(){
     }
 
     init_kernel(kernel_base, NULL);
-    // Get the slide
     kernel_slide = kernel_base - 0xFFFFFFF007004000;
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
 
     init_kexecute();
 
-    struct sockaddr_in serveraddr; /* server's addr */
-    struct sockaddr_in clientaddr; /* client addr */
+    struct sockaddr_in serveraddr;
+    struct sockaddr_in clientaddr;
 
     NSLog(@"[jailbreakd] Running server...");
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -97,7 +96,6 @@ int runserver(){
 
     struct hostent *server;
     char *hostname = "127.0.0.1";
-    /* gethostbyname: get the server's DNS entry */
     server = gethostbyname(hostname);
     if (server == NULL) {
         NSLog(@"[jailbreakd] ERROR, no such host as %s", hostname);
@@ -106,7 +104,6 @@ int runserver(){
 
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    //serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     bcopy((char *)server->h_addr,
           (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons((unsigned short)5);
@@ -128,8 +125,10 @@ int runserver(){
     char buf[1024];
 
     socklen_t clientlen = sizeof(clientaddr);
-    while (1) {
+    
+    while (true) {
         bzero(buf, 1024);
+        
         int size = recvfrom(sockfd, buf, 1024, 0, (struct sockaddr *)&clientaddr, &clientlen);
         if (size < 0){
             NSLog(@"Error in recvfrom");
@@ -142,43 +141,47 @@ int runserver(){
         NSLog(@"Server received %d bytes.", size);
 
         uint8_t command = buf[0];
-        if (command == JAILBREAKD_COMMAND_ENTITLE){
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID)){
+        if (command == JAILBREAKD_COMMAND_ENTITLE) {
+            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID)) {
                 NSLog(@"Error: ENTITLE packet is too small");
                 continue;
             }
             struct JAILBREAKD_ENTITLE_PID *entitlePacket = (struct JAILBREAKD_ENTITLE_PID *)buf;
-            NSLog(@"Entitle PID %d", entitlePacket->Pid);
+            NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d", entitlePacket->Pid);
             setcsflagsandplatformize(entitlePacket->Pid);
         }
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT){
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)){
+        
+        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
+            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)) {
                 NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
                 continue;
             }
             struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"Entitle+SIGCONT PID %d", entitleSIGCONTPacket->Pid);
+            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", entitleSIGCONTPacket->Pid);
             setcsflagsandplatformize(entitleSIGCONTPacket->Pid);
             kill(entitleSIGCONTPacket->Pid, SIGCONT);
         }
-        if (command == JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE){
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID)){
+        
+        if (command == JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE) {
+            if (size < sizeof(struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID)) {
                 NSLog(@"Error: ENTITLE_PLATFORMIZE packet is too small");
                 continue;
             }
+            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE");
             struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID *entitlePlatformizePacket = (struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID *)buf;
             NSLog(@"Entitle PID %d", entitlePlatformizePacket->EntitlePID);
             setcsflagsandplatformize(entitlePlatformizePacket->EntitlePID);
             NSLog(@"Platformize PID %d", entitlePlatformizePacket->PlatformizePID);
             setcsflagsandplatformize(entitlePlatformizePacket->PlatformizePID);
         }
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY){
+        
+        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY) {
             if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)){
                 NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
                 continue;
             }
             struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"Entitle+SIGCONT PID %d", entitleSIGCONTPacket->Pid);
+            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY PID: %d", entitleSIGCONTPacket->Pid);
             __block int PID = entitleSIGCONTPacket->Pid;
             dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), queue, ^{
@@ -187,13 +190,14 @@ int runserver(){
             });
             dispatch_release(queue);
         }
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY){
+        
+        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
             if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)){
                 NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
                 continue;
             }
             struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"Entitle+SIGCONT PID %d", entitleSIGCONTPacket->Pid);
+            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", entitleSIGCONTPacket->Pid);
             __block int PID = entitleSIGCONTPacket->Pid;
             
             dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
@@ -214,16 +218,18 @@ int runserver(){
             });
             dispatch_release(queue);
         }
-        if (command == JAILBREAKD_COMMAND_DUMP_CRED){
-            if (size < sizeof(struct JAILBREAKD_DUMP_CRED)){
+        
+        if (command == JAILBREAKD_COMMAND_DUMP_CRED) {
+            if (size < sizeof(struct JAILBREAKD_DUMP_CRED)) {
                 NSLog(@"Error: DUMP_CRED packet is too small");
                 continue;
             }
             struct JAILBREAKD_DUMP_CRED *dumpCredPacket = (struct JAILBREAKD_DUMP_CRED *)buf;
-            NSLog(@"Dump PID %d", dumpCredPacket->Pid);
+            NSLog(@"JAILBREAKD_COMMAND_DUMP_CRED PID: %d", dumpCredPacket->Pid);
             dumppid(dumpCredPacket->Pid);
         }
-        if (command == JAILBREAKD_COMMAND_EXIT){
+        
+        if (command == JAILBREAKD_COMMAND_EXIT) {
             NSLog(@"Got Exit Command! Goodbye!");
             term_kernel();
             term_kexecute();
@@ -231,7 +237,6 @@ int runserver(){
         }
     }
 
-    /* Exit and clean up the child process. */
     _exit(0);
     return 0;
 }
@@ -242,7 +247,8 @@ int main(int argc, char **argv, char **envp)
     kernel_base = strtoull(getenv("KernelBase"), &endptr, 16);
     char *endptr2;
     kernprocaddr = strtoull(getenv("KernProcAddr"), &endptr2, 16);
-    // setpgid(getpid(), 0);
+    char *endptr3;
+    offset_zonemap = strtoull(getenv("ZoneMapOffset"), &endptr3, 16);
 
     int ret = runserver();
     exit(ret);

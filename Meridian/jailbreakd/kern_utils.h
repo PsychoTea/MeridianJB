@@ -79,3 +79,4 @@ extern uint64_t kernel_base;
 extern uint64_t kernel_slide;
 
 uint64_t kernprocaddr;
+uint64_t offset_zonemap;

@@ -337,6 +337,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         unlink("/meridian/injector");
         unlink("/meridian/pspawn_hook.dylib");
         unlink("/meridian/jailbreakd");
+        unlink("/meridian/jailbreakd.plist");
         unlink("/meridian/SBInject.dylib");
         unlink("/usr/lib/SBInject.dylib");
         unlink("/usr/lib/libsubstitute.0.dylib");
@@ -351,7 +352,9 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         extract_bundle("substitute.tar", "/usr/lib");
         extract_bundle("safemode.tar", "/Applications");
         
-        mkdir("/meridian/SBInject", 0755);
+        mkdir("/System/Library/SBInject", 0755);
+        mkdir("/meridian/Library", 0755);
+        symlink("/System/Library/SBInject", "/meridian/Library/SBInject");
         
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
         
@@ -362,7 +365,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         // worry about team validation and shit
         inject_trust("/meridian/pspawn_hook.dylib");
         inject_trust("/meridian/bins/launchctl");
-        // inject_trust("/meridian/SBInject.dylib");
         inject_trust("/usr/lib/SBInject.dylib");
         
         unlink("/var/tmp/jailbreakd.pid");
@@ -372,6 +374,7 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
         job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+        job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", OFFSET_ZONE_MAP];
         [job writeToFile:@"/meridian/jailbreakd.plist" atomically:YES];
         chmod("/meridian/jailbreakd.plist", 0600);
         chown("/meridian/jailbreakd.plist", 0, 0);

@@ -101,16 +101,12 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             }
         }
     } else if (current_process == PROCESS_XPCPROXY) {
-        // we don't wanna inject into amfid since that
-        // has already been patched by amfid_fucker
-        if (strcmp(path, "/usr/libexec/amfid") != 0) {
-            inject_me = SBINJECT_PAYLOAD_DYLIB;
-        }
+        // if we're in xpcproxy just inject into fuckin everytin ;)
+        inject_me = SBINJECT_PAYLOAD_DYLIB;
     }
     
-    if (inject_me == NULL ||
-        !file_exist(inject_me)) {
-        DEBUGLOG("Nothing to inject.");
+    if (inject_me == NULL) {
+        DEBUGLOG("Nothing to inject%s.", !file_exist(inject_me) ? " (file not found)" : "");
         return old(pid, path, file_actions, attrp, argv, envp);
     }
     
@@ -119,7 +115,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     int envcount = 0;
     
     // Here we grab the position of 'DYLD_INSERT_LIBRARIES' (an env variable)
-    // so we can update it with SB_INJECT (or whatever needs to be injected)
+    // so we can update it with inject_me (the dylib we wanna inject)
     if (envp != NULL) {
         DEBUGLOG("Env: ");
         const char** currentenv = envp;
