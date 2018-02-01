@@ -294,15 +294,33 @@ uint8_t *get_code_directory(const char* name) {
         return NULL;
     }
     
-    struct mach_header_64 mh;
-    fread(&mh, sizeof(struct mach_header_64), 1, fd);
+    uint32_t magic;
+    fread(&magic, sizeof(magic), 1, fd);
+    fseek(fd, 0, SEEK_SET);
     
-    long off = sizeof(struct mach_header_64);
-    for (int i = 0; i < mh.ncmds; i++) {
-        const struct load_command cmd;
+    long off;
+    int ncmds;
+    
+    if (magic == MH_MAGIC_64) {
+        struct mach_header_64 mh64;
+        fread(&mh64, sizeof(mh64), 1, fd);
+        off = sizeof(mh64);
+        ncmds = mh64.ncmds;
+    } else if (magic == MH_MAGIC) {
+        struct mach_header mh;
+        fread(&mh, sizeof(mh), 1, fd);
+        off = sizeof(mh);
+        ncmds = mh.ncmds;
+    } else {
+        printf("[amfid_payload] %s is not a mach-o? what are you doing, buddy?", name);
+        return NULL;
+    }
+    
+    for (int i = 0; i < ncmds; i++) {
+        struct load_command cmd;
         fseek(fd, off, SEEK_SET);
         fread(&cmd, sizeof(struct load_command), 1, fd);
-        if (cmd.cmd == 0x1d) {
+        if (cmd.cmd == LC_CODE_SIGNATURE) {
             uint32_t off_cs;
             fread(&off_cs, sizeof(uint32_t), 1, fd);
             uint32_t size_cs;
