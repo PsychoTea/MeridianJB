@@ -712,37 +712,33 @@ CACHED_FIND_UINT64(find_add_x0_x0_0x40_ret) {
 	return 0;
 }
 
-CACHED_FIND_UINT64(find_osbooleantrue) {
-    return OSUnserializeXML("<true/>");
-}
+CACHED_FIND_UINT64(find_OSBoolean_True) {
+    addr_t val;
+    addr_t ref = find_strref("Delay Autounload", 0, 0);
+    if (!ref) {
+        return 0;
+    }
+    ref -= kerndumpbase;
 
-//CACHED_FIND_UINT64(find_OSBoolean_True) {
-//    addr_t val;
-//    addr_t ref = find_strref("Delay Autounload", 0, 0);
-//    if (!ref) {
-//        return 0;
-//    }
-//    ref -= kerndumpbase;
-//
-//    addr_t weird_instruction = 0;
-//    for (int i = 4; i < 4*0x100; i+=4) {
-//        uint32_t op = *(uint32_t *)(kernel + ref + i);
-//        if (op == 0x320003E0) {
-//            weird_instruction = ref+i;
-//            break;
-//        }
-//    }
-//    if (!weird_instruction) {
-//        return 0;
-//    }
-//
-//    val = calc64(kernel, ref, weird_instruction, 8);
-//    if (!val) {
-//        return 0;
-//    }
-//
-//    return rk64(val + kerndumpbase);
-//}
+    addr_t weird_instruction = 0;
+    for (int i = 4; i < 4*0x100; i+=4) {
+        uint32_t op = *(uint32_t *)(kernel + ref + i);
+        if (op == 0x320003E0) {
+            weird_instruction = ref+i;
+            break;
+        }
+    }
+    if (!weird_instruction) {
+        return 0;
+    }
+
+    val = calc64(kernel, ref, weird_instruction, 8);
+    if (!val) {
+        return 0;
+    }
+
+    return rk64(val + kerndumpbase);
+}
 
 CACHED_FIND_UINT64(find_OSBoolean_False) {
     return find_OSBoolean_True()+8;
