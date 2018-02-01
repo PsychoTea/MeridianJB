@@ -112,7 +112,6 @@ int remount_root(uint64_t kslide) {
     NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
     NSLog(@"_rootnode = %llx", _rootnode);
     
-    // uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     uint64_t rootfs_vnode = rk64(_rootnode);
     
     uint64_t off = VNODE_V_UN;
