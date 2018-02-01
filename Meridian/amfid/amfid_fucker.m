@@ -535,7 +535,7 @@ pid_t amfid_pid;
 mach_port_t get_amfid_task() {
     pid_t new_amfid_pid = get_pid_for_name("amfid");
     while (!new_amfid_pid) {
-        sleep(1);
+        // sleep(1);
         new_amfid_pid = get_pid_for_name("amfid");
     }
     NSLog(@"[amfid_fucker] got amfid pid %d", new_amfid_pid);
@@ -593,10 +593,6 @@ int main(int argc, char* argv[]) {
     patch_amfid(amfid_task);
     NSLog(@"[amfid_fucker] Inital amfid patch complete");
     
-    // Not sleeping before hopping into the loop
-    // would cause werid shit to happen, so this'll do
-    // sleep(3);
-    
     // s/o to Jonathan Levin (@Morpheus) for the example on using kqueue/kevent
     // http://newosxbook.com/QiLin/qilin.pdf (pg 21)
     
@@ -612,6 +608,12 @@ int main(int argc, char* argv[]) {
         if (rc >= 0) {
             close(kq);
             NSLog(@"[amfid_fucker] amfid is dead!");
+            
+            int ret = posix_spawn(NULL, "/meridian/bins/time", NULL, NULL, (char**)&(const char*[]){
+                "/meridian/bins/time",
+                NULL
+            }, NULL);
+            NSLog(@"[amfid_fucker] launched time bianry - returned %d", ret);
             
             mach_port_t amfid_task = get_amfid_task();
             patch_amfid(amfid_task);
