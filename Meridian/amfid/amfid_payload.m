@@ -244,7 +244,7 @@ uint64_t binary_load_address() {
 
 
 uint32_t swap_uint32(uint32_t val) {
-	val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF );
+	val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF);
 	return (val << 16) | (val >> 16);
 }
 
@@ -286,85 +286,104 @@ uint8_t *get_sha1(uint8_t* code_dir) {
     return out;
 }
 
-uint8_t *get_code_directory(const char* name) {
-    FILE* fd = fopen(name, "r");
+// creds to @xerub on this one, code taken from libjb (and modified slightly)
+// https://github.com/xerub/async_wake_ios/blob/master/async_wake_ios/libjb/trav.c#L194
+// this is kinda unecessary since I could just sign everything as SHA1 and have done with
+// however it was pretty fun and will make life easier :)
+int is_sha1(uint8_t *code_dir) {
+    const CS_SuperBlob *super = (CS_SuperBlob *)(code_dir);
+    uint32_t count = swap_uint32(super->count);
     
-    if (fd == 0) {
-        printf("[amfid_payload] failed to open file %s \n", name);
+    const CS_BlobIndex *index;
+    uint32_t i;
+    for (index = super->index, i = 0; i < count; i++, index++) {
+        if (swap_uint32(index->type) != CSSLOT_CODEDIRECTORY) {
+            continue;
+        }
+        
+        const CS_CodeDirectory *directory = (CS_CodeDirectory *)((uint8_t *)super + swap_uint32(index->offset));
+        
+        return (directory->hashType == 1 ||
+                directory->hashSize == 20);
+    }
+    
+    // wasn't found
+    NSLog(@"[amfid_payload] error: unable to find hash type for given code dir");
+    return FALSE;
+}
+
+// original get_code_directory code worked for most binaries,
+// unless they were FAT. this works perfectly :-)
+// creds: https://github.com/coolstar/electra/blob/master/basebinaries/amfid_payload/amfid_payload.m#L95
+uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
+    FILE* fd = fopen(file_path, "r");
+    
+    if (fd == NULL) {
+        NSLog(@"[amfid_payload] couldn't open file %s", file_path);
         return NULL;
     }
     
-    uint32_t magic;
-    fread(&magic, sizeof(magic), 1, fd);
-    fseek(fd, 0, SEEK_SET);
+    fseek(fd, 0L, SEEK_END);
+    uint64_t file_len = ftell(fd);
+    fseek(fd, 0L, SEEK_SET);
     
-    long off;
-    int ncmds;
-    
-    if (magic == MH_MAGIC_64) {
-        struct mach_header_64 mh64;
-        fread(&mh64, sizeof(mh64), 1, fd);
-        off = sizeof(mh64);
-        ncmds = mh64.ncmds;
-    } else if (magic == MH_MAGIC) {
-        struct mach_header mh;
-        fread(&mh, sizeof(mh), 1, fd);
-        off = sizeof(mh);
-        ncmds = mh.ncmds;
-    } else {
-        printf("[amfid_payload] %s is not a mach-o? what are you doing, buddy?", name);
+    if (file_off > file_len){
+        NSLog(@"[amfid_payload] file offset greater than length");
         return NULL;
     }
     
-    for (int i = 0; i < ncmds; i++) {
-        struct load_command cmd;
+    uint64_t off = file_off;
+    fseek(fd, off, SEEK_SET);
+    
+    struct mach_header_64 mh;
+    fread(&mh, sizeof(struct mach_header_64), 1, fd);
+    
+    if (mh.magic != MH_MAGIC_64) {
+        NSLog(@"[amfid_payload] your magic is not valid in these lands!");
+        return NULL;
+    }
+    
+    off += sizeof(struct mach_header_64);
+    if (off > file_len) {
+        NSLog(@"[amfid_payload] unexpected end of file");
+        return NULL;
+    }
+    
+    for (int i = 0; i < mh.ncmds; i++) {
+        if (off + sizeof(struct load_command) > file_len) {
+            NSLog(@"[amfid_payload] unexpected end of file");
+            return NULL;
+        }
+        
+        const struct load_command cmd;
         fseek(fd, off, SEEK_SET);
-        fread(&cmd, sizeof(struct load_command), 1, fd);
+        fread((void*)&cmd, sizeof(struct load_command), 1, fd);
         if (cmd.cmd == LC_CODE_SIGNATURE) {
             uint32_t off_cs;
             fread(&off_cs, sizeof(uint32_t), 1, fd);
             uint32_t size_cs;
             fread(&size_cs, sizeof(uint32_t), 1, fd);
             
-            uint8_t *cd = malloc(size_cs);
-            fseek(fd, off_cs, SEEK_SET);
-            fread(cd, size_cs, 1, fd);
+            if (off_cs + file_off + size_cs > file_len) {
+                NSLog(@"[amfid_payload] unexpected end of file");
+                return NULL;
+            }
             
+            uint8_t *cd = malloc(size_cs);
+            fseek(fd, off_cs + file_off, SEEK_SET);
+            fread(cd, size_cs, 1, fd);
             return cd;
         } else {
             off += cmd.cmdsize;
-        }
-    }
-    
-    return NULL;
-}
-
-// creds to @xerub on this one, code taken from libjb (and modified slightly)
-// https://github.com/xerub/async_wake_ios/blob/master/async_wake_ios/libjb/trav.c#L194
-// this is kinda unecessary since I could just sign everything as SHA1 and have done with
-// however it was pretty fun and will make my life easier :)
-int is_sha1(uint8_t *code_dir) {
-    uint32_t i;
-    const CS_SuperBlob *super = (CS_SuperBlob *)(code_dir);
-    uint32_t count = swap_uint32(super->count);
-    const CS_BlobIndex *index;
-    
-    for (index = super->index, i = 0; i < count; i++, index++) {
-        if (swap_uint32(index->type) == CSSLOT_CODEDIRECTORY) {
-            const CS_CodeDirectory *directory = (CS_CodeDirectory *)((uint8_t *)super + swap_uint32(index->offset));
-            
-            if (directory->hashType == 1 ||
-                directory->hashSize == 20) {
-                return TRUE;
-            } else {
-                return FALSE;
+            if (off > file_len) {
+                NSLog(@"[amfid_payload] unexpected end of file");
+                return NULL;
             }
         }
     }
     
-    // wasn't found
-    NSLog(@"[amfid_payload] error: unable to find hash type for given code dir");
-    return FALSE;
+    NSLog(@"[amfid_payload] couldn't find the code sig for %s", file_path);
+    return NULL;
 }
 
 uint64_t real_func = 0;
@@ -384,15 +403,18 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     if (![*info objectForKey:@"CdHash"]) {
         NSLog(@"[amfid_payload] Binary is unsigned - doing some magic");
         
-        uint8_t* code_dir = get_code_directory(file_path);
+        NSNumber* file_offset = [options objectForKey:@"UniversalFileOffset"];
+        uint64_t file_off = [file_offset unsignedLongLongValue];
+        
+        uint8_t* code_dir = get_code_directory(file_path, file_off);
         
         if (code_dir == NULL) {
             NSLog(@"[amfid_payload] Not patching file - missing code directory (file: %s)", file_path);
             return 0;
         }
         
-        uint8_t* cd_hash;
-        int length;
+        uint8_t* cd_hash; // cd_hash size will always be 20 - it gets shortened
+        int length; // however DIGEST_LENGTH may be longer, so we can differentiate between sha1 & sha256
         if (is_sha1(code_dir)) {
             /* CdHash is SHA1 */
             cd_hash = get_sha1(code_dir);
@@ -403,7 +425,10 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
             length = CC_SHA256_DIGEST_LENGTH;
         }
         
-        NSLog(@"[amfid_payload] Got cd_hash of length %d (SHA%s, size: %lu)", length, (length == 20 ? "1" : "256"), sizeof(cd_hash));
+        NSLog(@"[amfid_payload] Got cd_hash of length %d (SHA%s - size %lu)",
+              length,
+              (length == 20 ? "1" : "256"),
+              sizeof(cd_hash));
         
         [*info setValue:[[NSData alloc] initWithBytes:cd_hash length:length]
                  forKey:@"CdHash"];
