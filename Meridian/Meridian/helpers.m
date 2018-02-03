@@ -73,11 +73,11 @@ char *itoa(long n) {
     return   buf;
 }
 
-int file_exists(char *path) {
+int file_exists(const char *path) {
     return access(path, F_OK) == -1;
 }
 
-int file_exist(char *filename) {
+int file_exist(const char *filename) {
     struct stat buffer;
     int r = stat(filename, &buffer);
     return (r == 0);
@@ -159,7 +159,7 @@ out_error:
     return -1;
 }
 
-char* bundled_file(char *filename) {
+char* bundled_file(const char *filename) {
     return concat(bundle_path(), filename);
 }
 
@@ -174,7 +174,7 @@ char* bundle_path() {
     return concat(path, "/");
 }
 
-void extract_bundle(char* bundle_name, char* directory) {
+void extract_bundle(const char* bundle_name, const char* directory) {
     char tarFile[100];
     strcpy(tarFile, directory);
     strcat(tarFile, "/");
