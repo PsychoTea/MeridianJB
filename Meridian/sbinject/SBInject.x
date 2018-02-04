@@ -7,7 +7,7 @@
 #import <sys/stat.h>
 #import <sys/types.h>
 
-#define dylibDir @"/System/Library/SBInject"
+#define dylibDir @"/meridian/tweaks"
 
 NSArray *sbinjectGenerateDylibList() {
     NSString *processName = [[NSProcessInfo processInfo] processName];
@@ -33,7 +33,6 @@ NSArray *sbinjectGenerateDylibList() {
     NSMutableArray *dylibsToInject = [NSMutableArray array];
     // Loop through the list of plists
     for (NSString *plist in plists) {
-        NSLog(@"found plist: %@", plist);
         // We'll want to deal with absolute paths, so append the filename to dylibDir
         NSString *plistPath = [dylibDir stringByAppendingPathComponent:plist];
         NSDictionary *filter = [NSDictionary dictionaryWithContentsOfFile:plistPath];

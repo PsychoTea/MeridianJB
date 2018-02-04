@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		B502EF1B2027643D00F761C2 /* SBInject.tar in Resources */ = {isa = PBXBuildFile; fileRef = B502EF1A2027643D00F761C2 /* SBInject.tar */; };
+		B502EF2420277DD800F761C2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B502EF2320277DD800F761C2 /* AppDelegate.m */; };
+		B502EF2720277DD800F761C2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B502EF2620277DD800F761C2 /* ViewController.m */; };
+		B502EF2A20277DD800F761C2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B502EF2820277DD800F761C2 /* Main.storyboard */; };
+		B502EF2C20277DD800F761C2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B502EF2B20277DD800F761C2 /* Assets.xcassets */; };
+		B502EF2F20277DD800F761C2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B502EF2D20277DD800F761C2 /* LaunchScreen.storyboard */; };
+		B502EF3220277DD800F761C2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B502EF3120277DD800F761C2 /* main.m */; };
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
 		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
 		B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79471FF2248B000D6015 /* CreditsController.m */; };
@@ -42,6 +48,16 @@
 /* Begin PBXFileReference section */
 		B502EF1820275FB400F761C2 /* sbinject */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sbinject; sourceTree = "<group>"; };
 		B502EF1A2027643D00F761C2 /* SBInject.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = SBInject.tar; sourceTree = "<group>"; };
+		B502EF2020277DD800F761C2 /* SafeMode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeMode.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B502EF2220277DD800F761C2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		B502EF2320277DD800F761C2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		B502EF2520277DD800F761C2 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		B502EF2620277DD800F761C2 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		B502EF2920277DD800F761C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B502EF2B20277DD800F761C2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B502EF2E20277DD800F761C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B502EF3020277DD800F761C2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B502EF3120277DD800F761C2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
@@ -100,6 +116,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B502EF1D20277DD800F761C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B514CC731FECD788005F4E6B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -112,6 +135,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B502EF2120277DD800F761C2 /* SafeMode */ = {
+			isa = PBXGroup;
+			children = (
+				B502EF2220277DD800F761C2 /* AppDelegate.h */,
+				B502EF2320277DD800F761C2 /* AppDelegate.m */,
+				B502EF2520277DD800F761C2 /* ViewController.h */,
+				B502EF2620277DD800F761C2 /* ViewController.m */,
+				B502EF2820277DD800F761C2 /* Main.storyboard */,
+				B502EF2B20277DD800F761C2 /* Assets.xcassets */,
+				B502EF2D20277DD800F761C2 /* LaunchScreen.storyboard */,
+				B502EF3020277DD800F761C2 /* Info.plist */,
+				B502EF3120277DD800F761C2 /* main.m */,
+			);
+			path = SafeMode;
+			sourceTree = "<group>";
+		};
 		B50F79671FF224F0000D6015 /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
@@ -143,6 +182,7 @@
 				B589518C201D4018002E0EAD /* jailbreakd */,
 				B502EF1820275FB400F761C2 /* sbinject */,
 				B514CC781FECD788005F4E6B /* Meridian */,
+				B502EF2120277DD800F761C2 /* SafeMode */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
 				B5B7C2A31FF2C5CE0087619A /* Frameworks */,
@@ -153,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				B514CC761FECD788005F4E6B /* Meridian.app */,
+				B502EF2020277DD800F761C2 /* SafeMode.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -218,6 +259,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B502EF1F20277DD800F761C2 /* SafeMode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B502EF3320277DD800F761C2 /* Build configuration list for PBXNativeTarget "SafeMode" */;
+			buildPhases = (
+				B502EF1C20277DD800F761C2 /* Sources */,
+				B502EF1D20277DD800F761C2 /* Frameworks */,
+				B502EF1E20277DD800F761C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SafeMode;
+			productName = SafeMode;
+			productReference = B502EF2020277DD800F761C2 /* SafeMode.app */;
+			productType = "com.apple.product-type.application";
+		};
 		B514CC751FECD788005F4E6B /* Meridian */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B514CC8C1FECD788005F4E6B /* Build configuration list for PBXNativeTarget "Meridian" */;
@@ -246,6 +304,10 @@
 				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = "Ben Sparkes";
 				TargetAttributes = {
+					B502EF1F20277DD800F761C2 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+					};
 					B514CC751FECD788005F4E6B = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -266,11 +328,22 @@
 			projectRoot = "";
 			targets = (
 				B514CC751FECD788005F4E6B /* Meridian */,
+				B502EF1F20277DD800F761C2 /* SafeMode */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B502EF1E20277DD800F761C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B502EF2F20277DD800F761C2 /* LaunchScreen.storyboard in Resources */,
+				B502EF2C20277DD800F761C2 /* Assets.xcassets in Resources */,
+				B502EF2A20277DD800F761C2 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B514CC741FECD788005F4E6B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -307,7 +380,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\ntar -cf SBInject.tar SBInject.dylib\nrm SBInject.dylib\n\nmv SBInject.tar ../Meridian/";
+			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\ntar -cf SBInject.tar SBInject.dylib\n#rm SBInject.dylib\n\nmv SBInject.tar ../Meridian/";
 		};
 		B52C43BB200BCC920047B1B4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -329,6 +402,16 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B502EF1C20277DD800F761C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B502EF2720277DD800F761C2 /* ViewController.m in Sources */,
+				B502EF3220277DD800F761C2 /* main.m in Sources */,
+				B502EF2420277DD800F761C2 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B514CC721FECD788005F4E6B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +435,22 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		B502EF2820277DD800F761C2 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B502EF2920277DD800F761C2 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B502EF2D20277DD800F761C2 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B502EF2E20277DD800F761C2 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 		B514CC7F1FECD788005F4E6B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -371,6 +470,34 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		B502EF3420277DD800F761C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6EKJWC698P;
+				INFOPLIST_FILE = SafeMode/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.SafeMode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B502EF3520277DD800F761C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6EKJWC698P;
+				INFOPLIST_FILE = SafeMode/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.SafeMode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B514CC8A1FECD788005F4E6B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -531,6 +658,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B502EF3320277DD800F761C2 /* Build configuration list for PBXNativeTarget "SafeMode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B502EF3420277DD800F761C2 /* Debug */,
+				B502EF3520277DD800F761C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B514CC711FECD787005F4E6B /* Build configuration list for PBXProject "Meridian" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

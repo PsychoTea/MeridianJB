@@ -234,23 +234,16 @@ void set_amfi_entitlements(uint64_t proc) {
 #ifdef JAILBREAKDDEBUG
     NSLog(@"%@",@"AMFI:");
 #endif
-    uint64_t proc_ucred = rk64(proc+0x100);
-    uint64_t amfi_entitlements = rk64(rk64(proc_ucred+0x78)+0x8);
+    uint64_t proc_ucred = rk64(proc + 0x100);
+    uint64_t amfi_entitlements = rk64(rk64(proc_ucred + 0x78) + 0x8);
 #ifdef JAILBREAKDDEBUG
     NSLog(@"Setting Entitlements... (%llx)", amfi_entitlements);
 #endif
 
-    NSLog(@"amfi_entitlements = %llx", amfi_entitlements);
-    
-    NSLog(@"OSBoolean_True = %llx", find_OSBoolean_True());
-    NSLog(@"true = %llx", rk64(find_OSBoolean_True()));
-    
     int set1 = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
     
     int set2 = OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
-    NSLog(@"ent 1");
-    
     uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
 
     int rv = 0;
@@ -299,7 +292,7 @@ int setcsflagsandplatformize(int pid){
   if (proc != 0) {
     set_csflags(proc);
     set_amfi_entitlements(proc);
-//    set_sandbox_extensions(proc);
+    set_sandbox_extensions(proc);
     set_csblob(proc);
     NSLog(@"setcsflagsandplatformize on PID %d", pid);
     return 0;

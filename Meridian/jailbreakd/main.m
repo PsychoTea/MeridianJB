@@ -82,8 +82,6 @@ int runserver() {
     kernel_slide = kernel_base - 0xFFFFFFF007004000;
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
 
-    init_kexecute();
-
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
 
@@ -111,7 +109,6 @@ int runserver() {
     if (bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0){
         NSLog(@"[jailbreakd] Error binding...");
         term_kernel();
-        term_kexecute();
         exit(-1);
     }
     NSLog(@"[jailbreakd] Server running!");
@@ -232,7 +229,6 @@ int runserver() {
         if (command == JAILBREAKD_COMMAND_EXIT) {
             NSLog(@"Got Exit Command! Goodbye!");
             term_kernel();
-            term_kexecute();
             exit(0);
         }
     }
