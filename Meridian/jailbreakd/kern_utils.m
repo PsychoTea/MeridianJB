@@ -242,10 +242,12 @@ void set_amfi_entitlements(uint64_t proc) {
 
     NSLog(@"amfi_entitlements = %llx", amfi_entitlements);
     
-    NSLog(@"trueVal = %llx", find_OSBoolean_True());
-    OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
+    NSLog(@"OSBoolean_True = %llx", find_OSBoolean_True());
+    NSLog(@"true = %llx", rk64(find_OSBoolean_True()));
     
-    OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
+    int set1 = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
+    
+    int set2 = OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
     NSLog(@"ent 1");
     
@@ -282,7 +284,7 @@ void set_amfi_entitlements(uint64_t proc) {
             rv = 1;
         }
     } else {
-      NSLog(@"Not going to merge array with itself :P");
+      NSLog(@"Not going to merge array with itself :P (present = %d, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
       rv = 1;
     }
 

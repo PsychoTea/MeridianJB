@@ -741,7 +741,7 @@ CACHED_FIND_UINT64(find_OSBoolean_True) {
 }
 
 CACHED_FIND_UINT64(find_OSBoolean_False) {
-    return find_OSBoolean_True()+8;
+    return find_OSBoolean_True() + 8;
 }
 
 //CACHED_FIND_UINT64(find_zone_map_ref) {
