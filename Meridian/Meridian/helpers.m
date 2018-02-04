@@ -9,10 +9,12 @@
 #include "helpers.h"
 #include "ViewController.h"
 #include "kernel.h"
+#include "libjb.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
 #include <sys/spawn.h>
+#include <sys/stat.h>
 #import <Foundation/Foundation.h>
 
 uint64_t find_proc_by_name(char* name) {
@@ -71,8 +73,14 @@ char *itoa(long n) {
     return   buf;
 }
 
-int file_exists(char *path) {
+int file_exists(const char *path) {
     return access(path, F_OK) == -1;
+}
+
+int file_exist(const char *filename) {
+    struct stat buffer;
+    int r = stat(filename, &buffer);
+    return (r == 0);
 }
 
 void read_file(const char *path) {
@@ -151,7 +159,7 @@ out_error:
     return -1;
 }
 
-char* bundled_file(char *filename) {
+char* bundled_file(const char *filename) {
     return concat(bundle_path(), filename);
 }
 
@@ -164,6 +172,21 @@ char* bundle_path() {
     CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8*)path, len);
     
     return concat(path, "/");
+}
+
+void extract_bundle(const char* bundle_name, const char* directory) {
+    char tarFile[100];
+    strcpy(tarFile, directory);
+    strcat(tarFile, "/");
+    strcat(tarFile, bundle_name);
+    
+    cp(bundled_file(bundle_name), tarFile);
+    
+    chdir(directory);
+    
+    untar(fopen(tarFile, "r"), bundle_name);
+    
+    unlink(tarFile);
 }
 
 void touch_file(char *path) {

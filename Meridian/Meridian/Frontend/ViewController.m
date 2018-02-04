@@ -260,20 +260,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     }
     
     {
-        // TEMPORARY: remove old bins
-        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-        
-        // extract our bootstrap
-        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO) {
-            [self writeText:@"extracting binaries..."];
-            
-            [self extractBootstrap];
-            
-            [self writeText:@"done!"];
-        }
-    }
-    
-    {
         // create dir's and files for dropbear
         if (file_exists("/etc/dropbear") != 0 ||
             file_exists("/var/log/lastlog") != 0 ||
@@ -342,6 +328,82 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         }
         
         [self writeText:@"done!"];
+    }
+    
+    {
+        // Injecting substitute and shit
+        
+        // Delete all the old shit 
+        unlink("/meridian/injector");
+        unlink("/meridian/pspawn_hook.dylib");
+        unlink("/meridian/jailbreakd");
+        unlink("/meridian/jailbreakd.plist");
+        unlink("/meridian/SBInject.dylib");
+        unlink("/usr/lib/SBInject.dylib");
+        unlink("/usr/lib/libsubstitute.0.dylib");
+        unlink("/usr/lib/libsubstitute.dylib");
+        unlink("/usr/lib/libsubstrate.dylib");
+        
+        // Extract all the shit
+        extract_bundle("injector.tar", "/meridian");
+        extract_bundle("pspawn_hook.tar", "/meridian");
+        extract_bundle("jailbreakd.tar", "/meridian");
+        extract_bundle("SBInject.tar", "/usr/lib");
+        extract_bundle("substitute.tar", "/usr/lib");
+        
+        mkdir("/System/Library/SBInject", 0755);
+        mkdir("/meridian/Library", 0755);
+        symlink("/System/Library/SBInject", "/meridian/Library/SBInject");
+        
+        [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
+        
+        mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
+        symlink("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", "/lib/usr/libsubstrate.dylib");
+        
+        // chuck our lib in trust cache so we don't have to
+        // worry about team validation and shit
+        inject_trust("/meridian/pspawn_hook.dylib");
+        inject_trust("/meridian/bins/launchctl");
+        inject_trust("/usr/lib/SBInject.dylib");
+        
+        unlink("/var/tmp/jailbreakd.pid");
+        
+        NSData *blob = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"jailbreakd" ofType:@"plist"]];
+        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
+        
+        job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+        job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+        job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", OFFSET_ZONE_MAP];
+        [job writeToFile:@"/meridian/jailbreakd.plist" atomically:YES];
+        chmod("/meridian/jailbreakd.plist", 0600);
+        chown("/meridian/jailbreakd.plist", 0, 0);
+        
+        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
+            "/meridian/bins/launchctl",
+            "load",
+            "-w",
+            "/meridian/jailbreakd.plist",
+            NULL
+        });
+        
+        [self writeText:[NSString stringWithFormat:@"launchctl returned %d", rv]];
+        NSLog(@"The dragon becomes me!");
+        NSLog(@"once it is drawn, it cannot be sheathed without causing death");
+        
+        while (!file_exist("/var/tmp/jailbreakd.pid")) {
+            printf("Waiting for jailbreakd \n");
+            usleep(100000);
+        }
+        
+        // inject pspawn_hook.dylib to launchd
+        rv = execprog("/meridian/injector", (const char**)&(const char*[]) {
+            "/meridian/injector",
+            itoa(1), // launchd pid
+            "/meridian/pspawn_hook.dylib",
+            NULL
+        });
+        
+        [self writeText:[NSString stringWithFormat:@"inject for launchd returned %d", rv]];
     }
     
     return 0;

@@ -40,6 +40,8 @@ int defecate_amfi() {
         // copy some files
         NSLog(@"[amfi] copying in our patches \n");
         
+        // TODO: replace all this shit with extract_bundle
+        
         unlink("/meridian/amfid.tar"); // temporary
         unlink("/meridian/amfid_payload.dylib"); // temporary
         unlink("/meridian/amfid_fucker"); // temporary
@@ -48,10 +50,7 @@ int defecate_amfi() {
         
         mkdir("/meridian/amfid", 0755);
         
-        cp(bundled_file("amfid.tar"), "/meridian/amfid/amfid.tar");
-        chdir("/meridian/amfid");
-        untar(fopen("/meridian/amfid/amfid.tar", "r+"), "amfid.tar");
-        unlink("/meridian/amfid/amfid.tar");
+        extract_bundle("amfid.tar", "/meridian/amfid");
     }
     
     {
@@ -60,6 +59,8 @@ int defecate_amfi() {
         inject_trust("/meridian/amfid/amfid_fucker");
         inject_trust("/meridian/amfid/amfid_payload.dylib");
     }
+    
+    unlink("/var/tmp/amfid_payload.alive");
     
     NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
     NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
@@ -82,11 +83,21 @@ int defecate_amfi() {
     
     NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
     
+    while (!file_exist("/var/tmp/amfid_payload.alive")) {
+        NSLog(@"waiting for amfid patch...");
+        usleep(100000); // 0.1 sec
+    }
+    
     return rv;
 }
 
 // creds to stek29(?)
 void inject_trust(const char *path) {
+    if (!file_exist(path)) {
+        NSLog(@"[amfi] you wanka, %s doesn't exist!", path);
+        return;
+    }
+    
     typedef char hash_t[20];
     
     struct trust_chain {
@@ -103,7 +114,7 @@ void inject_trust(const char *path) {
     *(uint64_t *)&fake_chain.uuid[8] = 0xabadbabeabadbabe;
     fake_chain.count = 1;
     
-    uint8_t *codeDir = get_code_directory(path);
+    uint8_t *codeDir = get_code_directory(path, 0);
     if (codeDir == NULL) {
         NSLog(@"[amfi] was given null code dir for %s!", path);
         return;
@@ -123,34 +134,77 @@ void inject_trust(const char *path) {
     NSLog(@"[amfi] signed %s \n", path);
 }
 
-// creds to nullpixel
-uint8_t *get_code_directory(const char* name) {
-    FILE* fd = fopen(name, "r");
+// original get_code_directory code worked for most binaries,
+// unless they were FAT. this works perfectly :-)
+// creds: https://github.com/coolstar/electra/blob/master/basebinaries/amfid_payload/amfid_payload.m#L95
+uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
+    FILE* fd = fopen(file_path, "r");
+    
+    if (fd == NULL) {
+        NSLog(@"[amfid_payload] couldn't open file %s", file_path);
+        return NULL;
+    }
+    
+    fseek(fd, 0L, SEEK_END);
+    uint64_t file_len = ftell(fd);
+    fseek(fd, 0L, SEEK_SET);
+    
+    if (file_off > file_len){
+        NSLog(@"[amfid_payload] file offset greater than length");
+        return NULL;
+    }
+    
+    uint64_t off = file_off;
+    fseek(fd, off, SEEK_SET);
     
     struct mach_header_64 mh;
     fread(&mh, sizeof(struct mach_header_64), 1, fd);
     
-    long off = sizeof(struct mach_header_64);
+    if (mh.magic != MH_MAGIC_64) {
+        NSLog(@"[amfid_payload] your magic is not valid in these lands!");
+        return NULL;
+    }
+    
+    off += sizeof(struct mach_header_64);
+    if (off > file_len) {
+        NSLog(@"[amfid_payload] unexpected end of file");
+        return NULL;
+    }
+    
     for (int i = 0; i < mh.ncmds; i++) {
+        if (off + sizeof(struct load_command) > file_len) {
+            NSLog(@"[amfid_payload] unexpected end of file");
+            return NULL;
+        }
+        
         const struct load_command cmd;
         fseek(fd, off, SEEK_SET);
-        fread(&cmd, sizeof(struct load_command), 1, fd);
-        if (cmd.cmd == 0x1d) {
+        fread((void*)&cmd, sizeof(struct load_command), 1, fd);
+        if (cmd.cmd == LC_CODE_SIGNATURE) {
             uint32_t off_cs;
             fread(&off_cs, sizeof(uint32_t), 1, fd);
             uint32_t size_cs;
             fread(&size_cs, sizeof(uint32_t), 1, fd);
             
-            uint8_t *cd = malloc(size_cs);
-            fseek(fd, off_cs, SEEK_SET);
-            fread(cd, size_cs, 1, fd);
+            if (off_cs + file_off + size_cs > file_len) {
+                NSLog(@"[amfid_payload] unexpected end of file");
+                return NULL;
+            }
             
+            uint8_t *cd = malloc(size_cs);
+            fseek(fd, off_cs + file_off, SEEK_SET);
+            fread(cd, size_cs, 1, fd);
             return cd;
         } else {
             off += cmd.cmdsize;
+            if (off > file_len) {
+                NSLog(@"[amfid_payload] unexpected end of file");
+                return NULL;
+            }
         }
     }
     
+    NSLog(@"[amfid_payload] couldn't find the code sig for %s", file_path);
     return NULL;
 }
 

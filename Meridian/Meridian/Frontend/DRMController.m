@@ -12,7 +12,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MPVolumeView.h>
 
-@interface DRMController()
+@interface DRMController ()
 @property (weak, nonatomic) IBOutlet UIButton *websiteButton;
 @property (strong, nonatomic) AVPlayer *songPlayer;
 @end
