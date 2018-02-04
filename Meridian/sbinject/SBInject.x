@@ -107,6 +107,10 @@ int file_exist(char *filename) {
     return (r == 0);
 }
 
+/*
+ Thanks to @DGh0st on Discord for helping me set up this custom safe mode implementation :)
+ */
+
 @interface SBIconController : UIViewController
 + (id)sharedInstance;
 @end
