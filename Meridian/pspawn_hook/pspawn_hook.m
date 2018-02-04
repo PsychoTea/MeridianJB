@@ -38,8 +38,8 @@ enum CurrentProcess {
 
 int current_process = PROCESS_XPCPROXY;
 
-#define PSPAWN_HOOK_DYLIB "/meridian/pspawn_hook.dylib"
-#define SBINJECT_PAYLOAD_DYLIB "/usr/lib/SBInject.dylib"
+#define PSPAWN_HOOK_DYLIB       "/meridian/pspawn_hook.dylib"
+#define SBINJECT_PAYLOAD_DYLIB  "/usr/lib/SBInject.dylib"
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",  // syslog

