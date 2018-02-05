@@ -126,7 +126,7 @@ bool jailbreak_has_run = false;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex(&struct_offsets, &v0rtex_callback, NULL);
+        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
@@ -154,36 +154,6 @@ bool jailbreak_has_run = false;
             [self exploitSucceeded];
         });
     });
-}
-
-kern_return_t v0rtex_callback(task_t task_for_port0,
-                              kptr_t kbase,
-                              kptr_t kernucred,
-                              kptr_t kernproc_addr) {
-    host_t host = mach_host_self();
-    mach_port_t name = MACH_PORT_NULL;
-    kern_return_t ret = processor_set_default(host, &name);
-    LOG("processor_set_default: %s", mach_error_string(ret));
-    if(ret == KERN_SUCCESS)
-    {
-        mach_port_t priv = MACH_PORT_NULL;
-        ret = host_processor_set_priv(host, name, &priv);
-        LOG("host_processor_set_priv: %s", mach_error_string(ret));
-        if(ret == KERN_SUCCESS)
-        {
-            task_array_t tasks;
-            mach_msg_type_number_t num;
-            ret = processor_set_tasks(priv, &tasks, &num);
-            LOG("processor_set_tasks: %u, %s", num, mach_error_string(ret));
-        }
-    }
-    
-    tfp0 = task_for_port0;
-    kernel_base = kbase;
-    kern_ucred = kernucred;
-    kernprocaddr = kernproc_addr;
-    
-    return KERN_SUCCESS;
 }
 
 - (IBAction)websiteButtonPressed:(UIButton *)sender {

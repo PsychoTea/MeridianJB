@@ -1,13 +1,5 @@
-#ifndef V0RTEX_H
-#define V0RTEX_H
-
+#import "common.h"
 #include <mach/mach.h>
+#include <stdint.h>
 
-#include "common.h"
-#include "offsets.h"
-
-typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, kptr_t kernucred, kptr_t kernproc_addr);
-
-kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback, void *cb_data);
-
-#endif
+kern_return_t v0rtex(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t *kernprocaddr);
