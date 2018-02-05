@@ -337,12 +337,11 @@ bool jailbreak_has_run = false;
         // symlink a bunch of shit
         mkdir("/usr/lib/SBInject", 0755);
         mkdir("/Library/MobileSubstrate", 0755);
-        symlink("/Library/MobileSubstrate/DynamicLibraries", "/usr/lib/SBInject");
+        symlink("/usr/lib/SBInject", "/Library/MobileSubstrate/DynamicLibraries");
         
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
-        
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
-        symlink("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", "/usr/lib/libsubstrate.dylib");
+        symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
         
         // chuck our lib in trust cache so we don't have to
         // worry about team validation and shit
@@ -389,8 +388,18 @@ bool jailbreak_has_run = false;
 
 -(void) presentPopupSheet:(UIButton *)sender {
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Advanced Options"
-                                                                         message:@"Only run these if you specifically need to. These do NOT need to be run after jailbreaking."
+                                                                         message:@"Only run these if you specifically need to. "
+                                                                                  "Only the 'Respring' option needs to be run after jailbreaking."
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Respring" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        pid_t springBoard = get_pid_for_name("SpringBoard");
+        if (springBoard == 0) {
+            [self writeText:@"Failed to respring."];
+            return;
+        }
+        kill(springBoard, 9);
+    }]];
     
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Re-install Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
@@ -571,7 +580,7 @@ bool jailbreak_has_run = false;
     
     [self writeTextPlain:@"\n> your device has been freed! \n"];
     
-    [self writeTextPlain:@"note: please click 'done' and click 'extract dpkg' if you wish to fix Cydia not opening. \n"];
+    [self writeTextPlain:@"note: please click 'done' and click 'respring' to get this party started \n"];
     
     [self.progressSpinner stopAnimating];
     

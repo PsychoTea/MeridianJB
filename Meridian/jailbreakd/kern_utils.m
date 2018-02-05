@@ -195,8 +195,8 @@ uint64_t get_exception_osarray(void) {
 static const char *exc_key = "com.apple.security.exception.files.absolute-path.read-only";
 
 void set_sandbox_extensions(uint64_t proc) {
-  uint64_t proc_ucred = rk64(proc+0x100);
-  uint64_t sandbox = rk64(rk64(proc_ucred+0x78) + 8 + 8);
+  uint64_t proc_ucred = rk64(proc + 0x100);
+  uint64_t sandbox = rk64(rk64(proc_ucred + 0x78) + 8 + 8);
 
   NSLog(@"proc = 0x%llx & proc_ucred = 0x%llx & sandbox = 0x%llx", proc, proc_ucred, sandbox);
 

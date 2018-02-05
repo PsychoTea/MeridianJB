@@ -21,15 +21,17 @@
 #define LAUNCHD_LOG_PATH "/tmp/pspawn_hook_launchd.log"
 #define XPCPROXY_LOG_PATH "/tmp/pspawn_hook_xpcproxy.log"
 FILE *log_file;
-#define DEBUGLOG(fmt, args...)\
-do {\
-    if (log_file == NULL) {\
-        log_file = fopen((current_process == PROCESS_LAUNCHD) ? LAUNCHD_LOG_PATH : XPCPROXY_LOG_PATH, "a"); \
-        if (log_file == NULL) break; \
-    } \
-    fprintf(log_file, fmt "\n", ##args); \
-    fflush(log_file); \
-} while(0)
+#define DEBUGLOG(fmt, args...)                                      \
+do {                                                                \
+    if (log_file == NULL) {                                         \
+        log_file = fopen((current_process == PROCESS_LAUNCHD) ?     \
+                            LAUNCHD_LOG_PATH :                      \
+                            XPCPROXY_LOG_PATH, "a");                \
+        if (log_file == NULL) break;                                \
+    }                                                               \
+    fprintf(log_file, fmt "\n", ##args);                            \
+    fflush(log_file);                                               \
+} while(0);
 
 enum CurrentProcess {
     PROCESS_LAUNCHD,
@@ -69,19 +71,10 @@ bool is_blacklisted(char* proc) {
 
 typedef int (*pspawn_t)(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[]);
 
-pspawn_t old_pspawn, old_pspawnp;
+pspawn_t old_pspawn;
 
-int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
-    char fullArgs[512];
-    
-    const char** currentarg = argv;
-    while (*currentarg != NULL) {
-        strcat(fullArgs, " ");
-        strcat(fullArgs, *currentarg);
-        currentarg++;
-    }
-    
-    DEBUGLOG("We got called (fake_posix_spawn)! %s / %s / %s", path, argv[0], fullArgs);
+int fake_posix_spawn(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+    DEBUGLOG("We got called (fake_posix_spawn)! %s", path);
     
     const char *inject_me = NULL;
     
@@ -106,16 +99,17 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     }
     
     if (inject_me == NULL) {
-        DEBUGLOG("Nothing to inject%s.", !file_exist(inject_me) ? " (file not found)" : "");
-        return old(pid, path, file_actions, attrp, argv, envp);
+        DEBUGLOG("Nothing to inject.");
+        return old_pspawn(pid, path, file_actions, attrp, argv, envp);
     }
     
     DEBUGLOG("Injecting %s into %s", inject_me, path);
     
     int envcount = 0;
     
-    // Here we grab the position of 'DYLD_INSERT_LIBRARIES' (an env variable)
-    // so we can update it with inject_me (the dylib we wanna inject)
+    // This prints out the Env vars to the log, and grabs the position of
+    // DYLD_INSERT_LIBRARIES, if it already exists
+    // If not, the position will be equal to the end of the env args
     if (envp != NULL) {
         DEBUGLOG("Env: ");
         const char** currentenv = envp;
@@ -147,25 +141,25 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     
     newenvp[j] = envp_inject;
     newenvp[j + 1] = NULL;
-  
+    
     DEBUGLOG("New Env:");
     const char** currentenv = newenvp;
     while (*currentenv != NULL) {
         DEBUGLOG("\t%s", *currentenv);
         currentenv++;
     }
-  
+    
     posix_spawnattr_t attr;
     
     posix_spawnattr_t *newattrp = &attr;
     
-    if (attrp) {
+    if (attrp) { /* add to existing attribs */
         newattrp = attrp;
         short flags;
         posix_spawnattr_getflags(attrp, &flags);
         flags |= POSIX_SPAWN_START_SUSPENDED;
         posix_spawnattr_setflags(attrp, flags);
-    } else {
+    } else { /* set new attribs */
         posix_spawnattr_init(&attr);
         posix_spawnattr_setflags(&attr, POSIX_SPAWN_START_SUSPENDED);
     }
@@ -175,14 +169,13 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     if (current_process == PROCESS_XPCPROXY) {
         calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY);
         closejailbreakfd();
-    
-        origret = old(pid, path, file_actions, newattrp, argv, newenvp);
+        
+        origret = old_pspawn(pid, path, file_actions, newattrp, argv, newenvp);
     } else {
         int gotpid;
-        origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
+        origret = old_pspawn(&gotpid, path, file_actions, newattrp, argv, newenvp);
         
         if (origret == 0) {
-            if (pid != NULL) *pid = gotpid;
             calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT);
         }
     }
@@ -190,21 +183,12 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     return origret;
 }
 
-int fake_posix_spawn(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
-    return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
-}
-
-int fake_posix_spawnp(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
-    return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
-}
-
 void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
         { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
-        { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp },
     };
     
-    rebind_symbols(rebindings, 2);
+    rebind_symbols(rebindings, 1);
 }
 
 void* thd_func(void* arg) {
