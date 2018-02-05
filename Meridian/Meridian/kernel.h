@@ -53,4 +53,6 @@ void remote_read_overwrite(mach_port_t task_port,
                            uint64_t local_address,
                            uint64_t length);
 uint64_t binary_load_address(mach_port_t tp);
+uint64_t ktask_self_addr(void);
 mach_port_t task_for_pid_workaround(int pid);
+uint64_t find_port_address(mach_port_name_t port);

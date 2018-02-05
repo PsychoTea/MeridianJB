@@ -32,5 +32,6 @@ uint64_t find_trustcache(void);
 uint64_t find_amficache(void);
 
 uint64_t find_allproc(void);
+uint64_t find_boot_args(unsigned* cmdline_offset);
 
 #endif

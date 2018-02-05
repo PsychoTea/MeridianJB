@@ -15,6 +15,8 @@
 #import "offsets.h"
 #import "helpers.h"
 #import "libjb.h"
+#import "fucksigningservices.h"
+#import "DRMController.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
 #import <sys/spawn.h>
@@ -24,10 +26,14 @@
 @property (weak, nonatomic) IBOutlet UIButton *goButton;
 @property (weak, nonatomic) IBOutlet UIButton *creditsButton;
 @property (weak, nonatomic) IBOutlet UIButton *websiteButton;
-@property (weak, nonatomic) IBOutlet UIButton *sourceButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
+
+NSString *Version = @"Meridian: Internal Beta 7";
+NSFileManager *fileMgr;
+NSOperatingSystemVersion osVersion;
 
 id thisClass;
 task_t tfp0;
@@ -44,20 +50,25 @@ bool jailbreak_has_run = false;
     [super viewDidLoad];
     thisClass = self;
     
+    fileMgr = [NSFileManager defaultManager];
+    
     _goButton.layer.cornerRadius = 5;
     _creditsButton.layer.cornerRadius = 5;
     _websiteButton.layer.cornerRadius = 5;
-    _sourceButton.layer.cornerRadius = 5;
+    
+    [_versionLabel setText:Version];
     
     // Log current device and version info
-    NSOperatingSystemVersion ver = [[NSProcessInfo processInfo] operatingSystemVersion];
+    osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
     struct utsname u;
     uname(&u);
     
+    [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
+    
     [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
     
-    if (ver.majorVersion != 10) {
+    if (osVersion.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
         [self.goButton setHidden:YES];
         return;
@@ -72,16 +83,28 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    if (ver.minorVersion < 3) {
-        [self writeTextPlain:@"WARNING: Meridian is currently broken on versions below iOS 10.3. Stay tuned for updates."];
-    }
-    
     [self writeTextPlain:@"> ready."];
     
-    printf("App bundle directory: %s \n", bundle_path());
+    NSLog(@"App bundle directory: %s \n", bundle_path());
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    if ([fucksigningservices appIsPirated:[NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]]) {
+        // app is pirated, fuckers
+        DRMController *drmController = [self.storyboard instantiateViewControllerWithIdentifier:@"DRMController"];
+        [self presentViewController:drmController animated:YES completion:nil];
+        return;
+    }
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
+    if ([fucksigningservices appIsPirated:[NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]]) {
+        // app is pirated, fuckers
+        DRMController *drmController = [self.storyboard instantiateViewControllerWithIdentifier:@"DRMController"];
+        [self presentViewController:drmController animated:YES completion:nil];
+        return;
+    }
+    
     if (jailbreak_has_run) {
         [self presentPopupSheet: sender];
         return;
@@ -97,8 +120,6 @@ bool jailbreak_has_run = false;
     self.creditsButton.alpha = 0.5;
     [self.websiteButton setEnabled:NO];
     self.websiteButton.alpha = 0.5;
-    // [self.sourceButton setEnabled:NO];
-    // self.sourceButton.alpha = 0.5;
     [self.progressSpinner startAnimating];
     
     // background thread so we can update the UI
@@ -171,44 +192,55 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
                              completionHandler:nil];
 }
 
-- (IBAction)sourceButtonPressed:(UIButton *)sender {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/PsychoTea/MeridianJB"]
-                                       options:@{}
-                             completionHandler:nil];
-}
-
 -(int) makeShitHappen {
     int rv;
     
     kslide = kernel_base - 0xFFFFFFF007004000;
     
-    printf("tfp0: %x \n", tfp0);
-    printf("kslide: %llx \n", kslide);
-    printf("kernel_base: %llx \n", kernel_base);
-    printf("kern_ucred: %llx \n", kern_ucred);
-    printf("kernprocaddr = %llx \n", kernprocaddr);
+    NSLog(@"tfp0: %x", tfp0);
+    NSLog(@"kslide: %llx", (uint64_t)kslide);
+    NSLog(@"kernel_base: %llx", (uint64_t)kernel_base);
+    NSLog(@"kern_ucred: %llx", (uint64_t)kern_ucred);
+    NSLog(@"kernprocaddr = %llx", (uint64_t)kernprocaddr);
     
     {
         // set up stuff
-        init_patchfinder(tfp0, kernel_base, NULL);
-        init_amfi(tfp0);
         init_kernel(tfp0);
+        init_patchfinder(tfp0, kernel_base, NULL);
+        init_amfi();
+    }
+    
+    {
+        // patch containermanagerd (why? who knows. fun.)
+        [self writeText:@"patching containermanagerd..."];
+        
+        uint64_t cmgr = find_proc_by_name("containermanager");
+        if (cmgr == 0) {
+            NSLog(@"unable to find containermanager! \n");
+        } else {
+            wk64(cmgr + 0x100, kern_ucred);
+            NSLog(@"patched containermanager");
+        }
+        
+        [self writeText:@"done!"];
     }
     
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        rv = mount_root(tfp0, kslide);
-        if (rv != 0) {
+        int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
+        int mount_rt = mount_root(kslide, pre130);
+        if (mount_rt != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
+            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
+            [self writeTextPlain:[NSString stringWithFormat:@"errno: %u strerror: %s", errno, strerror(errno)]];
             return 1;
         }
      
         // check we can write to root
-        if (can_write_root() != 0) {
-            [self writeTextPlain:@"failed!"];
-            [self writeTextPlain:@"note, this is currently not working on <10.3."];
+        rv = can_write_root();
+        if (rv != 0) {
+            [self writeText:@"failed!"];
             return 1;
         }
         
@@ -226,11 +258,10 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     }
     
     {
-        // patch amfi
-        
+        // patch amfi ;)
         [self writeText:@"patching amfi..."];
         
-        rv = patch_amfi();
+        rv = defecate_amfi();
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
@@ -240,67 +271,35 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         [self writeText:@"done!"];
     }
     
-    // init filemanager
-    NSFileManager *fileMgr = [NSFileManager defaultManager];
-    
-    {
-        // uncomment if we wanna replace shit
-//        [self writeText:@"removing old files..."];
-//        [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/cydia.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/bootstrap.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/dropbear" error:nil];
-        [fileMgr removeItemAtPath:@"/meridian/dpkg.tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/meridian/tar" error:nil];
-//        [fileMgr removeItemAtPath:@"/bin/sh" error:nil];
-//        [self writeText:@"done!"];
-    }
-    
-    {
-        // copy in our bins and shit
-        [self writeText:@"copying bins..."];
-        
-        if ([fileMgr fileExistsAtPath:@"/meridian/bins"] == NO)
-        {
-            [self extractBootstrap];
-        }
-        
-        // unpack bash (dropbear requires it be called 'sh', so)
-        if ([fileMgr fileExistsAtPath:@"/bin/sh"] == NO)
-        {
-            [fileMgr copyItemAtPath:@"/meridian/bins/bash"
-                             toPath:@"/bin/sh"
-                              error:nil];
-        }
-        
-        [self writeText:@"done!"];
-    }
-    
     {
         // create dir's and files for dropbear
-        [self writeText:@"setting up the envrionment..."];
-        
-        mkdir("/etc", 0777);
-        mkdir("/etc/dropbear", 0777);
-        mkdir("/var", 0777);
-        mkdir("/var/log", 0777);
-        touch_file("/var/log/lastlog");
-        
-        if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/mobile/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                       dataUsingEncoding:NSASCIIStringEncoding]
-                           attributes:nil];
+        if (file_exists("/etc/dropbear") != 0 ||
+            file_exists("/var/log/lastlog") != 0 ||
+            file_exists("/var/root/.profile") != 0) {
+            [self writeText:@"setting up the envrionment..."];
+            
+            mkdir("/etc", 0777);
+            mkdir("/etc/dropbear", 0777);
+            mkdir("/var", 0777);
+            mkdir("/var/log", 0777);
+            touch_file("/var/log/lastlog");
+            
+            if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
+                [fileMgr createFileAtPath:@"/var/mobile/.profile"
+                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
+                                           dataUsingEncoding:NSASCIIStringEncoding]
+                               attributes:nil];
+            }
+            
+            if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
+                [fileMgr createFileAtPath:@"/var/root/.profile"
+                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
+                                           dataUsingEncoding:NSASCIIStringEncoding]
+                               attributes:nil];
+            }
+            
+            [self writeText:@"done!"];
         }
-        
-        if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
-            [fileMgr createFileAtPath:@"/var/root/.profile"
-                             contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                       dataUsingEncoding:NSASCIIStringEncoding]
-                           attributes:nil];
-        }
-        
-        [self writeText:@"done!"];
     }
     
     {
@@ -309,26 +308,20 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         
         // install Cydia
         if (file_exists("/meridian/.cydia_installed") != 0 &&
-            file_exists("/Applications/Cydia.app") != 0)
-        {
+            file_exists("/Applications/Cydia.app") != 0) {
             [self installCydia];
         }
     }
     
     {
-        // trust dropbear & sh (idk why we still need to do this, *shrug*)
-        // I guess the amfi patch takes a moment to come into effect...?
-        [self writeText:@"trusting files..."];
-        inject_trust("/meridian/bins/dropbear");
-        inject_trust("/bin/sh");
-        [self writeText:@"done!"];
-    }
-    
-    {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
+    
+        // amfid patch takes a moment to come into effect, and
+        // i cba to wait, so we'll just trust this manually
+        inject_trust("/meridian/bins/dropbear");
         
-        rv = execprog(kern_ucred, "/meridian/bins/dropbear", (const char**)&(const char*[]) {
+        rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",
             "2222",
@@ -342,27 +335,113 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         
         if (rv != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn", rv]];
+            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn: %s", rv, strerror(rv)]];
             return 1;
         }
         
         [self writeText:@"done!"];
     }
     
+    {
+        // Injecting substitute and shit
+        
+        // Delete all the old shit 
+        unlink("/meridian/injector");
+        unlink("/meridian/pspawn_hook.dylib");
+        unlink("/meridian/jailbreakd");
+        unlink("/meridian/jailbreakd.plist");
+        unlink("/meridian/SBInject.dylib");
+        unlink("/usr/lib/SBInject.dylib");
+        unlink("/usr/lib/libsubstitute.0.dylib");
+        unlink("/usr/lib/libsubstitute.dylib");
+        unlink("/usr/lib/libsubstrate.dylib");
+        
+        // Extract all the shit
+        extract_bundle("injector.tar", "/meridian");
+        extract_bundle("pspawn_hook.tar", "/meridian");
+        extract_bundle("jailbreakd.tar", "/meridian");
+        extract_bundle("SBInject.tar", "/usr/lib");
+        extract_bundle("substitute.tar", "/usr/lib");
+        
+        // symlink a bunch of shit
+        mkdir("/usr/lib/SBInject", 0755);
+        mkdir("/Library/MobileSubstrate", 0755);
+        symlink("/usr/lib/SBInject", "/Library/MobileSubstrate/DynamicLibraries");
+        
+        [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
+        mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
+        symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
+        
+        // chuck our lib in trust cache so we don't have to
+        // worry about team validation and shit
+        inject_trust("/meridian/pspawn_hook.dylib");
+        inject_trust("/meridian/bins/launchctl");
+        inject_trust("/usr/lib/SBInject.dylib");
+        
+        unlink("/var/tmp/jailbreakd.pid");
+        
+        NSData *blob = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"jailbreakd" ofType:@"plist"]];
+        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
+        
+        job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+        job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+        job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", OFFSET_ZONE_MAP];
+        [job writeToFile:@"/meridian/jailbreakd.plist" atomically:YES];
+        chmod("/meridian/jailbreakd.plist", 0600);
+        chown("/meridian/jailbreakd.plist", 0, 0);
+        
+        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
+            "/meridian/bins/launchctl",
+            "load",
+            "-w",
+            "/meridian/jailbreakd.plist",
+            NULL
+        });
+        
+        while (!file_exist("/var/tmp/jailbreakd.pid")) {
+            printf("Waiting for jailbreakd \n");
+            usleep(100000); // 100ms
+        }
+        
+        // inject pspawn_hook.dylib to launchd
+        rv = execprog("/meridian/injector", (const char**)&(const char*[]) {
+            "/meridian/injector",
+            itoa(1), // launchd pid
+            "/meridian/pspawn_hook.dylib",
+            NULL
+        });
+    }
+    
     return 0;
 }
 
 -(void) presentPopupSheet:(UIButton *)sender {
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Custom Options"
-                                                                         message:nil
+    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Advanced Options"
+                                                                         message:@"Only run these if you specifically need to. "
+                                                                                  "Only the 'Respring' option needs to be run after jailbreaking."
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
     
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Reinstall Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Respring" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        pid_t springBoard = get_pid_for_name("SpringBoard");
+        if (springBoard == 0) {
+            [self writeText:@"Failed to respring."];
+            return;
+        }
+        kill(springBoard, 9);
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Re-install Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
             [self installCydia];
         });
         
         [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Delete Cydia" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [self uninstallCydia];
+        });
     }]];
     
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -376,6 +455,14 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Re-extract Bootstrap" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
             [self extractBootstrap];
+        });
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    
+    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Uninstall Meridian" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            [self uninstallMeridian];
         });
         
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -398,20 +485,22 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     [self writeText:@"installing cydia..."];
     
     int rv;
-    NSFileManager *fileMgr = [NSFileManager defaultManager];
     
-    // delete old cydia
+    // delete old Cydia.app
     if ([fileMgr fileExistsAtPath:@"/Applications/Cydia.app"] == YES)
     {
         [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
         
-        rv = execprog(0, "/meridian/bins/uicache", NULL);
+        rv = uicache();
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (1)", rv]];
             return;
         }
     }
+    
+    // delete our .tar if it already exists
+    unlink("/meridian/cydia.tar");
     
     // copy the tar out
     cp(bundled_file("cydia.tar"), "/meridian/cydia.tar");
@@ -427,10 +516,45 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     
     // run uicache
     [self writeText:@"running uicache..."];
-    rv = execprog(0, "/meridian/bins/uicache", NULL);
+    rv = uicache();
     if (rv != 0) {
         [self writeText:@"failed!"];
         [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (2)", rv]];
+        return;
+    }
+    [self writeText:@"done!"];
+    
+    // enable showing of system apps on springboard
+    // this is some funky killall stuff tho
+    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-SIGSTOP",
+        "cfprefsd",
+        NULL
+    });
+    NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
+    [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
+    [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
+    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
+        "/meridian/bins/killall",
+        "-9",
+        "cfprefsd",
+        NULL
+    });
+}
+
+- (void)uninstallCydia {
+    // delete Cydia.app
+    [self writeText:@"deleting Cydia..."];
+    [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
+    [self writeText:@"done!"];
+    
+    // run uicache
+    [self writeText:@"running uicache..."];
+    int rv = uicache();
+    if (rv != 0) {
+        [self writeText:@"failed!"];
+        [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache", rv]];
         return;
     }
     [self writeText:@"done!"];
@@ -439,10 +563,13 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
 - (void)extractDpkg {
     [self writeText:@"extracting dpkg..."];
     
+    // delete the tar if it already exists
+    unlink("/meridian/dpkg.tar");
+    
     // copy the tar out
     cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
     
-    // extract
+    // extract dpkg.tar to '/'
     chdir("/");
     untar(fopen("/meridian/dpkg.tar", "r+"), "dpkg");
     
@@ -452,8 +579,10 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
 - (void)extractBootstrap {
     [self writeText:@"extracting bootstrap..."];
     
-    unlink("/meridian/bins");
+    // delete the bins dir
+    [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
     
+    // create the bins dir and extract the bootstrap.tar to /meridian(/bins)
     mkdir("/meridian/bins", 0777);
     chdir("/meridian/");
     untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
@@ -461,12 +590,26 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     [self writeText:@"done!"];
 }
 
+- (void)uninstallMeridian {
+    
+    [self uninstallCydia];
+    
+    [self writeText:@"uninstalling Meridian..."];
+    
+    // delete '/meridian' dir
+    [fileMgr removeItemAtPath:@"/meridian" error:nil];
+    
+    [self writeText:@"done!"];
+    [self writeTextPlain:@"please delete the Meridian app and reboot to finish uninstallation."];
+    [self writeTextPlain:@"goodbye!"];
+}
+
 - (void)exploitSucceeded {
     jailbreak_has_run = true;
     
     [self writeTextPlain:@"\n> your device has been freed! \n"];
     
-    [self writeTextPlain:@"note: please click 'done' and click 'extract dpkg' if you wish to get Cydia working. \n"];
+    [self writeTextPlain:@"note: please click 'done' and click 'respring' to get this party started \n"];
     
     [self.progressSpinner stopAnimating];
     
@@ -478,8 +621,6 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     self.creditsButton.alpha = 1;
     [self.websiteButton setEnabled:YES];
     self.websiteButton.alpha = 1;
-    // [self.sourceButton setEnabled:YES];
-    // self.sourceButton.alpha = 1;
 }
 
 - (void)exploitFailed {
@@ -491,15 +632,13 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
     self.creditsButton.alpha = 1;
     [self.websiteButton setEnabled:YES];
     self.websiteButton.alpha = 1;
-    // [self.sourceButton setEnabled:YES];
-    // self.sourceButton.alpha = 1;
     [self.progressSpinner stopAnimating];
 }
 
 - (void)noOffsets {
+    [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
     [self.goButton setEnabled:NO];
     self.goButton.alpha = 0.5;
-    [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
 }
 
 - (void)writeText:(NSString *)message {
@@ -521,6 +660,8 @@ kern_return_t v0rtex_callback(task_t task_for_port0,
         _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
+        
+        NSLog(@"%@", message);
     });
 }
 

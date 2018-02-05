@@ -456,8 +456,6 @@ init_patchfinder(task_t taskfp0, addr_t base, const char *filename)
     addr_t max = 0;
     int is64 = 0;
     
-    init_kernel(taskfp0);
-
 #ifdef __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__
 #define close(f)
     rv = tfp0_kread(base, buf, sizeof(buf));
@@ -1153,6 +1151,75 @@ find_realhost(addr_t priv)
         return 0;
     }
     return val + kerndumpbase;
+}
+
+uint64_t find_boot_args(unsigned* cmdline_offset) {
+    /*
+     ADRP            X8, #_PE_state@PAGE
+     ADD             X8, X8, #_PE_state@PAGEOFF
+     LDR             X8, [X8,#(PE_state__boot_args - 0xFFFFFFF0078BF098)]
+     ADD             X8, X8, #0x6C
+     STR             X8, [SP,#0x550+var_550]
+     ADRP            X0, #aBsdInitCannotF@PAGE ; "\"bsd_init: cannot find root vnode: %s"...
+     ADD             X0, X0, #aBsdInitCannotF@PAGEOFF ; "\"bsd_init: cannot find root vnode: %s"...
+     BL              _panic
+     */
+
+    addr_t ref = find_strref("\"bsd_init: cannot find root vnode: %s\"", 1, 0);
+
+    if (ref == 0) {
+        return 0;
+    }
+
+    ref -= kerndumpbase;
+    // skip add & adrp for panic str
+    ref -= 8;
+    uint32_t *insn = (uint32_t*)(kernel+ref);
+
+    // skip str
+    --insn;
+    // add xX, xX, #cmdline_offset
+    uint8_t xm = *insn&0x1f;
+    if (((*insn>>5)&0x1f) != xm || ((*insn>>22)&3) != 0) {
+        return 0;
+    }
+
+    *cmdline_offset = (*insn>>10) & 0xfff;
+
+    uint64_t val = kerndumpbase;
+
+    --insn;
+    // ldr xX, [xX, #(PE_state__boot_args - PE_state)]
+    if ((*insn & 0xF9C00000) != 0xF9400000) {
+        return 0;
+    }
+    // xd == xX, xn == xX,
+    if ((*insn&0x1f) != xm || ((*insn>>5)&0x1f) != xm) {
+        return 0;
+    }
+
+    val += ((*insn >> 10) & 0xFFF) << 3;
+
+    --insn;
+    // add xX, xX, #_PE_state@PAGEOFF
+    if ((*insn&0x1f) != xm || ((*insn>>5)&0x1f) != xm || ((*insn>>22)&3) != 0) {
+        return 0;
+    }
+
+    val += (*insn>>10) & 0xfff;
+
+    --insn;
+    if ((*insn & 0x1f) != xm) {
+        return 0;
+    }
+
+    // pc
+    val += ((uint8_t*)(insn) - kernel) & ~0xfff;
+
+    // don't ask, I wrote this at 5am
+    val += (*insn<<9 & 0x1ffffc000) | (*insn>>17 & 0x3000);
+
+    return val;
 }
 
 #include <mach-o/nlist.h>
