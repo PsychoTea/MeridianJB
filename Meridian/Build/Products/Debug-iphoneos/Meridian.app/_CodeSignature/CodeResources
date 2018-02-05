@@ -126,55 +126,55 @@
 		</data>
 		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib/objects-11.0+.nib</key>
 		<data>
-		THw5ilriatPM8MNE3ky7su0kxUo=
+		dLNSYUbnU45yVPasPqKjzLnFk1Y=
 		</data>
 		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib/runtime.nib</key>
 		<data>
-		HOmljCQKNIJ5lYPVUXusA9I75cI=
+		d7pV2C/PcOII7mBaVMyrmUmwqxE=
 		</data>
 		<key>Base.lproj/Main.storyboardc/DRMController.nib/objects-11.0+.nib</key>
 		<data>
-		9dVG3p+1M6oxP/99fRYAUZsTQGQ=
+		cHBU5q7TprbLts0fQo5x8lpAawQ=
 		</data>
 		<key>Base.lproj/Main.storyboardc/DRMController.nib/runtime.nib</key>
 		<data>
-		XiBVJOSGHvF1Aa2o+ZRUxE7OZpc=
+		VU/tkTva47y1JW+amHj1Ui67NXU=
 		</data>
 		<key>Base.lproj/Main.storyboardc/Info.plist</key>
 		<data>
-		1wDEXs38BLyhHV0AYzGxZguKBbc=
+		wvCL+bn8SBINApCfvL8G3AOtsA8=
 		</data>
 		<key>Base.lproj/Main.storyboardc/Ohh-kf-vNo-view-H8w-YY-XZs.nib/objects-11.0+.nib</key>
 		<data>
-		90f9rQCC/mXEsghbLxtBBuqNc4I=
+		p7ZQ1PwL18z4MTahXq78irCuDTk=
 		</data>
 		<key>Base.lproj/Main.storyboardc/Ohh-kf-vNo-view-H8w-YY-XZs.nib/runtime.nib</key>
 		<data>
-		JL8ihC37SERwtLpR9xVsGdomWg0=
+		u3IulmR/8dR/2crCVuyst7TGy0I=
 		</data>
 		<key>Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib/objects-11.0+.nib</key>
 		<data>
-		CmeUDmZ4QdmiY+YhWUN4IX2+IsA=
+		twHfTFrXONwHDZk7apwek6aDiT0=
 		</data>
 		<key>Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib/runtime.nib</key>
 		<data>
-		z8zA3bNsHl+kAp0OzyMZl/q5vpI=
+		fNTLrTGBqsIgYJnnz6gMAq6o4EU=
 		</data>
 		<key>Base.lproj/Main.storyboardc/UIViewController-Ohh-kf-vNo.nib/objects-11.0+.nib</key>
 		<data>
-		ZVGr7GdluJ+drEmb22AF+IchO7w=
+		Q+/s/54yGsTA87wmiR2D1Y0xiB0=
 		</data>
 		<key>Base.lproj/Main.storyboardc/UIViewController-Ohh-kf-vNo.nib/runtime.nib</key>
 		<data>
-		dAEiYYtb4lplzIjrdf0PlpGEiNI=
+		nXujQVHUM9fLr9m517/5dBrbyfA=
 		</data>
 		<key>Base.lproj/Main.storyboardc/VAe-WQ-ewR-view-lcL-Ac-qDm.nib/objects-11.0+.nib</key>
 		<data>
-		vOiSRRDtuQN/0KIGS+XuIKBi0xk=
+		KMzso+k0mRiATDbHD6Sfjgl7LNg=
 		</data>
 		<key>Base.lproj/Main.storyboardc/VAe-WQ-ewR-view-lcL-Ac-qDm.nib/runtime.nib</key>
 		<data>
-		R3+eR/s0FYpupmh+2oG/kKWlGe0=
+		9KUAgde25xiCbmh92ZcgtBwf6z0=
 		</data>
 		<key>Info.plist</key>
 		<data>
@@ -190,11 +190,11 @@
 		</data>
 		<key>SBInject.tar</key>
 		<data>
-		1Vm2bPIzYdb6mIoHxpuw+VPqn7c=
+		cBJAxHTnNP0A0v/rvsy9q5/l0SM=
 		</data>
 		<key>amfid.tar</key>
 		<data>
-		HwzwMQ9dlCC0p/ZupGTanZw/7yQ=
+		u4O1Ww5Vg92aZa+ZWwan5LpDW7Q=
 		</data>
 		<key>bootstrap.tar</key>
 		<data>
@@ -214,7 +214,7 @@
 		</data>
 		<key>injector.tar</key>
 		<data>
-		28xCXoWMx8y73xACDWCeq2VnhrQ=
+		5JdmboGPMxcFscYSNrFtKG3J4ao=
 		</data>
 		<key>jailbreakd.plist</key>
 		<data>
@@ -222,15 +222,11 @@
 		</data>
 		<key>jailbreakd.tar</key>
 		<data>
-		kHmUzQFuFy4wfXivgjV1UhoZRPM=
+		wUspFyXyPgrTzOs765hubfA6Xg8=
 		</data>
 		<key>pspawn_hook.tar</key>
 		<data>
-		ueSWwgudI0ToZb6BzZrlia/caz8=
-		</data>
-		<key>safemode.tar</key>
-		<data>
-		kloObXcfvbjpqNXQnsrt+nQ9zns=
+		6rpcse7dSPtwlaj8X0rlZu9l4rA=
 		</data>
 		<key>substitute.tar</key>
 		<data>
@@ -573,143 +569,143 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			THw5ilriatPM8MNE3ky7su0kxUo=
+			dLNSYUbnU45yVPasPqKjzLnFk1Y=
 			</data>
 			<key>hash2</key>
 			<data>
-			134Ym+qMcA091o4TJGqBTGTk8vg2X0JV0W6oPjolyK4=
+			35dqf64ORpgVn7G/tpgQLdt6S605bjAvCksulDB81GA=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			HOmljCQKNIJ5lYPVUXusA9I75cI=
+			d7pV2C/PcOII7mBaVMyrmUmwqxE=
 			</data>
 			<key>hash2</key>
 			<data>
-			PLTLJULafD0QzfOa3Y/542Nrh5M6Bg8vE5c2jieRLEY=
+			9pkk160A0EpGA3AFV4qmselrVFVzU5i6bJ02NyEDHSc=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/DRMController.nib/objects-11.0+.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			9dVG3p+1M6oxP/99fRYAUZsTQGQ=
+			cHBU5q7TprbLts0fQo5x8lpAawQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			pBWN4oFHbm3v0c9qV06RskaXzi4cl/O6U8QOUi4qagU=
+			QlFnE6gWf+mJ7WsQX8xFtpBQNSukOwzDLyukEivLHoE=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/DRMController.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			XiBVJOSGHvF1Aa2o+ZRUxE7OZpc=
+			VU/tkTva47y1JW+amHj1Ui67NXU=
 			</data>
 			<key>hash2</key>
 			<data>
-			vM2QkvmtyyP3NKw1125zH8JIZ7ASuu1iq6ifpipIEUs=
+			3CJNzjB/3UMAZ6eR+M5gk+ktbs5iMiBM99uSUSP9Neo=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/Info.plist</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			1wDEXs38BLyhHV0AYzGxZguKBbc=
+			wvCL+bn8SBINApCfvL8G3AOtsA8=
 			</data>
 			<key>hash2</key>
 			<data>
-			QDwgzVJMWLWaq3X8ndJEUoPfNw2q4XEGpnkVc36h3hs=
+			/krlXV+ipjRdsvK51PJBd8aoHHHBP2kK3sJ4fyflqYY=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/Ohh-kf-vNo-view-H8w-YY-XZs.nib/objects-11.0+.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			90f9rQCC/mXEsghbLxtBBuqNc4I=
+			p7ZQ1PwL18z4MTahXq78irCuDTk=
 			</data>
 			<key>hash2</key>
 			<data>
-			XB5h8l13wozXYyWDWMIIzSKIVpQhBwq7RXDd6Z3xKQ0=
+			aNZNvNkwUceJub+6BENGWkw3PCzedi71dzjgGRj2ysA=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/Ohh-kf-vNo-view-H8w-YY-XZs.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			JL8ihC37SERwtLpR9xVsGdomWg0=
+			u3IulmR/8dR/2crCVuyst7TGy0I=
 			</data>
 			<key>hash2</key>
 			<data>
-			ZlD2ioldkAVsqOLQVtlHDLqYHmvuhywUQ/ARic643Vc=
+			wW8xLPVCTNw8IQmJ9o+dvPX8grWXRcCVDfQlKOHhfL8=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib/objects-11.0+.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			CmeUDmZ4QdmiY+YhWUN4IX2+IsA=
+			twHfTFrXONwHDZk7apwek6aDiT0=
 			</data>
 			<key>hash2</key>
 			<data>
-			BaYl8ru1SDwh67mR4KR62FTCAqqgmqjfe5AocTNuhQA=
+			8IrD+DWFJ7hGFKj0uzDatXq8ilmKYdb06bHS3+aqSfc=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			z8zA3bNsHl+kAp0OzyMZl/q5vpI=
+			fNTLrTGBqsIgYJnnz6gMAq6o4EU=
 			</data>
 			<key>hash2</key>
 			<data>
-			2CuODPMcz4Z8WWmTX/QJq5QCGNriVi2AB7FKIkozlmI=
+			8HBWs4AJL/rR5uSl/PkJ72peYb3b8GUTY+CH7ky9XC8=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/UIViewController-Ohh-kf-vNo.nib/objects-11.0+.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			ZVGr7GdluJ+drEmb22AF+IchO7w=
+			Q+/s/54yGsTA87wmiR2D1Y0xiB0=
 			</data>
 			<key>hash2</key>
 			<data>
-			mSh4pZxStlmVgVj7n4ZJ8WeVchzesX7Q7+aSjmmt+jc=
+			T0POYS0oJVVKbvJbgir4bhv+pzKRkuxTa5LjExvU74M=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/UIViewController-Ohh-kf-vNo.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			dAEiYYtb4lplzIjrdf0PlpGEiNI=
+			nXujQVHUM9fLr9m517/5dBrbyfA=
 			</data>
 			<key>hash2</key>
 			<data>
-			R7SZTt1z+9b4KRTxcFn48mulD0sredQB37qQjYdcjdQ=
+			YZXChjheYkoqPv88/WZCJrYyYwngAB82qc4OwRYHRz0=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/VAe-WQ-ewR-view-lcL-Ac-qDm.nib/objects-11.0+.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			vOiSRRDtuQN/0KIGS+XuIKBi0xk=
+			KMzso+k0mRiATDbHD6Sfjgl7LNg=
 			</data>
 			<key>hash2</key>
 			<data>
-			g/t8Zdf5Z+GuguM2ZGRWAhe+jm4/L482sOR8615M6T0=
+			IpPF4BHHIrVsD8KNg82ZQXVo16ledosdusygaODV9Gc=
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/VAe-WQ-ewR-view-lcL-Ac-qDm.nib/runtime.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			R3+eR/s0FYpupmh+2oG/kKWlGe0=
+			9KUAgde25xiCbmh92ZcgtBwf6z0=
 			</data>
 			<key>hash2</key>
 			<data>
-			HWyfAcT6esK7Mh02vcto536IgFQLqS6FY1UZ5IXAuAA=
+			LelOXK+b7usfbI84+iHOqNj0rkvU9vJAbjOSxDvKJoo=
 			</data>
 		</dict>
 		<key>LICENSE</key>
@@ -727,22 +723,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			1Vm2bPIzYdb6mIoHxpuw+VPqn7c=
+			cBJAxHTnNP0A0v/rvsy9q5/l0SM=
 			</data>
 			<key>hash2</key>
 			<data>
-			ir2Nyd6GVBfBDoNX9BTI0gG1b9CVP0xeSTPegV6O4Vk=
+			1a9KWL4WGAZK2F+JZ5TO98EOaGyTMCr3dzQ4g6xWUJg=
 			</data>
 		</dict>
 		<key>amfid.tar</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			HwzwMQ9dlCC0p/ZupGTanZw/7yQ=
+			u4O1Ww5Vg92aZa+ZWwan5LpDW7Q=
 			</data>
 			<key>hash2</key>
 			<data>
-			YAPFcS7sO7+A7o6aQkX378121powOOf0Y0XDZ3z2fnA=
+			mOhvs0PGGhqqXMrDA/WzAfJCEA+qUTVDkn2/eeu4ZR8=
 			</data>
 		</dict>
 		<key>bootstrap.tar</key>
@@ -793,11 +789,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			28xCXoWMx8y73xACDWCeq2VnhrQ=
+			5JdmboGPMxcFscYSNrFtKG3J4ao=
 			</data>
 			<key>hash2</key>
 			<data>
-			XZpHPR++tL+GbrUJvJ0Cc+xd1UnDRq+mMJ8nd3OYy2k=
+			HlafhzqDhb3X7f3C4Tr30I95xxgzlaxYIivtFg/2YEk=
 			</data>
 		</dict>
 		<key>jailbreakd.plist</key>
@@ -815,33 +811,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			kHmUzQFuFy4wfXivgjV1UhoZRPM=
+			wUspFyXyPgrTzOs765hubfA6Xg8=
 			</data>
 			<key>hash2</key>
 			<data>
-			2hWhoRITlJCBXFXMlMKddiVLIikkB/3cBHgIyOhbZPc=
+			kszOKBE4WvDJygJ7qVbQe+ijvnZofGSfUoVKbve8LUs=
 			</data>
 		</dict>
 		<key>pspawn_hook.tar</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			ueSWwgudI0ToZb6BzZrlia/caz8=
+			6rpcse7dSPtwlaj8X0rlZu9l4rA=
 			</data>
 			<key>hash2</key>
 			<data>
-			N6upsuYvW5HFk2FFaekZneJAPXn4hJSIr+zW3NkRdv4=
-			</data>
-		</dict>
-		<key>safemode.tar</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			kloObXcfvbjpqNXQnsrt+nQ9zns=
-			</data>
-			<key>hash2</key>
-			<data>
-			ZqlVbcPsnFkTXwOUgBor5FB3UeJusg692zh/9Ufzjfo=
+			hRlkLlrY1+Uq+ZZmipXfoTZLnH3LliEXyem/mYgiodM=
 			</data>
 		</dict>
 		<key>substitute.tar</key>

@@ -26,7 +26,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *goButton;
 @property (weak, nonatomic) IBOutlet UIButton *creditsButton;
 @property (weak, nonatomic) IBOutlet UIButton *websiteButton;
-@property (weak, nonatomic) IBOutlet UIButton *sourceButton;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
@@ -56,7 +55,6 @@ bool jailbreak_has_run = false;
     _goButton.layer.cornerRadius = 5;
     _creditsButton.layer.cornerRadius = 5;
     _websiteButton.layer.cornerRadius = 5;
-    _sourceButton.layer.cornerRadius = 5;
     
     [_versionLabel setText:Version];
     
@@ -99,12 +97,6 @@ bool jailbreak_has_run = false;
     }
 }
 
-kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
-    kernel_base = kbase;
-    NSLog(@"Got v0rtex_callback!");
-    return KERN_SUCCESS;
-}
-
 - (IBAction)goButtonPressed:(UIButton *)sender {
     if ([fucksigningservices appIsPirated:[NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]]) {
         // app is pirated, fuckers
@@ -128,8 +120,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     self.creditsButton.alpha = 0.5;
     [self.websiteButton setEnabled:NO];
     self.websiteButton.alpha = 0.5;
-//    [self.sourceButton setEnabled:NO];
-//    self.sourceButton.alpha = 0.5;
     [self.progressSpinner startAnimating];
     
     // background thread so we can update the UI
@@ -137,7 +127,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         
         // run v0rtex itself
         int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
-        // int ret = v0rtex(&cb, NULL, &tfp0, &kslide, &kern_ucred);
         
         if (ret != 0)
         {
@@ -169,12 +158,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
 
 - (IBAction)websiteButtonPressed:(UIButton *)sender {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://meridian.sparkes.zone"]
-                                       options:@{}
-                             completionHandler:nil];
-}
-
-- (IBAction)sourceButtonPressed:(UIButton *)sender {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/PsychoTea/MeridianJB"]
                                        options:@{}
                              completionHandler:nil];
 }
@@ -410,12 +393,10 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
 }
 
 -(void) presentPopupSheet:(UIButton *)sender {
-    // set up alert sheet
     UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Advanced Options"
                                                                          message:@"Only run these if you specifically need to. These do NOT need to be run after jailbreaking."
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
     
-    // add some actions and tings
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Re-install Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
             [self installCydia];
@@ -458,15 +439,12 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
         [self dismissViewControllerAnimated:YES completion:nil];
     }]];
     
-    // set that arrow and direction ← → ↑ ↓
     [actionSheet.popoverPresentationController setPermittedArrowDirections:UIPopoverArrowDirectionAny];
     
-    // set the position of the sheet so it doesn't die on iPad (lol thx appl)
     UIPopoverPresentationController *popPresender = [actionSheet popoverPresentationController];
     popPresender.sourceView = sender;
     popPresender.sourceRect = sender.bounds;
     
-    // pop that sheet
     [self presentViewController:actionSheet animated:YES completion:nil];
 }
 
@@ -610,8 +588,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     self.creditsButton.alpha = 1;
     [self.websiteButton setEnabled:YES];
     self.websiteButton.alpha = 1;
-//    [self.sourceButton setEnabled:YES];
-//    self.sourceButton.alpha = 1;
 }
 
 - (void)exploitFailed {
@@ -623,8 +599,6 @@ kern_return_t cb(task_t tfp0, kptr_t kbase, void *data) {
     self.creditsButton.alpha = 1;
     [self.websiteButton setEnabled:YES];
     self.websiteButton.alpha = 1;
-//    [self.sourceButton setEnabled:YES];
-//    self.sourceButton.alpha = 1;
     [self.progressSpinner stopAnimating];
 }
 
