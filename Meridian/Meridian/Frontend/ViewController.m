@@ -334,7 +334,7 @@ bool jailbreak_has_run = false;
         extract_bundle("SBInject.tar", "/usr/lib");
         extract_bundle("substitute.tar", "/usr/lib");
         
-        // symlink a bunch of shit 
+        // symlink a bunch of shit
         mkdir("/usr/lib/SBInject", 0755);
         mkdir("/Library/MobileSubstrate", 0755);
         symlink("/Library/MobileSubstrate/DynamicLibraries", "/usr/lib/SBInject");
@@ -342,7 +342,7 @@ bool jailbreak_has_run = false;
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
         
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
-        symlink("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", "/lib/usr/libsubstrate.dylib");
+        symlink("/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate", "/usr/lib/libsubstrate.dylib");
         
         // chuck our lib in trust cache so we don't have to
         // worry about team validation and shit
