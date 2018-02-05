@@ -334,9 +334,10 @@ bool jailbreak_has_run = false;
         extract_bundle("SBInject.tar", "/usr/lib");
         extract_bundle("substitute.tar", "/usr/lib");
         
-        mkdir("/System/Library/SBInject", 0755);
-        mkdir("/meridian/Library", 0755);
-        symlink("/System/Library/SBInject", "/meridian/Library/SBInject");
+        // symlink a bunch of shit 
+        mkdir("/usr/lib/SBInject", 0755);
+        mkdir("/Library/MobileSubstrate", 0755);
+        symlink("/Library/MobileSubstrate/DynamicLibraries", "/usr/lib/SBInject");
         
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
         
@@ -371,7 +372,7 @@ bool jailbreak_has_run = false;
         
         while (!file_exist("/var/tmp/jailbreakd.pid")) {
             printf("Waiting for jailbreakd \n");
-            usleep(100000);
+            usleep(100000); // 100ms
         }
         
         // inject pspawn_hook.dylib to launchd
