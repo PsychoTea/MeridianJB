@@ -22,6 +22,8 @@
 #import <pthread.h>
 #import <sys/spawn.h>
 
+#define MH_MAGIC_FAT 0xbebafeca
+
 uint64_t trust_cache;
 uint64_t amficache;
 
@@ -137,11 +139,12 @@ void inject_trust(const char *path) {
 // original get_code_directory code worked for most binaries,
 // unless they were FAT. this works perfectly :-)
 // creds: https://github.com/coolstar/electra/blob/master/basebinaries/amfid_payload/amfid_payload.m#L95
+// also added support for 32 bit binaries (check 32bit mach_header)
 uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     FILE* fd = fopen(file_path, "r");
     
     if (fd == NULL) {
-        NSLog(@"[amfid_payload] couldn't open file %s", file_path);
+        NSLog(@"[amfi] couldn't open file %s", file_path);
         return NULL;
     }
     
@@ -150,30 +153,47 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     fseek(fd, 0L, SEEK_SET);
     
     if (file_off > file_len){
-        NSLog(@"[amfid_payload] file offset greater than length");
+        NSLog(@"[amfi] file offset greater than length");
         return NULL;
     }
+    
+    uint32_t magic;
+    fread(&magic, sizeof(magic), 1, fd);
+    fseek(fd, 0, SEEK_SET);
     
     uint64_t off = file_off;
+    int ncmds;
+    
+    if (magic == MH_MAGIC_64) {
+        struct mach_header_64 mh64;
+        fread(&mh64, sizeof(mh64), 1, fd);
+        off += sizeof(mh64);
+        ncmds = mh64.ncmds;
+    } else if (magic == MH_MAGIC) {
+        struct mach_header mh;
+        fread(&mh, sizeof(mh), 1, fd);
+        off += sizeof(mh);
+        ncmds = mh.ncmds;
+    } else if (magic == MH_MAGIC_FAT) { /* FAT bins can be treated with mach_header_64 */
+        struct mach_header_64 mh64;
+        fread(&mh64, sizeof(mh64), 1, fd);
+        off += sizeof(mh64);
+        ncmds = mh64.ncmds;
+    } else {
+        NSLog(@"[amfi] your magic is not valid in these lands! %ux", magic);
+        return NULL;
+    }
+    
+    if (off > file_len) {
+        NSLog(@"[amfi] unexpected end of file");
+        return NULL;
+    }
+    
     fseek(fd, off, SEEK_SET);
     
-    struct mach_header_64 mh;
-    fread(&mh, sizeof(struct mach_header_64), 1, fd);
-    
-    if (mh.magic != MH_MAGIC_64) {
-        NSLog(@"[amfid_payload] your magic is not valid in these lands!");
-        return NULL;
-    }
-    
-    off += sizeof(struct mach_header_64);
-    if (off > file_len) {
-        NSLog(@"[amfid_payload] unexpected end of file");
-        return NULL;
-    }
-    
-    for (int i = 0; i < mh.ncmds; i++) {
+    for (int i = 0; i < ncmds; i++) {
         if (off + sizeof(struct load_command) > file_len) {
-            NSLog(@"[amfid_payload] unexpected end of file");
+            NSLog(@"[amfi] unexpected end of file");
             return NULL;
         }
         
@@ -187,7 +207,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
             fread(&size_cs, sizeof(uint32_t), 1, fd);
             
             if (off_cs + file_off + size_cs > file_len) {
-                NSLog(@"[amfid_payload] unexpected end of file");
+                NSLog(@"[amfi] unexpected end of file");
                 return NULL;
             }
             
@@ -198,13 +218,13 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         } else {
             off += cmd.cmdsize;
             if (off > file_len) {
-                NSLog(@"[amfid_payload] unexpected end of file");
+                NSLog(@"[amfi] unexpected end of file");
                 return NULL;
             }
         }
     }
     
-    NSLog(@"[amfid_payload] couldn't find the code sig for %s", file_path);
+    NSLog(@"[amfi] couldn't find the code sig for %s", file_path);
     return NULL;
 }
 

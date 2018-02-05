@@ -54,16 +54,17 @@ typedef struct __SuperBlob {
 } CS_SuperBlob;
 
 enum {
-    CSMAGIC_REQUIREMENT     = 0xfade0c00,       /* single Requirement blob */
-    CSMAGIC_REQUIREMENTS = 0xfade0c01,          /* Requirements vector (internal requirements) */
-    CSMAGIC_CODEDIRECTORY = 0xfade0c02,         /* CodeDirectory blob */
-    CSMAGIC_EMBEDDED_SIGNATURE = 0xfade0cc0,    /* embedded form of signature data */
-    CSMAGIC_DETACHED_SIGNATURE = 0xfade0cc1,    /* multi-arch collection of embedded signatures */
+    CSMAGIC_REQUIREMENT         = 0xfade0c00,   /* single Requirement blob */
+    CSMAGIC_REQUIREMENTS        = 0xfade0c01,   /* Requirements vector (internal requirements) */
+    CSMAGIC_CODEDIRECTORY       = 0xfade0c02,   /* CodeDirectory blob */
+    CSMAGIC_EMBEDDED_SIGNATURE  = 0xfade0cc0,   /* embedded form of signature data */
+    CSMAGIC_DETACHED_SIGNATURE  = 0xfade0cc1,   /* multi-arch collection of embedded signatures */
     
-    CSSLOT_CODEDIRECTORY = 0,                   /* slot index for CodeDirectory */
-    CSSLOT_ENTITLEMENTS = 5,
+    CSSLOT_CODEDIRECTORY        = 0,            /* slot index for CodeDirectory */
+    CSSLOT_ENTITLEMENTS         = 5,
 };
 
+#define MH_MAGIC_FAT 0xbebafeca /* FAT bins have some weird magic at the start - here it is */
 
 kern_return_t mach_vm_allocate(vm_map_t target,
                                mach_vm_address_t *address,
@@ -315,6 +316,7 @@ int is_sha1(uint8_t *code_dir) {
 // original get_code_directory code worked for most binaries,
 // unless they were FAT. this works perfectly :-)
 // creds: https://github.com/coolstar/electra/blob/master/basebinaries/amfid_payload/amfid_payload.m#L95
+// also added support for 32 bit binaries (check 32bit mach_header)
 uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     FILE* fd = fopen(file_path, "r");
     
@@ -332,24 +334,41 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         return NULL;
     }
     
+    uint32_t magic;
+    fread(&magic, sizeof(magic), 1, fd);
+    fseek(fd, 0, SEEK_SET);
+    
     uint64_t off = file_off;
-    fseek(fd, off, SEEK_SET);
+    int ncmds;
     
-    struct mach_header_64 mh;
-    fread(&mh, sizeof(struct mach_header_64), 1, fd);
-    
-    if (mh.magic != MH_MAGIC_64) {
-        NSLog(@"[amfid_payload] your magic is not valid in these lands!");
+    if (magic == MH_MAGIC_64) {
+        struct mach_header_64 mh64;
+        fread(&mh64, sizeof(mh64), 1, fd);
+        off += sizeof(mh64);
+        ncmds = mh64.ncmds;
+    } else if (magic == MH_MAGIC) {
+        struct mach_header mh;
+        fread(&mh, sizeof(mh), 1, fd);
+        off += sizeof(mh);
+        ncmds = mh.ncmds;
+    } else if (magic == MH_MAGIC_FAT) { /* FAT bins can be treated with mach_header_64 */
+        struct mach_header_64 mh64;
+        fread(&mh64, sizeof(mh64), 1, fd);
+        off += sizeof(mh64);
+        ncmds = mh64.ncmds;
+    } else {
+        NSLog(@"[amfid_payload] your magic is not valid in these lands! %ux", magic);
         return NULL;
     }
     
-    off += sizeof(struct mach_header_64);
     if (off > file_len) {
         NSLog(@"[amfid_payload] unexpected end of file");
         return NULL;
     }
     
-    for (int i = 0; i < mh.ncmds; i++) {
+    fseek(fd, off, SEEK_SET);
+    
+    for (int i = 0; i < ncmds; i++) {
         if (off + sizeof(struct load_command) > file_len) {
             NSLog(@"[amfid_payload] unexpected end of file");
             return NULL;

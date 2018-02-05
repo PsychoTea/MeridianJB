@@ -369,10 +369,6 @@ bool jailbreak_has_run = false;
             NULL
         });
         
-        [self writeText:[NSString stringWithFormat:@"launchctl returned %d", rv]];
-        NSLog(@"The dragon becomes me!");
-        NSLog(@"once it is drawn, it cannot be sheathed without causing death");
-        
         while (!file_exist("/var/tmp/jailbreakd.pid")) {
             printf("Waiting for jailbreakd \n");
             usleep(100000);
@@ -385,8 +381,6 @@ bool jailbreak_has_run = false;
             "/meridian/pspawn_hook.dylib",
             NULL
         });
-        
-        [self writeText:[NSString stringWithFormat:@"inject for launchd returned %d", rv]];
     }
     
     return 0;
