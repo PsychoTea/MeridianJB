@@ -50,12 +50,6 @@ kern_return_t mach_vm_region(vm_map_t target_task,
 mach_port_t tfp0 = 0;
 uint64_t kernprocaddr = 0;
 
-/*uint64_t kalloc(vm_size_t size) {
-	mach_vm_address_t address = 0;
-	mach_vm_allocate(tfp0, (mach_vm_address_t *)&address, size, VM_FLAGS_ANYWHERE);
-	return address;
-}*/
-
 size_t kread(uint64_t where, void *p, size_t size) {
 	int rv;
 	size_t offset = 0;
@@ -103,16 +97,6 @@ size_t kwrite(uint64_t where, const void *p, size_t size) {
 	}
 	return offset;
 }
-
-/*void kwrite32(uint64_t where, uint32_t what) {
-	uint32_t _what = what;
-	kwrite(where, &_what, sizeof(uint32_t));
-}*/
-
-/*void kwrite64(uint64_t where, uint64_t what) {
-	uint64_t _what = what;
-	kwrite(where, &_what, sizeof(uint64_t));
-}*/
 
 uint64_t remote_alloc(mach_port_t task_port, uint64_t size) {
   kern_return_t err;
@@ -172,20 +156,6 @@ void remote_read_overwrite(mach_port_t task_port,
     return;
   }
 }
-
-/*void remote_write(mach_port_t remote_task_port,
-                  uint64_t remote_address,
-                  uint64_t local_address,
-                  uint64_t length) {
-  kern_return_t err = mach_vm_write(remote_task_port,
-                                    (mach_vm_address_t)remote_address,
-                                    (vm_offset_t)local_address,
-                                    (mach_msg_type_number_t)length);
-  if (err != KERN_SUCCESS) {
-    NSLog(@"remote write failed: %s %x\n", mach_error_string(err), err);
-    return;
-  }
-}*/
 
 enum arg_type {
   ARG_LITERAL,
@@ -542,7 +512,7 @@ mach_port_t get_amfid_task() {
     amfid_pid = new_amfid_pid;
     
     mach_port_t amfid_task = task_for_pid_workaround(amfid_pid);
-    NSLog(@"[amfid_fucker] got amfid task %llx", amfid_task);
+    NSLog(@"[amfid_fucker] got amfid task %x", amfid_task);
     
     return amfid_task;
 }
@@ -577,7 +547,7 @@ int main(int argc, char* argv[]) {
     
     // get tfp0 via hgsp4
     kern_return_t kr_tfp = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
-    NSLog(@"[amfid_fucker] got tfp0 = %llx (%s)", tfp0, mach_error_string(kr_tfp));
+    NSLog(@"[amfid_fucker] got tfp0 = %x (%s)", tfp0, mach_error_string(kr_tfp));
     
     if (argc < 2) {
         NSLog(@"[amfid_fucker] Please pass kernproc as the first arg >.< amfid_fucker [kernproc_addr]");

@@ -111,7 +111,7 @@
                                     <constraint firstAttribute="height" constant="40" id="Qv1-Up-lUv"/>
                                 </constraints>
                             </stackView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
                                 <rect key="frame" x="150" y="248" width="114" height="20"/>
                             </activityIndicatorView>
                         </subviews>
@@ -143,7 +143,7 @@
                             <constraint firstItem="W17-Ed-P2p" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="150" id="gwJ-eY-tHc"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="snE-gD-gf5" secondAttribute="bottom" constant="20" id="hjr-PJ-WYk"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Vf5-dN-xQv" secondAttribute="trailing" constant="16" id="oCf-eP-3sZ"/>
-                            <constraint firstItem="eEN-LM-8Uz" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="20" id="pXF-pW-eAF"/>
+                            <constraint firstItem="eEN-LM-8Uz" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="20" symbolic="YES" id="pXF-pW-eAF"/>
                             <constraint firstItem="U4e-5a-D7X" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="paN-mZ-u9w"/>
                             <constraint firstItem="snE-gD-gf5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="qzP-Bo-BIb"/>
                             <constraint firstItem="LaC-2w-KjF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="75" id="rXj-UC-Hdo"/>

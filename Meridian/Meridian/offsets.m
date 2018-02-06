@@ -6,11 +6,29 @@
 //  Creds to ARX8x for finding & letting me (PsychoTea) use all offsets
 //  Copyright © 2017 ninja. All rights reserved.
 //
+
 #ifndef OFFSETS_H
 #define OFFSETS_H
+#include "offsets.h"
 #include "common.h"
 #include "sys/utsname.h"
 #include "sys/sysctl.h"
+
+typedef struct
+{
+    kptr_t base;
+    kptr_t sizeof_task;
+    kptr_t task_itk_self;
+    kptr_t task_itk_registered;
+    kptr_t task_bsd_info;
+    kptr_t proc_ucred;
+    kptr_t vm_map_hdr;
+    kptr_t ipc_space_is_task;
+    kptr_t realhost_special;
+    kptr_t iouserclient_ipc;
+    kptr_t vtab_get_retain_count;
+    kptr_t vtab_get_external_trap_for_index;
+} offsets_t;
 
 uint64_t OFFSET_ZONE_MAP;
 uint64_t OFFSET_KERNEL_MAP;
@@ -31,13 +49,20 @@ uint64_t OFFSET_KAUTH_CRED_REF;
 uint64_t OFFSET_OSSERIALIZER_SERIALIZE;
 uint64_t OFFSET_ROP_LDR_X0_X0_0x10;
 
-/**--READ BEFORE YOU ADD OFFSETS--**/
-//certain models have the same kernelcache. For example, iPhone6,1 and iPhone6,2 (iPhone 5s GSM and global)
-//they both have the same ipsw and same kernelcache. Such models should be combined with an OR logic
-//check how iPhone 7 and 5s models are combined
-//This file has conditions for all devices that have 10.3 or above, including 32 bit ones
-//but I haven't combined all devices like I mentioned above. If you're adding offsets for such a device, check the BuildManifest or the sha1 hash of ipsw files, and combine such devices with an OR logic.
-//Thanks to everyone who worked hard for this
+offsets_t struct_offsets = (offsets_t) {
+    .base                               = 0xfffffff007004000,
+    .sizeof_task                        = 0x550,
+    .task_itk_self                      = 0xd8,
+    .task_itk_registered                = 0x2e8,
+    .task_bsd_info                      = 0x360,
+    .proc_ucred                         = 0x100,
+    .vm_map_hdr                         = 0x10,
+    .ipc_space_is_task                  = 0x28,
+    .realhost_special                   = 0x10,
+    .iouserclient_ipc                   = 0x9c,
+    .vtab_get_retain_count              = 0x3,
+    .vtab_get_external_trap_for_index   = 0xb7
+};
 
 int load_offsets(void)
 {

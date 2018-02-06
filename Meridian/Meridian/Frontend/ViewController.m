@@ -37,10 +37,10 @@ NSOperatingSystemVersion osVersion;
 
 id thisClass;
 task_t tfp0;
-kptr_t kslide;
-kptr_t kernel_base;
-kptr_t kern_ucred;
-kptr_t kernprocaddr;
+uint64_t kslide;
+uint64_t kernel_base;
+uint64_t kern_ucred;
+uint64_t kernprocaddr;
 
 bool jailbreak_has_run = false;
 
@@ -52,21 +52,33 @@ bool jailbreak_has_run = false;
     
     fileMgr = [NSFileManager defaultManager];
     
-    _goButton.layer.cornerRadius = 5;
-    _creditsButton.layer.cornerRadius = 5;
-    _websiteButton.layer.cornerRadius = 5;
+    [self.goButton.layer setCornerRadius:5];
+    [self.creditsButton.layer setCornerRadius:5];
+    [self.websiteButton.layer setCornerRadius:5];
     
-    [_versionLabel setText:Version];
+    [self.versionLabel setText:Version];
     
     // Log current device and version info
     osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
+    // wish there was a better way of doing this (hopefully there is)
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"14[A-Za-z0-9]{3,5}"
+                                                                           options:0
+                                                                             error:nil];
+    NSRange range = [regex rangeOfFirstMatchInString:verString options:0 range:NSMakeRange(0, [verString length])];
+    NSString *buildString = [verString substringWithRange:range];
+    
     struct utsname u;
     uname(&u);
     
     [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
     
-    [self writeTextPlain:[NSString stringWithFormat:@"> found %s on iOS %@", u.machine, verString]];
+    [self writeTextPlain:[NSString stringWithFormat:@"> %s on iOS %ld.%ld.%ld (Build %@)",
+                          u.machine,
+                          (long)osVersion.majorVersion,
+                          (long)osVersion.minorVersion,
+                          (long)osVersion.patchVersion,
+                          buildString]];
     
     if (osVersion.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
@@ -77,15 +89,15 @@ bool jailbreak_has_run = false;
     // Load offsets
     if (load_offsets() != 0) {
         [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
-        [self writeTextPlain:@"> Please report this to @iBSparkes on Twitter."];
-        [self writeTextPlain:@"> Make sure to include a screenshot of this page."];
+        [self writeTextPlain:@"> You will need to find your own offsets."];
+        [self writeTextPlain:@"> Once found, send them to @iBSparkes on Twitter."];
         [self noOffsets];
         return;
     }
     
     [self writeTextPlain:@"> ready."];
     
-    NSLog(@"App bundle directory: %s \n", bundle_path());
+    NSLog(@"App bundle directory: %s", bundle_path());
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -127,7 +139,7 @@ bool jailbreak_has_run = false;
         
         // run v0rtex itself
         int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
-        
+
         if (ret != 0)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -165,7 +177,6 @@ bool jailbreak_has_run = false;
 -(int) makeShitHappen {
     int rv;
     
-    //               kernel base     + aslr kern offset
     kernel_base = 0xFFFFFFF007004000 + kslide;
     
     NSLog(@"tfp0: %x", tfp0);
@@ -290,7 +301,7 @@ bool jailbreak_has_run = false;
     
         // amfid patch takes a moment to come into effect, and
         // i cba to wait, so we'll just trust this manually
-        inject_trust("/meridian/bins/dropbear");
+        // inject_trust("/meridian/bins/dropbear");
         
         rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
@@ -315,6 +326,7 @@ bool jailbreak_has_run = false;
     
     {
         // Injecting substitute and shit
+        // this will all get replaced soon
         
         // Delete all the old shit 
         unlink("/meridian/injector");
@@ -333,7 +345,7 @@ bool jailbreak_has_run = false;
         extract_bundle("jailbreakd.tar", "/meridian");
         extract_bundle("SBInject.tar", "/usr/lib");
         extract_bundle("substitute.tar", "/usr/lib");
-        
+    
         // symlink a bunch of shit
         mkdir("/usr/lib/SBInject", 0755);
         mkdir("/Library/MobileSubstrate", 0755);
@@ -342,12 +354,18 @@ bool jailbreak_has_run = false;
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
         symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
-        
+    }
+    
+    {
         // chuck our lib in trust cache so we don't have to
         // worry about team validation and shit
         inject_trust("/meridian/pspawn_hook.dylib");
         inject_trust("/meridian/bins/launchctl");
         inject_trust("/usr/lib/SBInject.dylib");
+    }
+    
+    {
+        [self writeText:@"starting jailbreakd..."];
         
         unlink("/var/tmp/jailbreakd.pid");
         
@@ -361,13 +379,19 @@ bool jailbreak_has_run = false;
         chmod("/meridian/jailbreakd.plist", 0600);
         chown("/meridian/jailbreakd.plist", 0, 0);
         
-        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
+        rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
             "/meridian/bins/launchctl",
             "load",
             "-w",
             "/meridian/jailbreakd.plist",
             NULL
         });
+        
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"failed to start jailbreakd: %d", rv]];
+            return 1;
+        }
         
         while (!file_exist("/var/tmp/jailbreakd.pid")) {
             printf("Waiting for jailbreakd \n");
@@ -381,6 +405,34 @@ bool jailbreak_has_run = false;
             "/meridian/pspawn_hook.dylib",
             NULL
         });
+        
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"failed to inject pspawn_hook: %d", rv]];
+            return 1;
+        }
+        
+        [self writeText:@"done!"];
+    }
+    
+    {
+        // load custom launch daemons
+        [self writeText:@"loading daemons..."];
+        
+        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
+            "/meridian/bins/launchctl",
+            "load",
+            "/Library/LaunchDaemons",
+            NULL
+        });
+        
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"launchctl returned %d", rv]];
+            return 1;
+        }
+        
+        [self writeText:@"done!"];
     }
     
     return 0;
@@ -393,7 +445,7 @@ bool jailbreak_has_run = false;
                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
     
     [actionSheet addAction:[UIAlertAction actionWithTitle:@"Respring" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        pid_t springBoard = get_pid_for_name("SpringBoard");
+        pid_t springBoard = get_pid_for_name("backboardd");
         if (springBoard == 0) {
             [self writeText:@"Failed to respring."];
             return;
@@ -636,8 +688,7 @@ bool jailbreak_has_run = false;
     });
 }
 
-// this is lazy af,
-// i suck at (Obj)C
+// kinda dumb, kinda lazy, ¯\_(ツ)_/¯
 void log_message(NSString *message) {
     [thisClass writeTextPlain:message];
 }
