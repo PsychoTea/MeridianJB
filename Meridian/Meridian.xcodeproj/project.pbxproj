@@ -83,7 +83,6 @@
 		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B59532811FFE5FC000022CEE /* amfid_payload.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = amfid_payload.dylib; sourceTree = "<group>"; };
 		B59532881FFE6E9C00022CEE /* dpkg.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = dpkg.tar; sourceTree = "<group>"; };
 		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
 		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
@@ -490,6 +489,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 arm64 armv7s";
 			};
@@ -516,6 +516,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 arm64 armv7s";
 			};

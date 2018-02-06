@@ -14,9 +14,9 @@
 @end
 
 task_t tfp0;
-kptr_t kslide;
-kptr_t kernel_base;
-kptr_t kern_ucred;
-kptr_t kernprocaddr;
+uint64_t kslide;
+uint64_t kernel_base;
+uint64_t kern_ucred;
+uint64_t kernprocaddr;
 
 void log_message(NSString *message);

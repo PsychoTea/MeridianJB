@@ -34,14 +34,9 @@
 + (Boolean)appIsPirated:(NSString *)profilePath
 {
     NSString *fileContents = [NSString stringWithContentsOfFile:profilePath
-                                                       encoding:NSASCIIStringEncoding
-                                                          error:nil];
+                                             encoding:NSUTF8StringEncoding
+                                                error:nil];
     NSUInteger fileLength = [fileContents length];
-    if (fileLength == 0)
-    {
-        fileContents = [NSString stringWithContentsOfFile:profilePath];
-        fileLength = [fileContents length];
-    }
     
     if (fileLength == 0) return false;
     

@@ -71,9 +71,9 @@ bool is_blacklisted(char* proc) {
 
 typedef int (*pspawn_t)(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[]);
 
-pspawn_t old_pspawn;
+pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[], pspawn_t old) {
     DEBUGLOG("We got called (fake_posix_spawn)! %s", path);
     
     const char *inject_me = NULL;
@@ -100,7 +100,7 @@ int fake_posix_spawn(pid_t * pid, const char* path, const posix_spawn_file_actio
     
     if (inject_me == NULL) {
         DEBUGLOG("Nothing to inject.");
-        return old_pspawn(pid, path, file_actions, attrp, argv, envp);
+        return old(pid, path, file_actions, attrp, argv, envp);
     }
     
     DEBUGLOG("Injecting %s into %s", inject_me, path);
@@ -170,10 +170,10 @@ int fake_posix_spawn(pid_t * pid, const char* path, const posix_spawn_file_actio
         calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY);
         closejailbreakfd();
         
-        origret = old_pspawn(pid, path, file_actions, newattrp, argv, newenvp);
+        origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     } else {
         int gotpid;
-        origret = old_pspawn(&gotpid, path, file_actions, newattrp, argv, newenvp);
+        origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
         
         if (origret == 0) {
             calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT);
@@ -183,16 +183,27 @@ int fake_posix_spawn(pid_t * pid, const char* path, const posix_spawn_file_actio
     return origret;
 }
 
+int fake_posix_spawn(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+    DEBUGLOG("fake_posix_spawn was called: %s", file);
+    return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
+}
+
+int fake_posix_spawnp(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+    DEBUGLOG("fake_posix_spawnp was called: %s", file);
+    return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
+}
+
 void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
         { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
+        { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp },
     };
     
-    rebind_symbols(rebindings, 1);
+    rebind_symbols(rebindings, 2);
 }
 
 void* thd_func(void* arg) {
-    NSLog(@"in a new thread!");
+    DEBUGLOG("in a new thread!");
     rebind_pspawns();
     return NULL;
 }
