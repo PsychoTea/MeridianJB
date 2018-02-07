@@ -79,7 +79,7 @@ int defecate_amfi() {
         NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
         return rv;
     }
-
+    
     // i'm not sure if this is needed but i cba to test it without so w/e
     grant_csflags(pd);
     

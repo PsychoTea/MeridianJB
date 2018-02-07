@@ -1,4 +1,4 @@
-ARCHS=arm64 armv7 armv7s
+ARCHS=arm64
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = SBInject

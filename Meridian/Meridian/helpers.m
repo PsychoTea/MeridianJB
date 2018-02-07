@@ -201,13 +201,7 @@ char* concat(const char *s1, const char *s2) {
     return result;
 }
 
-void grant_csflags(pid_t pid) {
-    #define CS_GET_TASK_ALLOW       0x0000004    /* has get-task-allow entitlement */
-    #define CS_INSTALLER            0x0000008    /* has installer entitlement      */
-    #define CS_HARD                 0x0000100    /* don't load invalid pages       */
-    #define CS_RESTRICT             0x0000800    /* tell dyld to treat restricted  */
-    #define CS_PLATFORM_BINARY      0x4000000    /* this is a platform binary      */
-    
+void grant_csflags(pid_t pid) {    
     int tries = 3;
     while (tries-- > 0) {
         uint64_t proc = find_proc_by_pid(pid);
