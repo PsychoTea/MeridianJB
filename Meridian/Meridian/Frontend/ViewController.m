@@ -58,6 +58,8 @@ bool jailbreak_has_run = false;
     
     [self.versionLabel setText:Version];
     
+    jailbreak_has_run = check_for_jailbreak();
+    
     // Log current device and version info
     osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
@@ -95,7 +97,18 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    [self writeTextPlain:@"> ready."];
+    if (!jailbreak_has_run) {
+        [self writeTextPlain:@"> ready."];
+    } else {
+        [self writeTextPlain:@"> already jailbroken."];
+        
+        // set done button
+        [self.goButton setTitle:@"done" forState:UIControlStateNormal];
+    
+        // aaaaand grey it out
+        [self.goButton setEnabled:NO];
+        self.goButton.alpha = 0.5;
+    }
     
     NSLog(@"App bundle directory: %s", bundle_path());
 }
@@ -230,35 +243,15 @@ bool jailbreak_has_run = false;
     }
     
     {
-        // create dirs for meridian
-        if (file_exists("/meridian") != 0) {
-            [self writeText:@"creating /meridian directory..."];
-            mkdir("/meridian", 0777);
-            mkdir("/meridian/logs", 0777);
-            [self writeText:@"done!"];
-        }
-    }
-    
-    {
-        // patch amfi ;)
-        [self writeText:@"patching amfi..."];
-        
-        rv = defecate_amfi();
-        if (rv != 0) {
-            [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
-            return 1;
-        }
-        
-        [self writeText:@"done!"];
-    }
-    
-    {
         // create dir's and files for dropbear
-        if (file_exists("/etc/dropbear") != 0 ||
+        if (file_exists("/meridian") != 0 ||
+            file_exists("/etc/dropbear") != 0 ||
             file_exists("/var/log/lastlog") != 0 ||
             file_exists("/var/root/.profile") != 0) {
             [self writeText:@"setting up the envrionment..."];
+            
+            mkdir("/meridian", 0777);
+            mkdir("/meridian/logs", 0777);
             
             mkdir("/etc", 0777);
             mkdir("/etc/dropbear", 0777);
@@ -285,6 +278,20 @@ bool jailbreak_has_run = false;
     }
     
     {
+        // patch amfi ;)
+        [self writeText:@"patching amfi..."];
+        
+        rv = defecate_amfi();
+        if (rv != 0) {
+            [self writeText:@"failed!"];
+            [self writeTextPlain:[NSString stringWithFormat:@"got error %d for amfi patch.", rv]];
+            return 1;
+        }
+        
+        [self writeText:@"done!"];
+    }
+    
+    {
         // nostash
         touch_file("/.cydia_no_stash");
         
@@ -299,10 +306,6 @@ bool jailbreak_has_run = false;
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
     
-        // amfid patch takes a moment to come into effect, and
-        // i cba to wait, so we'll just trust this manually
-        // inject_trust("/meridian/bins/dropbear");
-        
         rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
             "/meridian/bins/dropbear",
             "-p",
@@ -686,6 +689,14 @@ bool jailbreak_has_run = false;
         
         NSLog(@"%@", message);
     });
+}
+
+bool check_for_jailbreak() {
+    uint32_t flags;
+    int csops(pid_t pid, unsigned int  ops, void * useraddr, size_t usersize);
+    csops(getpid(), 0, &flags, 0);
+    
+    return flags & CS_PLATFORM_BINARY;
 }
 
 // kinda dumb, kinda lazy, ¯\_(ツ)_/¯

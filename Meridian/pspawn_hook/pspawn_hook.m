@@ -25,8 +25,8 @@ FILE *log_file;
 do {                                                                \
     if (log_file == NULL) {                                         \
         log_file = fopen((current_process == PROCESS_LAUNCHD) ?     \
-                            LAUNCHD_LOG_PATH :                      \
-                            XPCPROXY_LOG_PATH, "a");                \
+                         LAUNCHD_LOG_PATH :                         \
+                         XPCPROXY_LOG_PATH, "a");                   \
         if (log_file == NULL) break;                                \
     }                                                               \
     fprintf(log_file, fmt "\n", ##args);                            \
@@ -44,12 +44,13 @@ int current_process = PROCESS_XPCPROXY;
 #define SBINJECT_PAYLOAD_DYLIB  "/usr/lib/SBInject.dylib"
 
 const char* xpcproxy_blacklist[] = {
-    "com.apple.diagnosticd",  // syslog
-    "com.apple.ReportCrash",  // crash reporting
-    "MTLCompilerService",     // ?_?
-    "OTAPKIAssetTool",        // h_h
-    "cfprefsd",               // o_o
-    "jailbreakd",             // don't inject into jbd since we'd have to call to it
+    "com.apple.diagnosticd",        // syslog
+    "com.apple.ReportCrash",        // crash reporting
+    "com.apple.WebKit.Networking",  // O.o
+    "MTLCompilerService",           // ?_?
+    "OTAPKIAssetTool",              // h_h
+    "cfprefsd",                     // o_o
+    "jailbreakd",                   // don't inject into jbd since we'd have to call to it
     NULL
 };
 
@@ -73,8 +74,17 @@ typedef int (*pspawn_t)(pid_t * pid, const char* path, const posix_spawn_file_ac
 
 pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[], pspawn_t old) {
-    DEBUGLOG("We got called (fake_posix_spawn)! %s", path);
+int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
+    char fullArgs[512];
+    
+    const char** currentarg = argv;
+    while (*currentarg != NULL) {
+        strcat(fullArgs, " ");
+        strcat(fullArgs, *currentarg);
+        currentarg++;
+    }
+    
+    DEBUGLOG("We got called (fake_posix_spawn)! %s: %s", path, fullArgs);
     
     const char *inject_me = NULL;
     
@@ -176,6 +186,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
         
         if (origret == 0) {
+            if (pid != NULL) *pid = gotpid;
             calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT);
         }
     }
@@ -184,12 +195,10 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
 }
 
 int fake_posix_spawn(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
-    DEBUGLOG("fake_posix_spawn was called: %s", file);
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
 }
 
 int fake_posix_spawnp(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
-    DEBUGLOG("fake_posix_spawnp was called: %s", file);
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
 }
 
