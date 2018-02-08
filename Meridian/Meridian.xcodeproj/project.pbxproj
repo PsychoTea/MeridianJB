@@ -21,6 +21,8 @@
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
 		B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */ = {isa = PBXBuildFile; fileRef = B5507C17202A63A5004E4572 /* v0rtex-old.m */; };
 		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
+		B57A06BD202CDB1D00ACDB9D /* jailbreakd.plist in Resources */ = {isa = PBXBuildFile; fileRef = B57A06BC202CDB1D00ACDB9D /* jailbreakd.plist */; };
+		B57A06C3202CDC8B00ACDB9D /* create-meridian-base.sh in Resources */ = {isa = PBXBuildFile; fileRef = B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
@@ -66,6 +68,8 @@
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		B5507C17202A63A5004E4572 /* v0rtex-old.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "v0rtex-old.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "v0rtex-old.h"; sourceTree = "<group>"; };
+		B57A06BC202CDB1D00ACDB9D /* jailbreakd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = jailbreakd.plist; sourceTree = "<group>"; };
+		B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "create-meridian-base.sh"; sourceTree = "<group>"; };
 		B582405A1FF7533D00D96DB5 /* offsets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
@@ -111,7 +115,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B50F79671FF224F0000D6015 /* Frontend */ = {
+		B50F79671FF224F0000D6015 /* views */ = {
 			isa = PBXGroup;
 			children = (
 				B514CC871FECD788005F4E6B /* Info.plist */,
@@ -127,7 +131,7 @@
 				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
 				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
 			);
-			path = Frontend;
+			path = views;
 			sourceTree = "<group>";
 		};
 		B514CC6D1FECD787005F4E6B = {
@@ -159,7 +163,8 @@
 		B514CC781FECD788005F4E6B /* Meridian */ = {
 			isa = PBXGroup;
 			children = (
-				B50F79671FF224F0000D6015 /* Frontend */,
+				B50F79671FF224F0000D6015 /* views */,
+				B57A06B7202CDA9F00ACDB9D /* binpacks */,
 				B589518A201D21F2002E0EAD /* amfid.tar */,
 				B50F79491FF2248B000D6015 /* bootstrap.tar */,
 				B59022351FFF8CCB00691423 /* cydia.tar */,
@@ -194,6 +199,79 @@
 				B5507C17202A63A5004E4572 /* v0rtex-old.m */,
 			);
 			path = Meridian;
+			sourceTree = "<group>";
+		};
+		B57A06B7202CDA9F00ACDB9D /* binpacks */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */,
+				B57A06BE202CDBC800ACDB9D /* meridian-base */,
+			);
+			path = binpacks;
+			sourceTree = "<group>";
+		};
+		B57A06B8202CDAB700ACDB9D /* meridian */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06B9202CDAC500ACDB9D /* amfid */,
+				B57A06BA202CDACF00ACDB9D /* jailbreakd */,
+				B57A06BB202CDAEE00ACDB9D /* logs */,
+			);
+			path = meridian;
+			sourceTree = "<group>";
+		};
+		B57A06B9202CDAC500ACDB9D /* amfid */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = amfid;
+			sourceTree = "<group>";
+		};
+		B57A06BA202CDACF00ACDB9D /* jailbreakd */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06BC202CDB1D00ACDB9D /* jailbreakd.plist */,
+			);
+			path = jailbreakd;
+			sourceTree = "<group>";
+		};
+		B57A06BB202CDAEE00ACDB9D /* logs */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = logs;
+			sourceTree = "<group>";
+		};
+		B57A06BE202CDBC800ACDB9D /* meridian-base */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06B8202CDAB700ACDB9D /* meridian */,
+				B57A06BF202CDBE800ACDB9D /* usr */,
+			);
+			path = "meridian-base";
+			sourceTree = "<group>";
+		};
+		B57A06BF202CDBE800ACDB9D /* usr */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06C0202CDBEE00ACDB9D /* lib */,
+			);
+			path = usr;
+			sourceTree = "<group>";
+		};
+		B57A06C0202CDBEE00ACDB9D /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				B57A06C1202CDBF200ACDB9D /* SBInject */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		B57A06C1202CDBF200ACDB9D /* SBInject */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SBInject;
 			sourceTree = "<group>";
 		};
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
@@ -275,7 +353,9 @@
 			files = (
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
+				B57A06C3202CDC8B00ACDB9D /* create-meridian-base.sh in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
+				B57A06BD202CDB1D00ACDB9D /* jailbreakd.plist in Resources */,
 				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
 				B5895197201D4B10002E0EAD /* jailbreakd.plist in Resources */,
 				B589518B201D21F2002E0EAD /* amfid.tar in Resources */,
@@ -483,7 +563,7 @@
 				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
-				INFOPLIST_FILE = "$(SRCROOT)/Meridian/Frontend/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -511,7 +591,7 @@
 				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
-				INFOPLIST_FILE = "$(SRCROOT)/Meridian/Frontend/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (

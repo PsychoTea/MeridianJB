@@ -16,6 +16,6 @@ chmod 0755 $currDir/$outputFile
 
 tar -cf $tarName $outputFile
 
-rm $currDir/$outputFile
+#rm $currDir/$outputFile
 
 mv $currDir/$tarName $currDir/../Meridian/$tarName

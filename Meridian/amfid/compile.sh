@@ -16,7 +16,7 @@ chmod 0755 $currDir/amfid_fucker
 
 tar -cf amfid.tar amfid_fucker amfid_payload.dylib
 
-rm $currDir/amfid_payload.dylib
-rm $currDir/amfid_fucker
+#rm $currDir/amfid_payload.dylib
+#rm $currDir/amfid_fucker
 
 mv $currDir/amfid.tar $currDir/../Meridian/amfid.tar
