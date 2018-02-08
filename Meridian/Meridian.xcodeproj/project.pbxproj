@@ -19,8 +19,8 @@
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
-		B5507C18202A63A5004E4572 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5507C17202A63A5004E4572 /* v0rtex.m */; };
-		B578A6542007FD8100C19091 /* v0rtex.m.new in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m.new */; };
+		B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */ = {isa = PBXBuildFile; fileRef = B5507C17202A63A5004E4572 /* v0rtex-old.m */; };
+		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
@@ -64,7 +64,8 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		B5507C17202A63A5004E4572 /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; };
+		B5507C17202A63A5004E4572 /* v0rtex-old.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "v0rtex-old.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "v0rtex-old.h"; sourceTree = "<group>"; };
 		B582405A1FF7533D00D96DB5 /* offsets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
@@ -91,7 +92,7 @@
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
-		B5B7C2B51FF353970087619A /* v0rtex.m.new */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = v0rtex.m.new; sourceTree = "<group>"; };
+		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
 		B5D23C432002AC6600BF184C /* fucksigningservices.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fucksigningservices.m; sourceTree = "<group>"; };
 		B5D23C452002B0C600BF184C /* fucksigningservices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fucksigningservices.h; sourceTree = "<group>"; };
@@ -188,8 +189,9 @@
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
-				B5507C17202A63A5004E4572 /* v0rtex.m */,
-				B5B7C2B51FF353970087619A /* v0rtex.m.new */,
+				B5B7C2B51FF353970087619A /* v0rtex.m */,
+				B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */,
+				B5507C17202A63A5004E4572 /* v0rtex-old.m */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -328,7 +330,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B578A6542007FD8100C19091 /* v0rtex.m.new in Sources */,
+				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
 				B58581C4200436AB00295515 /* DRMController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
@@ -338,7 +340,7 @@
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */,
-				B5507C18202A63A5004E4572 /* v0rtex.m in Sources */,
+				B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
 				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
