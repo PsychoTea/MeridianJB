@@ -120,8 +120,6 @@ bool jailbreak_has_run = false;
         [self presentViewController:drmController animated:YES completion:nil];
         return;
     }
-    
-    
 }
 
 - (IBAction)goButtonPressed:(UIButton *)sender {
@@ -225,11 +223,12 @@ bool jailbreak_has_run = false;
     {
         // remount '/' as r/w
         [self writeText:@"remounting '/' as r/w..."];
-        int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
-        int mount_rt = mount_root(kslide, pre130);
-        if (mount_rt != 0) {
+        
+        int pre130 = osVersion.minorVersion < 3 ? 1 : 0; /* further patching is required on <10.3 */
+        rv = mount_root(kslide, pre130);
+        if (rv != 0) {
             [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", mount_rt]];
+            [self writeTextPlain:[NSString stringWithFormat:@"ERROR: failed to remount '/' as r/w! (%d)", rv]];
             [self writeTextPlain:[NSString stringWithFormat:@"errno: %u strerror: %s", errno, strerror(errno)]];
             return 1;
         }
@@ -352,10 +351,17 @@ bool jailbreak_has_run = false;
         extract_bundle("substitute.tar", "/usr/lib");
     
         // symlink a bunch of shit
-        mkdir("/usr/lib/SBInject", 0755);
-        mkdir("/Library/MobileSubstrate", 0755);
-        symlink("/usr/lib/SBInject", "/Library/MobileSubstrate/DynamicLibraries");
+        if (file_exists("/Library/MobileSubstrate") == 0 ||
+            file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
+            mkdir("/Library/MobileSubstrate", 0755);
+            mkdir("/Library/MobileSubstrate/DynamicLibraries", 0755);
+        }
+        if (file_exists("/usr/lib/SBInject") == 0) {
+            // link /usr/lib/SBInject to /Lib/MobSub/DynLibs
+            symlink("/Library/MobileSubstrate/DynamicLibraries", "/usr/lib/SBInject");
+        }
         
+        // remove existing CydiaSubstrate and link to /usr/lib/libsubstrate.dylib
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
         symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
