@@ -61,7 +61,7 @@ uint32_t get_pid_for_name(char* name) {
 }
 
 int uicache() {
-    return execprog("/meridian/bins/uicache", NULL);
+    return execprog("/bin/uicache", NULL);
 }
 
 char *itoa(long n) {

@@ -62,31 +62,20 @@ bool jailbreak_has_run = false;
     
     // Log current device and version info
     osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-    NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
-    // wish there was a better way of doing this (hopefully there is)
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"14[A-Za-z0-9]{3,5}"
-                                                                           options:0
-                                                                             error:nil];
-    NSRange range = [regex rangeOfFirstMatchInString:verString options:0 range:NSMakeRange(0, [verString length])];
-    NSString *buildString = [verString substringWithRange:range];
-    
-    struct utsname u;
-    uname(&u);
     
     [self writeTextPlain:[NSString stringWithFormat:@"> %@", Version]];
     
-    [self writeTextPlain:[NSString stringWithFormat:@"> %s on iOS %ld.%ld.%ld (Build %@)",
-                          u.machine,
-                          (long)osVersion.majorVersion,
-                          (long)osVersion.minorVersion,
-                          (long)osVersion.patchVersion,
-                          buildString]];
-    
     if (osVersion.majorVersion != 10) {
         [self writeTextPlain:@"> Meridian does not work on versions of iOS other than iOS 10."];
+        [self writeTextPlain:[NSString stringWithFormat:@"> found iOS version %@", [self getVersionString]]];
         [self.goButton setHidden:YES];
         return;
     }
+    
+    [self writeTextPlain:[NSString stringWithFormat:@"> %s on iOS %@ (Build %@)",
+                          [self getDeviceIdentifier],
+                          [self getVersionString],
+                          [self getBuildString]]];
     
     // Load offsets
     if (load_offsets() != 0) {
@@ -97,18 +86,20 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    if (!jailbreak_has_run) {
-        [self writeTextPlain:@"> ready."];
-    } else {
+    if (jailbreak_has_run) {
         [self writeTextPlain:@"> already jailbroken."];
         
         // set done button
         [self.goButton setTitle:@"done" forState:UIControlStateNormal];
-    
+        
         // aaaaand grey it out
         [self.goButton setEnabled:NO];
         self.goButton.alpha = 0.5;
+    
+        return;
     }
+    
+    [self writeTextPlain:@"> ready."];
     
     NSLog(@"App bundle directory: %s", bundle_path());
 }
@@ -130,8 +121,10 @@ bool jailbreak_has_run = false;
         return;
     }
     
+    // when jailbreak runs, 'go' button is
+    // turned to 'respring'
     if (jailbreak_has_run) {
-        [self presentPopupSheet: sender];
+        [self respring];
         return;
     }
     
@@ -164,6 +157,7 @@ bool jailbreak_has_run = false;
         
         [self writeTextPlain:@"exploit succeeded! praize siguza!"];
         
+        // do all the post-exploitation shit
         ret = [self makeShitHappen];
         
         if (ret != 0)
@@ -244,34 +238,104 @@ bool jailbreak_has_run = false;
     }
     
     {
-        // create dir's and files for dropbear
-        if (file_exists("/meridian") != 0 ||
-            file_exists("/etc/dropbear") != 0 ||
-            file_exists("/var/log/lastlog") != 0 ||
-            file_exists("/var/root/.profile") != 0) {
-            [self writeText:@"setting up the envrionment..."];
+        // extract bootstrap
+        
+        if (file_exists("/meridian/.ib7_bootstrap") != 0) {
+            [self writeText:@"extracting bootstrap..."];
             
-            mkdir("/meridian", 0777);
-            mkdir("/meridian/logs", 0777);
+            // merk old /meridian folder
+            [fileMgr removeItemAtPath:@"/meridian" error:nil];
             
-            mkdir("/etc", 0777);
-            mkdir("/etc/dropbear", 0777);
-            mkdir("/var", 0777);
-            mkdir("/var/log", 0777);
-            touch_file("/var/log/lastlog");
+            mkdir("/meridian", 0755);
             
-            if (![fileMgr fileExistsAtPath:@"/var/mobile/.profile"]) {
-                [fileMgr createFileAtPath:@"/var/mobile/.profile"
-                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                           dataUsingEncoding:NSASCIIStringEncoding]
-                               attributes:nil];
+            // extract tar
+            cp(bundled_file("bootstrap/tar.tar"), "/meridian");
+            inject_trust("/meridian/tar");
+            
+            // extract meridian-base.tar
+            rv = execprog("/meridian/tar", (const char**)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions"
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("bootstrap/meridian-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on meridian-base.tar", rv]];
+                return 1;
             }
             
-            if (![fileMgr fileExistsAtPath:@"/var/root/.profile"]) {
-                [fileMgr createFileAtPath:@"/var/root/.profile"
-                                 contents:[[NSString stringWithFormat:@"export PATH=/meridian/bins:$PATH"]
-                                           dataUsingEncoding:NSASCIIStringEncoding]
-                               attributes:nil];
+            // extract system-base.tar
+            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions",
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("bootstrap/system-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
+                return 1;
+            }
+            
+            // extract cydia-base.tar
+            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions",
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("bootstrap/cydia-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
+                return 1;
+            }
+            
+            // extract optional-base.tar
+            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions",
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("bootstrap/optional-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on optional-base.tar", rv]];
+                return 1;
+            }
+            
+            unlink("/meridian/tar");
+            
+            [self enableHiddenApps];
+            
+            touch_file("/meridian/.ib7_bootstrap");
+            
+            [self writeText:@"done!"];
+            
+            // run uicache
+            [self writeText:@"running uicache..."];
+            
+            rv = uicache();
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"uicache returned %d", rv]];
+                return 1;
             }
             
             [self writeText:@"done!"];
@@ -295,20 +359,14 @@ bool jailbreak_has_run = false;
     {
         // nostash
         touch_file("/.cydia_no_stash");
-        
-        // install Cydia
-        if (file_exists("/meridian/.cydia_installed") != 0 &&
-            file_exists("/Applications/Cydia.app") != 0) {
-            [self installCydia];
-        }
     }
     
     {
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
     
-        rv = execprog("/meridian/bins/dropbear", (const char**)&(const char*[]) {
-            "/meridian/bins/dropbear",
+        rv = execprog("/meridian/dropbear", (const char**)&(const char*[]) {
+            "/meridian/dropbear",
             "-p",
             "2222",
             "-R",
@@ -329,75 +387,49 @@ bool jailbreak_has_run = false;
     }
     
     {
-        // Injecting substitute and shit
-        // this will all get replaced soon
-        
-        // Delete all the old shit 
-        unlink("/meridian/injector");
-        unlink("/meridian/pspawn_hook.dylib");
-        unlink("/meridian/jailbreakd");
-        unlink("/meridian/jailbreakd.plist");
-        unlink("/meridian/SBInject.dylib");
-        unlink("/usr/lib/SBInject.dylib");
-        unlink("/usr/lib/libsubstitute.0.dylib");
-        unlink("/usr/lib/libsubstitute.dylib");
-        unlink("/usr/lib/libsubstrate.dylib");
-        
-        // Extract all the shit
-        extract_bundle("injector.tar", "/meridian");
-        extract_bundle("pspawn_hook.tar", "/meridian");
-        extract_bundle("jailbreakd.tar", "/meridian");
-        extract_bundle("SBInject.tar", "/usr/lib");
-        extract_bundle("substitute.tar", "/usr/lib");
-    
-        // symlink a bunch of shit
-        if (file_exists("/Library/MobileSubstrate") == 0 ||
-            file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
+        // create /Library/MobileSubstrate/DynamicLibraries
+        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
             mkdir("/Library/MobileSubstrate", 0755);
             mkdir("/Library/MobileSubstrate/DynamicLibraries", 0755);
         }
-        if (file_exists("/usr/lib/SBInject") == 0) {
-            // link /usr/lib/SBInject to /Lib/MobSub/DynLibs
-            symlink("/Library/MobileSubstrate/DynamicLibraries", "/usr/lib/SBInject");
-        }
         
-        // remove existing CydiaSubstrate and link to /usr/lib/libsubstrate.dylib
-        [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
+        // link CydiaSubstrate.framework -> /usr/lib/libsubstrate.dylib
+        if (file_exists("/Library/Frameworks/CydiaSubstrate.framework") == 0) {
+            [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
+        }
         mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
         symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
     }
     
     {
-        // chuck our lib in trust cache so we don't have to
-        // worry about team validation and shit
-        inject_trust("/meridian/pspawn_hook.dylib");
-        inject_trust("/meridian/bins/launchctl");
-        inject_trust("/usr/lib/SBInject.dylib");
-    }
-    
-    {
         [self writeText:@"starting jailbreakd..."];
+        
+        inject_trust("/bin/launchctl");
+        inject_trust("/meridian/pspawn_hook.dylib");
+        inject_trust("/usr/lib/SBInject.dylib");
         
         unlink("/var/tmp/jailbreakd.pid");
         
-        NSData *blob = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"jailbreakd" ofType:@"plist"]];
-        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
+        NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
+        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob
+                                                                             options:NSPropertyListMutableContainers
+                                                                              format:nil
+                                                                               error:nil];
         
         job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
         job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
         job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", OFFSET_ZONE_MAP];
-        [job writeToFile:@"/meridian/jailbreakd.plist" atomically:YES];
-        chmod("/meridian/jailbreakd.plist", 0600);
+        [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
+        chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
         chown("/meridian/jailbreakd.plist", 0, 0);
         
-        rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
-            "/meridian/bins/launchctl",
+        rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
+            "/bin/launchctl",
             "load",
             "-w",
             "/meridian/jailbreakd.plist",
             NULL
         });
-        
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"failed to start jailbreakd: %d", rv]];
@@ -416,7 +448,6 @@ bool jailbreak_has_run = false;
             "/meridian/pspawn_hook.dylib",
             NULL
         });
-        
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"failed to inject pspawn_hook: %d", rv]];
@@ -430,13 +461,13 @@ bool jailbreak_has_run = false;
         // load custom launch daemons
         [self writeText:@"loading daemons..."];
         
-        int rv = execprog("/meridian/bins/launchctl", (const char **)&(const char*[]) {
-            "/meridian/bins/launchctl",
+        rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
+            "/bin/launchctl",
             "load",
+            "-w",
             "/Library/LaunchDaemons",
             NULL
         });
-        
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"launchctl returned %d", rv]];
@@ -449,119 +480,20 @@ bool jailbreak_has_run = false;
     return 0;
 }
 
--(void) presentPopupSheet:(UIButton *)sender {
-    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"Advanced Options"
-                                                                         message:@"Only run these if you specifically need to. "
-                                                                                  "Only the 'Respring' option needs to be run after jailbreaking."
-                                                                  preferredStyle:UIAlertControllerStyleActionSheet];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Respring" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        pid_t springBoard = get_pid_for_name("backboardd");
-        if (springBoard == 0) {
-            [self writeText:@"Failed to respring."];
-            return;
-        }
-        kill(springBoard, 9);
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Force Re-install Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
-            [self installCydia];
-        });
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Delete Cydia" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [self uninstallCydia];
-        });
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Extract Dpkg" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
-            [self extractDpkg];
-        });
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Re-extract Bootstrap" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
-            [self extractBootstrap];
-        });
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Uninstall Meridian" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            [self uninstallMeridian];
-        });
-        
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    
-    [actionSheet.popoverPresentationController setPermittedArrowDirections:UIPopoverArrowDirectionAny];
-    
-    UIPopoverPresentationController *popPresender = [actionSheet popoverPresentationController];
-    popPresender.sourceView = sender;
-    popPresender.sourceRect = sender.bounds;
-    
-    [self presentViewController:actionSheet animated:YES completion:nil];
-}
-
-- (void)installCydia {
-    [self writeText:@"installing cydia..."];
-    
-    int rv;
-    
-    // delete old Cydia.app
-    if ([fileMgr fileExistsAtPath:@"/Applications/Cydia.app"] == YES)
-    {
-        [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
-        
-        rv = uicache();
-        if (rv != 0) {
-            [self writeText:@"failed!"];
-            [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (1)", rv]];
-            return;
-        }
-    }
-    
-    // delete our .tar if it already exists
-    unlink("/meridian/cydia.tar");
-    
-    // copy the tar out
-    cp(bundled_file("cydia.tar"), "/meridian/cydia.tar");
-    
-    // extract to /Applications
-    chdir("/Applications");
-    untar(fopen("/meridian/cydia.tar", "r+"), "cydia");
-    
-    // write the .cydia_installed file
-    touch_file("/meridian/.cydia_installed");
-    
-    [self writeText:@"done!"];
-    
-    // run uicache
-    [self writeText:@"running uicache..."];
-    rv = uicache();
-    if (rv != 0) {
-        [self writeText:@"failed!"];
-        [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache (2)", rv]];
+- (void)respring {
+    pid_t springBoard = get_pid_for_name("backboardd");
+    if (springBoard == 0) {
+        [self writeTextPlain:@"Failed to respring."];
         return;
     }
-    [self writeText:@"done!"];
-    
+    kill(springBoard, 9);
+}
+
+- (void)enableHiddenApps {
     // enable showing of system apps on springboard
     // this is some funky killall stuff tho
-    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
-        "/meridian/bins/killall",
+    execprog("/usr/bin/killall", (const char**)&(const char*[]) {
+        "/usr/bin/killall",
         "-SIGSTOP",
         "cfprefsd",
         NULL
@@ -569,73 +501,37 @@ bool jailbreak_has_run = false;
     NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
     [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
     [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
-    execprog("/meridian/bins/killall", (const char**)&(const char*[]) {
-        "/meridian/bins/killall",
+    execprog("/usr/bin/killall", (const char**)&(const char*[]) {
+        "/usr/bin/killall",
         "-9",
         "cfprefsd",
         NULL
     });
 }
 
-- (void)uninstallCydia {
-    // delete Cydia.app
-    [self writeText:@"deleting Cydia..."];
-    [fileMgr removeItemAtPath:@"/Applications/Cydia.app" error:nil];
-    [self writeText:@"done!"];
-    
-    // run uicache
-    [self writeText:@"running uicache..."];
-    int rv = uicache();
-    if (rv != 0) {
-        [self writeText:@"failed!"];
-        [self writeTextPlain:[NSString stringWithFormat:@"got value %d from uicache", rv]];
-        return;
-    }
-    [self writeText:@"done!"];
+- (char *)getDeviceIdentifier {
+    static struct utsname u;
+    uname(&u);
+    return u.machine;
 }
 
-- (void)extractDpkg {
-    [self writeText:@"extracting dpkg..."];
-    
-    // delete the tar if it already exists
-    unlink("/meridian/dpkg.tar");
-    
-    // copy the tar out
-    cp(bundled_file("dpkg.tar"), "/meridian/dpkg.tar");
-    
-    // extract dpkg.tar to '/'
-    chdir("/");
-    untar(fopen("/meridian/dpkg.tar", "r+"), "dpkg");
-    
-    [self writeText:@"done!"];
+- (NSString *)getVersionString {
+    return [NSString stringWithFormat:@"%ld.%ld.%ld",
+            (long)osVersion.majorVersion,
+            (long)osVersion.minorVersion,
+            (long)osVersion.patchVersion];
 }
 
-- (void)extractBootstrap {
-    [self writeText:@"extracting bootstrap..."];
+- (NSString *)getBuildString {
+    NSString *verString = [[NSProcessInfo processInfo] operatingSystemVersionString];
+    // wish there was a better way of doing this (hopefully there is)
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"14[A-Za-z0-9]{3,5}"
+                                                                           options:0
+                                                                             error:nil];
     
-    // delete the bins dir
-    [fileMgr removeItemAtPath:@"/meridian/bins" error:nil];
+    NSRange range = [regex rangeOfFirstMatchInString:verString options:0 range:NSMakeRange(0, [verString length])];
     
-    // create the bins dir and extract the bootstrap.tar to /meridian(/bins)
-    mkdir("/meridian/bins", 0777);
-    chdir("/meridian/");
-    untar(fopen(bundled_file("bootstrap.tar"), "r+"), "bootstrap");
-    
-    [self writeText:@"done!"];
-}
-
-- (void)uninstallMeridian {
-    
-    [self uninstallCydia];
-    
-    [self writeText:@"uninstalling Meridian..."];
-    
-    // delete '/meridian' dir
-    [fileMgr removeItemAtPath:@"/meridian" error:nil];
-    
-    [self writeText:@"done!"];
-    [self writeTextPlain:@"please delete the Meridian app and reboot to finish uninstallation."];
-    [self writeTextPlain:@"goodbye!"];
+    return [verString substringWithRange:range];
 }
 
 - (void)exploitSucceeded {
@@ -643,13 +539,13 @@ bool jailbreak_has_run = false;
     
     [self writeTextPlain:@"\n> your device has been freed! \n"];
     
-    [self writeTextPlain:@"note: please click 'done' and click 'respring' to get this party started \n"];
+    [self writeTextPlain:@"note: please click 'respring' to get this party started :) \n"];
     
     [self.progressSpinner stopAnimating];
     
     [self.goButton setEnabled:YES];
     [self.goButton setHidden:NO];
-    [self.goButton setTitle:@"done" forState:UIControlStateNormal];
+    [self.goButton setTitle:@"respring" forState:UIControlStateNormal];
     
     [self.creditsButton setEnabled:YES];
     self.creditsButton.alpha = 1;
@@ -700,8 +596,9 @@ bool jailbreak_has_run = false;
 }
 
 bool check_for_jailbreak() {
+    int csops(pid_t pid, unsigned int ops, void *useraddr, size_t usersize);
+    
     uint32_t flags;
-    int csops(pid_t pid, unsigned int  ops, void * useraddr, size_t usersize);
     csops(getpid(), 0, &flags, 0);
     
     return flags & CS_PLATFORM_BINARY;

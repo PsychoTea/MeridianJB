@@ -35,25 +35,8 @@ void init_amfi() {
     NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
 }
 
-int defecate_amfi() {
+int defecate_amfi() { /* TODO: hand this all off to jailbreakd/pspawn_hook */
     NSLog(@"[amfi] amfid defecation has been reached");
-    
-    {
-        // copy some files
-        NSLog(@"[amfi] copying in our patches \n");
-        
-        // TODO: replace all this shit with extract_bundle
-        
-        unlink("/meridian/amfid.tar"); // temporary
-        unlink("/meridian/amfid_payload.dylib"); // temporary
-        unlink("/meridian/amfid_fucker"); // temporary
-        unlink("/meridian/amfid/amfid_fucker");
-        unlink("/meridian/amfid/amfid_payload.dylib");
-        
-        mkdir("/meridian/amfid", 0755);
-        
-        extract_bundle("amfid.tar", "/meridian/amfid");
-    }
     
     {
         // trust our payload

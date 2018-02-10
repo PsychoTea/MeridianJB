@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>jailbreakd</string>
+	<key>Program</key>
+	<string>/meridian/jailbreakd/jailbreakd</string>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ZoneMapOffset</key>
+		<string>0x746f6d6f68696d61</string>
+		<key>KernProcAddr</key>
+		<string>0x746f6d6f68696d61</string>
+		<key>KernelBase</key>
+		<string>0x746f6d6f68696d61</string>
+	</dict>
+	<key>UserName</key>
+	<string>root</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/var/log/jailbreakd-stderr.log</string>
+	<key>StandardOutPath</key>
+	<string>/var/log/jailbreakd-stdout.log</string>
+</dict>
+</plist>

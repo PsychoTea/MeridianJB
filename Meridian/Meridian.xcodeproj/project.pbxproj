@@ -10,7 +10,6 @@
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
 		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
 		B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79471FF2248B000D6015 /* CreditsController.m */; };
-		B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B50F79491FF2248B000D6015 /* bootstrap.tar */; };
 		B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794A1FF2248B000D6015 /* AppDelegate.m */; };
 		B50F79631FF2248D000D6015 /* kernel.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794F1FF2248C000D6015 /* kernel.m */; };
 		B50F79641FF2248D000D6015 /* amfi.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79531FF2248D000D6015 /* amfi.m */; };
@@ -23,16 +22,11 @@
 		B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E6202CEDF500ACDB9D /* cydia-base.tar */; };
 		B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E7202CEDF500ACDB9D /* optional-base.tar */; };
 		B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E8202CEDF500ACDB9D /* system-base.tar */; };
-		B57A06ED202CEDF500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E9202CEDF500ACDB9D /* meridian-base.tar */; };
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
-		B5895195201D4744002E0EAD /* substitute.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5895194201D4744002E0EAD /* substitute.tar */; };
-		B59022361FFF8CCB00691423 /* cydia.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59022351FFF8CCB00691423 /* cydia.tar */; };
-		B59532721FFE2B5000022CEE /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B59532701FFE2B5000022CEE /* LICENSE */; };
-		B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */ = {isa = PBXBuildFile; fileRef = B59532881FFE6E9C00022CEE /* dpkg.tar */; };
 		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
@@ -47,7 +41,6 @@
 		B50F79461FF2248B000D6015 /* root-rw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "root-rw.m"; sourceTree = "<group>"; };
 		B50F79471FF2248B000D6015 /* CreditsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
 		B50F79481FF2248B000D6015 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B50F79491FF2248B000D6015 /* bootstrap.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = bootstrap.tar; sourceTree = "<group>"; };
 		B50F794A1FF2248B000D6015 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		B50F794C1FF2248C000D6015 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
 		B50F794E1FF2248C000D6015 /* amfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfi.h; sourceTree = "<group>"; };
@@ -84,11 +77,8 @@
 		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
-		B5895194201D4744002E0EAD /* substitute.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = substitute.tar; sourceTree = "<group>"; };
-		B59022351FFF8CCB00691423 /* cydia.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = cydia.tar; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B59532881FFE6E9C00022CEE /* dpkg.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = dpkg.tar; sourceTree = "<group>"; };
 		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
 		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -162,11 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				B50F79671FF224F0000D6015 /* views */,
-				B57A06B7202CDA9F00ACDB9D /* binpacks */,
-				B50F79491FF2248B000D6015 /* bootstrap.tar */,
-				B59022351FFF8CCB00691423 /* cydia.tar */,
-				B59532881FFE6E9C00022CEE /* dpkg.tar */,
-				B5895194201D4744002E0EAD /* substitute.tar */,
+				B57A06B7202CDA9F00ACDB9D /* bootstrap */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
 				B50F793B1FF2248A000D6015 /* common.h */,
@@ -193,7 +179,7 @@
 			path = Meridian;
 			sourceTree = "<group>";
 		};
-		B57A06B7202CDA9F00ACDB9D /* binpacks */ = {
+		B57A06B7202CDA9F00ACDB9D /* bootstrap */ = {
 			isa = PBXGroup;
 			children = (
 				B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */,
@@ -204,7 +190,7 @@
 				B57A06E8202CEDF500ACDB9D /* system-base.tar */,
 				B57A06EE202CF4F300ACDB9D /* tar.tar */,
 			);
-			path = binpacks;
+			path = bootstrap;
 			sourceTree = "<group>";
 		};
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
@@ -220,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				B50F79481FF2248B000D6015 /* main.m */,
+				B57A06E9202CEDF500ACDB9D /* meridian-base.tar */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -288,15 +275,9 @@
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */,
-				B59532721FFE2B5000022CEE /* LICENSE in Resources */,
-				B50F795F1FF2248D000D6015 /* bootstrap.tar in Resources */,
-				B57A06ED202CEDF500ACDB9D /* meridian-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
-				B59022361FFF8CCB00691423 /* cydia.tar in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
-				B59532891FFE6E9C00022CEE /* dpkg.tar in Resources */,
-				B5895195201D4744002E0EAD /* substitute.tar in Resources */,
 				B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -315,7 +296,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\ntar -cf SBInject.tar SBInject.dylib\n\nmv SBInject.tar ../Meridian/";
+			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi";
 		};
 		B52C43BB200BCC920047B1B4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -327,7 +308,7 @@
 				"$(SRCROOT)/injector/compile.sh",
 				"$(SRCROOT)/pspawn_hook/compile.sh",
 				"$(SRCROOT)/jailbreakd/compile.sh",
-				"$(SRCROOT)/Meridian/binpacks/create-meridian-base.sh",
+				"$(SRCROOT)/Meridian/bootstrap/create-meridian-base.sh",
 			);
 			outputPaths = (
 			);
