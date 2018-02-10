@@ -240,6 +240,8 @@ bool jailbreak_has_run = false;
     {
         // extract bootstrap
         
+        [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
+        
         if (file_exists("/meridian/.bootstrap") != 0) {
             [self writeText:@"extracting bootstrap..."];
             
@@ -247,20 +249,22 @@ bool jailbreak_has_run = false;
             [fileMgr removeItemAtPath:@"/meridian" error:nil];
             
             mkdir("/meridian", 0755);
+            mkdir("/meridian/logs", 0755);
             
             // extract tar
-            cp(bundled_file("bootstrap/tar.tar"), "/meridian");
+            extract_bundle("tar.tar", "/meridian");
+            chmod("/meridian/tar", 0755);
             inject_trust("/meridian/tar");
             
             // extract meridian-base.tar
             rv = execprog("/meridian/tar", (const char**)&(const char*[]) {
                 "/meridian/tar",
-                "--preserve-permissions"
+                "--preserve-permissions",
                 "--no-overwrite-dir",
                 "-C",
                 "/",
                 "-xf",
-                bundled_file("bootstrap/meridian-base.tar"),
+                bundled_file("meridian-base.tar"),
                 NULL
             });
             if (rv != 0) {
@@ -277,12 +281,46 @@ bool jailbreak_has_run = false;
                 "-C",
                 "/",
                 "-xf",
-                bundled_file("bootstrap/system-base.tar"),
+                bundled_file("system-base.tar"),
                 NULL
             });
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
+                return 1;
+            }
+            
+            // extract installer-base.tar
+            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions",
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("installer-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on installer-base.tar", rv]];
+                return 1;
+            }
+            
+            // extract dpkgdb-base.tar
+            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                "/meridian/tar",
+                "--preserve-permissions",
+                "--no-overwrite-dir",
+                "-C",
+                "/",
+                "-xf",
+                bundled_file("dpkgdb-base.tar"),
+                NULL
+            });
+            if (rv != 0) {
+                [self writeText:@"failed!"];
+                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on dpkgdb-base.tar", rv]];
                 return 1;
             }
             
@@ -294,7 +332,7 @@ bool jailbreak_has_run = false;
                 "-C",
                 "/",
                 "-xf",
-                bundled_file("bootstrap/cydia-base.tar"),
+                bundled_file("cydia-base.tar"),
                 NULL
             });
             if (rv != 0) {
@@ -311,7 +349,7 @@ bool jailbreak_has_run = false;
                 "-C",
                 "/",
                 "-xf",
-                bundled_file("bootstrap/optional-base.tar"),
+                bundled_file("optional-base.tar"),
                 NULL
             });
             if (rv != 0) {
@@ -420,13 +458,13 @@ bool jailbreak_has_run = false;
         job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", OFFSET_ZONE_MAP];
         [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
         chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
-        chown("/meridian/jailbreakd.plist", 0, 0);
+        chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);
         
         rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
             "/bin/launchctl",
             "load",
             "-w",
-            "/meridian/jailbreakd.plist",
+            "/meridian/jailbreakd/jailbreakd.plist",
             NULL
         });
         if (rv != 0) {

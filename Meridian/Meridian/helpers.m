@@ -175,7 +175,10 @@ char* bundle_path() {
 }
 
 void extract_bundle(const char* bundle_name, const char* directory) {
-    char tarFile[100];
+    char *tarFile = malloc(strlen(bundle_name) +
+                           strlen("/") +
+                           strlen(bundle_name) +
+                           1);
     strcpy(tarFile, directory);
     strcat(tarFile, "/");
     strcat(tarFile, bundle_name);
