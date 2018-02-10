@@ -240,7 +240,7 @@ bool jailbreak_has_run = false;
     {
         // extract bootstrap
         
-        if (file_exists("/meridian/.ib7_bootstrap") != 0) {
+        if (file_exists("/meridian/.bootstrap") != 0) {
             [self writeText:@"extracting bootstrap..."];
             
             // merk old /meridian folder
@@ -324,7 +324,7 @@ bool jailbreak_has_run = false;
             
             [self enableHiddenApps];
             
-            touch_file("/meridian/.ib7_bootstrap");
+            touch_file("/meridian/.bootstrap");
             
             [self writeText:@"done!"];
             
@@ -343,6 +343,11 @@ bool jailbreak_has_run = false;
     }
     
     {
+        // nostash
+        touch_file("/.cydia_no_stash");
+    }
+    
+    {
         // patch amfi ;)
         [self writeText:@"patching amfi..."];
         
@@ -354,11 +359,6 @@ bool jailbreak_has_run = false;
         }
         
         [self writeText:@"done!"];
-    }
-    
-    {
-        // nostash
-        touch_file("/.cydia_no_stash");
     }
     
     {
@@ -376,7 +376,6 @@ bool jailbreak_has_run = false;
             "/",
             NULL
         });
-        
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn: %s", rv, strerror(rv)]];
