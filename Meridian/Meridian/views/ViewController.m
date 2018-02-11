@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "v0rtex.h"
+#import "v0rtex-old.h"
 #import "patchfinder64.h"
 #import "kernel.h"
 #import "amfi.h"
@@ -240,7 +241,7 @@ bool jailbreak_has_run = false;
     {
         // extract bootstrap
         
-        [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
+        // [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
         
         if (file_exists("/meridian/.bootstrap") != 0) {
             [self writeText:@"extracting bootstrap..."];
@@ -263,7 +264,7 @@ bool jailbreak_has_run = false;
                 "--no-overwrite-dir",
                 "-C",
                 "/",
-                "-xf",
+                "-xvf",
                 bundled_file("meridian-base.tar"),
                 NULL
             });
@@ -280,7 +281,7 @@ bool jailbreak_has_run = false;
                 "--no-overwrite-dir",
                 "-C",
                 "/",
-                "-xf",
+                "-xvf",
                 bundled_file("system-base.tar"),
                 NULL
             });
@@ -297,7 +298,7 @@ bool jailbreak_has_run = false;
                 "--no-overwrite-dir",
                 "-C",
                 "/",
-                "-xf",
+                "-xvf",
                 bundled_file("installer-base.tar"),
                 NULL
             });
@@ -307,22 +308,28 @@ bool jailbreak_has_run = false;
                 return 1;
             }
             
-            // extract dpkgdb-base.tar
-            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xf",
-                bundled_file("dpkgdb-base.tar"),
-                NULL
-            });
-            if (rv != 0) {
-                [self writeText:@"failed!"];
-                [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on dpkgdb-base.tar", rv]];
-                return 1;
+            // set up dpkg database
+            if (file_exists("/private/var/lib/dpkg") == 0) {
+                [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
+            } else {
+                // extract dpkgdb-base.tar
+                rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
+                    "/meridian/tar",
+                    "--preserve-permissions",
+                    "--no-overwrite-dir",
+                    "-C",
+                    "/",
+                    "-xvf",
+                    bundled_file("dpkgdb-base.tar"),
+                    NULL
+                });
+                if (rv != 0) {
+                    [self writeText:@"failed!"];
+                    [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on dpkgdb-base.tar", rv]];
+                    return 1;
+                }
             }
+            symlink("/Library/dpkg", "/private/var/lib/dpkg");
             
             // extract cydia-base.tar
             rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
@@ -331,7 +338,7 @@ bool jailbreak_has_run = false;
                 "--no-overwrite-dir",
                 "-C",
                 "/",
-                "-xf",
+                "-xvf",
                 bundled_file("cydia-base.tar"),
                 NULL
             });
@@ -348,7 +355,7 @@ bool jailbreak_has_run = false;
                 "--no-overwrite-dir",
                 "-C",
                 "/",
-                "-xf",
+                "-xvf",
                 bundled_file("optional-base.tar"),
                 NULL
             });
@@ -360,6 +367,7 @@ bool jailbreak_has_run = false;
             
             unlink("/meridian/tar");
             
+            inject_trust("/usr/bin/killall");
             [self enableHiddenApps];
             
             touch_file("/meridian/.bootstrap");
@@ -369,6 +377,7 @@ bool jailbreak_has_run = false;
             // run uicache
             [self writeText:@"running uicache..."];
             
+            inject_trust("/bin/uicache");
             rv = uicache();
             if (rv != 0) {
                 [self writeText:@"failed!"];
@@ -497,6 +506,13 @@ bool jailbreak_has_run = false;
     {
         // load custom launch daemons
         [self writeText:@"loading daemons..."];
+        
+        // all launch daemons need to be owned by root
+        NSArray* daemons = [fileMgr contentsOfDirectoryAtPath:@"/Library/LaunchDaemons" error:nil];
+        for (NSString *path in daemons) {
+            chmod([path UTF8String], 0755);
+            chown([path UTF8String], 0, 0);
+        }
         
         rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
             "/bin/launchctl",
