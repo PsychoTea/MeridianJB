@@ -419,7 +419,7 @@ int main(int argc, char* argv[]) {
      */
     
     if (argc < 3) {
-        NSLog(@"[injector] Incorrect usage. Usage: 'amfid_fucker [pid] [dylib]'");
+        NSLog(@"[injector] Incorrect usage. Usage: 'injector [pid] [dylib]'");
         return -1;
     }
     
@@ -432,23 +432,20 @@ int main(int argc, char* argv[]) {
     NSLog(@"[inject] pid: %d, dylib: %s", pd, dylibPath);
     
     // Grab the task of the process we wanna inject to
-    mach_port_t task_port;
-    kern_return_t task_ret = task_for_pid(mach_task_self(), pd, &task_port);
-    if (task_ret != KERN_SUCCESS ||
-        task_port == MACH_PORT_NULL) {
+    // tfp0 should be 'task_port' or something but i'm too lazy to rename
+    kern_return_t task_ret = task_for_pid(mach_task_self(), pd, &tfp0);
+    if (task_ret != KERN_SUCCESS || tfp0 == MACH_PORT_NULL) {
         NSLog(@"[injector] failed to get task port for pid %d: %s", pd, mach_error_string(task_ret));
         return -2;
     }
     
-    tfp0 = task_port;
-    
     // inject
-    call_remote(task_port, dlopen, 2, REMOTE_CSTRING(dylibPath), REMOTE_LITERAL(RTLD_NOW));
-    uint64_t error = call_remote(task_port, dlerror, 0);
+    call_remote(tfp0, dlopen, 2, REMOTE_CSTRING(dylibPath), REMOTE_LITERAL(RTLD_NOW));
+    uint64_t error = call_remote(tfp0, dlerror, 0);
     if (error != 0) {
-        uint64_t len = call_remote(task_port, strlen, 1, REMOTE_LITERAL(error));
+        uint64_t len = call_remote(tfp0, strlen, 1, REMOTE_LITERAL(error));
         char* local_cstring = malloc(len +  1);
-        remote_read_overwrite(task_port, error, (uint64_t)local_cstring, len+1);
+        remote_read_overwrite(tfp0, error, (uint64_t)local_cstring, len+1);
         
         NSLog(@"[injector] Error: %s", local_cstring);
         return -3;

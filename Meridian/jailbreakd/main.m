@@ -24,6 +24,7 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY 4
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 5
 #define JAILBREAKD_COMMAND_DUMP_CRED 7
+#define JAILBREAKD_COMMAND_FIXUP_SETUID 8
 #define JAILBREAKD_COMMAND_EXIT 13
 
 struct __attribute__((__packed__)) JAILBREAKD_PACKET {
@@ -51,6 +52,11 @@ struct __attribute__((__packed__)) JAILBREAKD_DUMP_CRED {
     int32_t Pid;
 };
 
+struct __attribute__((__packed__)) JAILBREAKD_FIXUP_SETUID {
+    uint8_t Command;
+    int32_t Pid;
+};
+
 mach_port_t tfpzero;
 uint64_t kernel_base;
 uint64_t kernel_slide;
@@ -59,9 +65,6 @@ uint64_t kernel_slide;
 int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
 
 int remove_memory_limit(void) {
-    // daemons run under launchd have a very stingy memory limit by default, we need
-    // quite a bit more for patchfinder so disable it here
-    // (note that we need the com.apple.private.memorystatus entitlement to do so)
     pid_t my_pid = getpid();
     return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, my_pid, 0, NULL, 0);
 }
@@ -80,7 +83,10 @@ int runserver() {
 
     init_kernel(kernel_base, NULL);
     kernel_slide = kernel_base - 0xFFFFFFF007004000;
+    NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
+    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
+    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
 
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
@@ -138,6 +144,7 @@ int runserver() {
         NSLog(@"Server received %d bytes.", size);
 
         uint8_t command = buf[0];
+        
         if (command == JAILBREAKD_COMMAND_ENTITLE) {
             if (size < sizeof(struct JAILBREAKD_ENTITLE_PID)) {
                 NSLog(@"Error: ENTITLE packet is too small");
@@ -226,11 +233,23 @@ int runserver() {
             dumppid(dumpCredPacket->Pid);
         }
         
+        if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
+            if (size < sizeof(struct JAILBREAKD_FIXUP_SETUID)) {
+                NSLog(@"Error: FIXUP_SETUID packet is too small");
+                continue;
+            }
+            struct JAILBREAKD_FIXUP_SETUID *fixupSetUIDPacket = (struct JAILBREAKD_FIXUP_SETUID *)buf;
+            NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d", fixupSetUIDPacket->Pid);
+            fixupsetuid(fixupSetUIDPacket->Pid);
+        }
+        
         if (command == JAILBREAKD_COMMAND_EXIT) {
             NSLog(@"Got Exit Command! Goodbye!");
             term_kernel();
             exit(0);
         }
+        
+        NSLog(@"Recieved command: %hhu", command);
     }
 
     _exit(0);
@@ -239,12 +258,9 @@ int runserver() {
 
 int main(int argc, char **argv, char **envp)
 {
-    char *endptr;
-    kernel_base = strtoull(getenv("KernelBase"), &endptr, 16);
-    char *endptr2;
-    kernprocaddr = strtoull(getenv("KernProcAddr"), &endptr2, 16);
-    char *endptr3;
-    offset_zonemap = strtoull(getenv("ZoneMapOffset"), &endptr3, 16);
+    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
+    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
+    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
 
     int ret = runserver();
     exit(ret);

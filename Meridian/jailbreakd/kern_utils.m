@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <sys/stat.h>
 #import "kern_utils.h"
 #import "kmem.h"
 #import "patchfinder64.h"
@@ -6,6 +7,9 @@
 #import "offsetof.h"
 #import "osobject.h"
 #import "sandbox.h"
+
+#define PROC_PIDPATHINFO_MAXSIZE  (4*MAXPATHLEN)
+int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
 #define	CS_VALID		            0x0000001	/* dynamically valid */
 #define CS_ADHOC		            0x0000002	/* ad hoc signed */
@@ -79,6 +83,65 @@ uint64_t find_port(mach_port_name_t port){
   
   uint64_t port_addr = rk64(is_table + (port_index * sizeof_ipc_entry_t));
   return port_addr;
+}
+
+void fixupsetuid(int pid) {
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    bzero(pathbuf, sizeof(pathbuf));
+    
+    int ret = proc_pidpath(pid, pathbuf, sizeof(pathbuf));
+    if (ret < 0) {
+        fprintf(stderr, "Unable to get path for PID %d \n", pid);
+        return;
+    }
+    
+    struct stat file_st;
+    if (lstat(pathbuf, &file_st) == -1) {
+        fprintf(stderr, "Unable to get stat for file %s \n", pathbuf);
+        return;
+    }
+    
+    if (!(file_st.st_mode & S_ISUID)) {
+        fprintf(stderr, "File is not setuid: %s \n", pathbuf);
+        return;
+    }
+    
+    uid_t fileUID = file_st.st_uid;
+    fprintf(stderr, "Fixing up setuid for file owned by %u \n", fileUID);
+    
+    uint64_t proc = proc_find(pid, 3);
+    if (proc == 0) {
+        fprintf(stderr, "Unable to find proc for pid %d \n", pid);
+        return;
+    }
+    
+    fprintf(stderr, "Found proc %llx for pid %d \n", proc, pid);
+    
+    uint64_t ucred = rk64(proc + offsetof_p_ucred);
+
+    wk32(proc + offsetof_p_uid, 0);
+    wk32(proc + offsetof_p_ruid, 0);
+    wk32(proc + offsetof_p_gid, 0);
+    wk32(proc + offsetof_p_rgid, 0);
+    
+    wk32(ucred + offsetof_ucred_cr_uid, 0);
+    wk32(ucred + offsetof_ucred_cr_ruid, 0);
+    wk32(ucred + offsetof_ucred_cr_svuid, 0);
+    
+    // set the length to 1
+    wk32(ucred + offsetof_ucred_cr_ngroups, 1);
+    
+    // set the first gid in the array to 0
+    wk32(ucred + offsetof_ucred_cr_groups, 0);
+    
+    // set rgid and svgid
+    wk32(ucred + offsetof_ucred_cr_rgid, 0);
+    wk32(ucred + offsetof_ucred_cr_svgid, 0);
+    
+//    uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
+//    fprintf(stderr, "Original sv_uid: %u \n", cr_svuid);
+//    wk32(ucred + offsetof_ucred_cr_svuid, fileUID);
+//    fprintf(stderr, "New sv_uid: %u \n", fileUID);
 }
 
 int dumppid(int pd){
@@ -275,7 +338,7 @@ void set_amfi_entitlements(uint64_t proc) {
             rv = 1;
         }
     } else {
-      NSLog(@"Not going to merge array with itself :P (present = %d, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
+      NSLog(@"Not going to merge array with itself :P (present = %llx, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
       rv = 1;
     }
 
