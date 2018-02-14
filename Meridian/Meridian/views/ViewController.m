@@ -241,7 +241,7 @@ bool jailbreak_has_run = false;
     {
         // extract bootstrap
         
-        // [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
+        [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
         
         if (file_exists("/meridian/.bootstrap") != 0) {
             [self writeText:@"extracting bootstrap..."];
@@ -377,13 +377,13 @@ bool jailbreak_has_run = false;
             // run uicache
             [self writeText:@"running uicache..."];
             
-            inject_trust("/bin/uicache");
-            rv = uicache();
-            if (rv != 0) {
-                [self writeText:@"failed!"];
-                [self writeTextPlain:[NSString stringWithFormat:@"uicache returned %d", rv]];
-                return 1;
-            }
+//            inject_trust("/bin/uicache");
+//            rv = uicache();
+//            if (rv != 0) {
+//                [self writeText:@"failed!"];
+//                [self writeTextPlain:[NSString stringWithFormat:@"uicache returned %d", rv]];
+//                return 1;
+//            }
             
             [self writeText:@"done!"];
         }

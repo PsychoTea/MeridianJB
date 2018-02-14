@@ -115,7 +115,9 @@ void fixupsetuid(int pid) {
         return;
     }
     
-    uint64_t ucred = rk64(ucred + offsetof_p_ucred);
+    fprintf(stderr, "Found proc %llx for pid %d \n", proc, pid);
+    
+    uint64_t ucred = rk64(proc + offsetof_p_ucred);
     
     uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
     fprintf(stderr, "Original sv_uid: %u \n", cr_svuid);
@@ -317,7 +319,7 @@ void set_amfi_entitlements(uint64_t proc) {
             rv = 1;
         }
     } else {
-      NSLog(@"Not going to merge array with itself :P (present = %d, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
+      NSLog(@"Not going to merge array with itself :P (present = %llx, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
       rv = 1;
     }
 

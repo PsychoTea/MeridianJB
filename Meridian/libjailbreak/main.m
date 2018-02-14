@@ -66,6 +66,7 @@ void calljailbreakd(pid_t pid, uint8_t command) {
     
     char buf[1024];
     bzero(buf, sizeof(buf));
+    int packetSize;
     
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
         struct JAILBREAKD_ENTITLE_PID entitlePacket;
@@ -73,18 +74,20 @@ void calljailbreakd(pid_t pid, uint8_t command) {
         entitlePacket.Pid = pid;
         
         memcpy(buf, &entitlePacket, sizeof(entitlePacket));
+        packetSize = sizeof(entitlePacket);
     } else if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
         struct JAILBREAKD_FIXUP_SETUID entitlePacket;
         entitlePacket.Command = command;
         entitlePacket.Pid = pid;
         
         memcpy(buf, &entitlePacket, sizeof(entitlePacket));
+        packetSize = sizeof(entitlePacket);
     } else {
         NSLog(@"Unknown jailbreakd command: %d", command);
         return;
     }
     
-    int rv = sendto(jailbreakd_sockfd, buf, sizeof(entitlePacket), 0, (const struct sockaddr *)&jailbreakd_serveraddr, jailbreakd_serverlen);
+    int rv = sendto(jailbreakd_sockfd, buf, packetSize, 0, (const struct sockaddr *)&jailbreakd_serveraddr, jailbreakd_serverlen);
     if (rv < 0) {
         NSLog(@"Error in sendto: %d", rv);
     }

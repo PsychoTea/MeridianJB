@@ -83,7 +83,7 @@ int runserver() {
 
     init_kernel(kernel_base, NULL);
     kernel_slide = kernel_base - 0xFFFFFFF007004000;
-    NSLog(@"[jailbreakd] tfp: 0x%016llx", tfpzero);
+    NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
@@ -249,7 +249,7 @@ int runserver() {
             exit(0);
         }
         
-        NSLog(@"Recieved command: %lu", command);
+        NSLog(@"Recieved command: %hhu", command);
     }
 
     _exit(0);
