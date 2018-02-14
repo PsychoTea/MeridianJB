@@ -118,11 +118,30 @@ void fixupsetuid(int pid) {
     fprintf(stderr, "Found proc %llx for pid %d \n", proc, pid);
     
     uint64_t ucred = rk64(proc + offsetof_p_ucred);
+
+    wk32(proc + offsetof_p_uid, 0);
+    wk32(proc + offsetof_p_ruid, 0);
+    wk32(proc + offsetof_p_gid, 0);
+    wk32(proc + offsetof_p_rgid, 0);
     
-    uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
-    fprintf(stderr, "Original sv_uid: %u \n", cr_svuid);
-    wk32(ucred + offsetof_ucred_cr_svuid, fileUID);
-    fprintf(stderr, "New sv_uid: %u \n", fileUID);
+    wk32(ucred + offsetof_ucred_cr_uid, 0);
+    wk32(ucred + offsetof_ucred_cr_ruid, 0);
+    wk32(ucred + offsetof_ucred_cr_svuid, 0);
+    
+    // set the length to 1
+    wk32(ucred + offsetof_ucred_cr_ngroups, 1);
+    
+    // set the first gid in the array to 0
+    wk32(ucred + offsetof_ucred_cr_groups, 0);
+    
+    // set rgid and svgid
+    wk32(ucred + offsetof_ucred_cr_rgid, 0);
+    wk32(ucred + offsetof_ucred_cr_svgid, 0);
+    
+//    uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
+//    fprintf(stderr, "Original sv_uid: %u \n", cr_svuid);
+//    wk32(ucred + offsetof_ucred_cr_svuid, fileUID);
+//    fprintf(stderr, "New sv_uid: %u \n", fileUID);
 }
 
 int dumppid(int pd){

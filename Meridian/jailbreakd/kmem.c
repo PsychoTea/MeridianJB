@@ -80,7 +80,6 @@ typedef struct {
 
 uint64_t zm_fix_addr(uint64_t addr) {
   static kmap_hdr_t zm_hdr = {0, 0, 0, 0};
-    fprintf(stderr, "zm_fix_addr called %llx \n ", addr);
   if (zm_hdr.start == 0) {
     // xxx rk64(0) ?!
       // uint64_t zone_map_ref = find_zone_map_ref();
