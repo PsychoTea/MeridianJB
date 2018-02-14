@@ -14,6 +14,9 @@ cp $meridianDir/injector/injector $baseDir/meridian/
 # pspawn_hook.dylib
 cp $meridianDir/pspawn_hook/pspawn_hook.dylib $baseDir/meridian
 
+# libjailbreak.dylib
+cp $meridianDir/libjailbreak/libjailbreak.dylib $baseDir/usr/lib
+
 # jailbreakd
 cp $meridianDir/jailbreakd/jailbreakd $baseDir/meridian/jailbreakd
 

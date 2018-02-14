@@ -145,7 +145,7 @@ bool jailbreak_has_run = false;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+        int ret = v0rtex_old(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
