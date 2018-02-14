@@ -106,9 +106,6 @@ void fixupsetuid(int pid) {
         return;
     }
     
-    uid_t fileUID = file_st.st_uid;
-    fprintf(stderr, "Fixing up setuid for file owned by %u \n", fileUID);
-    
     uint64_t proc = proc_find(pid, 3);
     if (proc == 0) {
         fprintf(stderr, "Unable to find proc for pid %d \n", pid);
@@ -119,6 +116,9 @@ void fixupsetuid(int pid) {
     
     uint64_t ucred = rk64(proc + offsetof_p_ucred);
 
+    // we should probably doing some more checks before rootifying our proc
+    // but like... we're on a jailbroken device anyway... it's probably fine
+    
     wk32(proc + offsetof_p_uid, 0);
     wk32(proc + offsetof_p_ruid, 0);
     wk32(proc + offsetof_p_gid, 0);
@@ -128,20 +128,12 @@ void fixupsetuid(int pid) {
     wk32(ucred + offsetof_ucred_cr_ruid, 0);
     wk32(ucred + offsetof_ucred_cr_svuid, 0);
     
-    // set the length to 1
     wk32(ucred + offsetof_ucred_cr_ngroups, 1);
     
-    // set the first gid in the array to 0
     wk32(ucred + offsetof_ucred_cr_groups, 0);
     
-    // set rgid and svgid
     wk32(ucred + offsetof_ucred_cr_rgid, 0);
     wk32(ucred + offsetof_ucred_cr_svgid, 0);
-    
-//    uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
-//    fprintf(stderr, "Original sv_uid: %u \n", cr_svuid);
-//    wk32(ucred + offsetof_ucred_cr_svuid, fileUID);
-//    fprintf(stderr, "New sv_uid: %u \n", fileUID);
 }
 
 int dumppid(int pd){
