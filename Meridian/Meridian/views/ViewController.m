@@ -282,7 +282,7 @@ bool jailbreak_has_run = false;
             }
             
             // set up dpkg database
-            if (file_exists("/private/var/lib/dpkg") == 0) {
+            if (file_exists("/private/var/lib/dpkg/status") == 0) {
                 [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
             } else {
                 // extract dpkgdb-base.tar
@@ -484,7 +484,7 @@ bool jailbreak_has_run = false;
 }
 
 - (void)respring {
-    pid_t springBoard = get_pid_for_name("backboardd");
+    pid_t springBoard = get_pid_for_name("SpringBoard");
     if (springBoard == 0) {
         [self writeTextPlain:@"Failed to respring."];
         return;
