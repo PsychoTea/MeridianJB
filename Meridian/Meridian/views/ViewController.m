@@ -415,6 +415,8 @@ bool jailbreak_has_run = false;
         rv = execprog("/meridian/dropbear", (const char**)&(const char*[]) {
             "/meridian/dropbear",
             "-p",
+            "22",
+            "-p",
             "2222",
             "-R",
             "-E",
@@ -509,7 +511,9 @@ bool jailbreak_has_run = false;
         
         // all launch daemons need to be owned by root
         NSArray* daemons = [fileMgr contentsOfDirectoryAtPath:@"/Library/LaunchDaemons" error:nil];
-        for (NSString *path in daemons) {
+        for (NSString *file in daemons) {
+            NSString *path = [NSString stringWithFormat:@"/Library/LaunchDaemons/%@", file];
+            NSLog(@"found launch daemon: %@", path);
             chmod([path UTF8String], 0755);
             chown([path UTF8String], 0, 0);
         }
