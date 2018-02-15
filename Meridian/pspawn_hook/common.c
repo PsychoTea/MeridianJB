@@ -10,78 +10,121 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
-
+#include <fcntl.h>
 #include "common.h"
 
-int file_exist(const char *filename) {
-    struct stat buffer;
-    int r = stat(filename, &buffer);
-    return (r == 0);
-}
-
-struct __attribute__((__packed__)) JAILBREAKD_ENTITLE_PID_AND_SIGCONT {
+struct __attribute__((__packed__)) JAILBREAKD_PACKET {
     uint8_t Command;
-    int32_t PID;
+    int32_t Pid;
 };
 
 int jailbreakd_sockfd = -1;
-struct sockaddr_in jailbreakd_serveraddr;
-int jailbreakd_serverlen;
-struct hostent *jailbreakd_server;
+pid_t jailbreakd_pid = 0;
 
-void openjailbreakdsocket(){
-    char *hostname = "127.0.0.1";
+void openjailbreakdsocket() {
+    const char *hostname = "127.0.0.1";
     int portno = 5;
     
-    jailbreakd_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (jailbreakd_sockfd < 0)
-        printf("ERROR opening socket\n");
+    struct sockaddr_in serveraddr;
+    memset(&serveraddr, 0, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
     
-    /* gethostbyname: get the server's DNS entry */
-    jailbreakd_server = gethostbyname(hostname);
-    if (jailbreakd_server == NULL) {
-        fprintf(stderr,"ERROR, no such host as %s\n", hostname);
-        exit(0);
+    inet_pton(AF_INET, hostname, &serveraddr.sin_addr);
+    
+    serveraddr.sin_port = htons(portno);
+    
+    // Open stream socket
+    int sock;
+    if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+        fprintf(stderr, "Error: could not create socket. \n");
+        return;
     }
     
-    /* build the server's Internet address */
-    bzero((char *) &jailbreakd_serveraddr, sizeof(jailbreakd_serveraddr));
-    jailbreakd_serveraddr.sin_family = AF_INET;
-    bcopy((char *)jailbreakd_server->h_addr,
-          (char *)&jailbreakd_serveraddr.sin_addr.s_addr, jailbreakd_server->h_length);
-    jailbreakd_serveraddr.sin_port = htons(portno);
+    int flag = 1;
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
     
-    jailbreakd_serverlen = sizeof(jailbreakd_serveraddr);
+    int set = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+    
+    if (connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) < 0) {
+        fprintf(stderr, "could not connect to server\n");
+        close(sock);
+    }
+    jailbreakd_sockfd = sock;
+    
+    int fd = open("/var/tmp/jailbreakd.pid", O_RDONLY, 0600);
+    if (fd < 0) {
+        fprintf(stderr, "WHAT! \n");
+        return;
+    }
+    char pid[8] = {0};
+    read(fd, pid, 8);
+    jailbreakd_pid = atoi(pid);
+    close(fd);
 }
 
-void calljailbreakd(pid_t PID, uint8_t command) {
+void calljailbreakd(pid_t pid, uint8_t command) {
     if (jailbreakd_sockfd == -1) {
         openjailbreakdsocket();
     }
     
-#define BUFSIZE 1024
+    int fd = open("/var/tmp/jailbreakd.pid", O_RDONLY, 0600);
+    if (fd < 0) {
+        fprintf(stderr, "WHAT! \n");
+        return;
+    }
     
-    int n;
-    char buf[BUFSIZE];
+    char jbd_pid_buf[8] = {0};
+    read(fd, jbd_pid_buf, 8);
+    pid_t jbd_pid = atoi(jbd_pid_buf);
+    close(fd);
+    
+    if (jbd_pid != jailbreakd_pid) {
+        fprintf(stderr, "jailbreakd restart detected... forcing reconnect\n");
+        closejailbreakfd();
+        openjailbreakdsocket();
+    }
+    
+    if (jailbreakd_sockfd == -1) {
+        fprintf(stderr, "server not connected. giving up...\n");
+        return;
+    }
+    
+    char buf[1024];
     
     /* get a message from the user */
-    bzero(buf, BUFSIZE);
+    bzero(buf, 1024);
     
-    struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT entitlePacket;
+    struct JAILBREAKD_PACKET entitlePacket;
     entitlePacket.Command = command;
-    entitlePacket.PID = PID;
+    entitlePacket.Pid = pid;
     
     memcpy(buf, &entitlePacket, sizeof(entitlePacket));
     
-    n = sendto(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT), 0, (const struct sockaddr *)&jailbreakd_serveraddr, jailbreakd_serverlen);
-    if (n < 0)
-        printf("Error in sendto\n");
+    int bytesSent = send(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_PACKET), 0);
+    if (bytesSent < 0) {
+        fprintf(stderr, "Server probably disconnected. Trying again... \n");
+        
+        closejailbreakfd();
+        openjailbreakdsocket();
+        
+        if (jailbreakd_sockfd == -1){
+            fprintf(stderr, "Server not connected. Giving up... \n");
+            return;
+        }
+        
+        bytesSent = send(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_PACKET), 0);
+        if (bytesSent < 0) {
+            fprintf(stderr, "Server probably disconnected again. Giving up... \n");
+        }
+    }
 }
 
 void closejailbreakfd(void) {
     close(jailbreakd_sockfd);
     jailbreakd_sockfd = -1;
 }
-
