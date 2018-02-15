@@ -119,10 +119,6 @@ void inject_trust(const char *path) {
     NSLog(@"[amfi] signed %s \n", path);
 }
 
-// original get_code_directory code worked for most binaries,
-// unless they were FAT. this works perfectly :-)
-// creds: https://github.com/coolstar/electra/blob/master/basebinaries/amfid_payload/amfid_payload.m#L95
-// also added support for 32 bit binaries (check 32bit mach_header)
 uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     FILE* fd = fopen(file_path, "r");
     
