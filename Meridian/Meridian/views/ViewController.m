@@ -258,16 +258,7 @@ bool jailbreak_has_run = false;
             inject_trust("/meridian/tar");
             
             // extract meridian-base.tar
-            rv = execprog("/meridian/tar", (const char**)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xvf",
-                bundled_file("meridian-base.tar"),
-                NULL
-            });
+            rv = [self extractBundle:@"meridian-base.tar"];
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on meridian-base.tar", rv]];
@@ -275,16 +266,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract system-base.tar
-            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xvf",
-                bundled_file("system-base.tar"),
-                NULL
-            });
+            rv = [self extractBundle:@"system-base.tar"];
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
@@ -292,16 +274,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract installer-base.tar
-            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xvf",
-                bundled_file("installer-base.tar"),
-                NULL
-            });
+            rv = [self extractBundle:@"installer-base.tar"];
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on installer-base.tar", rv]];
@@ -313,16 +286,7 @@ bool jailbreak_has_run = false;
                 [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
             } else {
                 // extract dpkgdb-base.tar
-                rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                    "/meridian/tar",
-                    "--preserve-permissions",
-                    "--no-overwrite-dir",
-                    "-C",
-                    "/",
-                    "-xvf",
-                    bundled_file("dpkgdb-base.tar"),
-                    NULL
-                });
+                rv = [self extractBundle:@"dpkgdb-base.tar"];
                 if (rv != 0) {
                     [self writeText:@"failed!"];
                     [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on dpkgdb-base.tar", rv]];
@@ -332,16 +296,7 @@ bool jailbreak_has_run = false;
             symlink("/Library/dpkg", "/private/var/lib/dpkg");
             
             // extract cydia-base.tar
-            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xvf",
-                bundled_file("cydia-base.tar"),
-                NULL
-            });
+            rv = [self extractBundle:@"cydia-base.tar"];
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
@@ -349,16 +304,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract optional-base.tar
-            rv = execprog("/meridian/tar", (const char **)&(const char*[]) {
-                "/meridian/tar",
-                "--preserve-permissions",
-                "--no-overwrite-dir",
-                "-C",
-                "/",
-                "-xvf",
-                bundled_file("optional-base.tar"),
-                NULL
-            });
+            rv = [self extractBundle:@"optional-base.tar"];
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on optional-base.tar", rv]];
@@ -589,6 +535,19 @@ bool jailbreak_has_run = false;
     NSRange range = [regex rangeOfFirstMatchInString:verString options:0 range:NSMakeRange(0, [verString length])];
     
     return [verString substringWithRange:range];
+}
+
+- (int)extractBundle:(NSString *)bundleName {
+    return execprog("/meridian/tar", (const char **)&(const char*[]) {
+        "/meridian/tar",
+        "--preserve-permissions",
+        "--no-overwrite-dir",
+        "-C",
+        "/",
+        "-xvf",
+        bundled_file([bundleName UTF8String]),
+        NULL
+    });
 }
 
 - (void)exploitSucceeded {
