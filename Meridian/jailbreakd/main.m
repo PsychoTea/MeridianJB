@@ -7,9 +7,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "patchfinder64.h"
 #include "kern_utils.h"
 #include "kmem.h"
@@ -20,41 +22,19 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
 #define JAILBREAKD_COMMAND_ENTITLE 1
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
-#define JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE 3
-#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY 4
-#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 5
-#define JAILBREAKD_COMMAND_DUMP_CRED 7
-#define JAILBREAKD_COMMAND_FIXUP_SETUID 8
-#define JAILBREAKD_COMMAND_EXIT 13
+#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
+#define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
+// Generic TCP packet
+// all jbd packets match this format
 struct __attribute__((__packed__)) JAILBREAKD_PACKET {
     uint8_t Command;
-};
-
-struct __attribute__((__packed__)) JAILBREAKD_ENTITLE_PID {
-    uint8_t Command;
     int32_t Pid;
+    uint8_t Wait;
 };
 
-struct __attribute__((__packed__)) JAILBREAKD_ENTITLE_PID_AND_SIGCONT {
-    uint8_t Command;
-    int32_t Pid;
-};
-
-struct __attribute__((__packed__)) JAILBREAKD_ENTITLE_PLATFORMIZE_PID {
-    uint8_t Command;
-    int32_t EntitlePID;
-    int32_t PlatformizePID;
-};
-
-struct __attribute__((__packed__)) JAILBREAKD_DUMP_CRED {
-    uint8_t Command;
-    int32_t Pid;
-};
-
-struct __attribute__((__packed__)) JAILBREAKD_FIXUP_SETUID {
-    uint8_t Command;
-    int32_t Pid;
+struct __attribute__((__packed__)) RESPONSE_PACKET {
+    uint8_t Response;
 };
 
 mach_port_t tfpzero;
@@ -65,204 +45,204 @@ uint64_t kernel_slide;
 int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
 
 int remove_memory_limit(void) {
-    pid_t my_pid = getpid();
-    return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, my_pid, 0, NULL, 0);
+    return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, getpid(), 0, NULL, 0);
 }
 
-extern unsigned offsetof_ip_kobject;
+int is_valid_command(uint8_t command) {
+    return (command == JAILBREAKD_COMMAND_ENTITLE ||
+            command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT ||
+            command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY ||
+            command == JAILBREAKD_COMMAND_FIXUP_SETUID);
+}
 
-int runserver() {
-    NSLog(@"[jailbreakd] Process Start!");
+struct InitThreadArg {
+    int clientFd;
+    struct sockaddr_in clientAddr;
+    int threadNum;
+};
+
+int threadCount = 0;
+
+void *initThread(struct InitThreadArg *args) {
+    int yes = 1;
+    setsockopt(args->clientFd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(int));
+    
+    int alive = 1;
+    setsockopt(args->clientFd, IPPROTO_TCP, TCP_KEEPALIVE, &alive, sizeof(int));
+    
+    int set = 1;
+    setsockopt(args->clientFd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+    
+    char buf[1024];
+    
+    while (true) {
+        int bytesRead = recv(args->clientFd, buf, 1024, 0);
+        if (bytesRead > 0) {
+            NSLog(@"Bytes Read: %d\n", bytesRead);
+        }
+        
+        if (!bytesRead) break;
+        
+        int bytesProcessed = 0;
+        while (bytesProcessed < bytesRead) {
+            if (bytesRead - bytesProcessed >= sizeof(struct JAILBREAKD_PACKET)) {
+                struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)(buf + bytesProcessed);
+                
+                NSLog(@"Recieved packet with command: %d", packet->Command);
+                
+                if (!is_valid_command(packet->Command)) {
+                    NSLog(@"Invalid command recieved.");
+                }
+                
+                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE) {
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d", packet->Pid);
+                    setcsflagsandplatformize(packet->Pid);
+                }
+                
+                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", packet->Pid);
+                    setcsflagsandplatformize(packet->Pid);
+                    kill(packet->Pid, SIGCONT);
+                }
+                
+                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", packet->Pid);
+                    __block int PID = packet->Pid;
+                    
+                    dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
+                    dispatch_async(queue, ^{
+                        char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+                        bzero(pathbuf, sizeof(pathbuf));
+                        
+                        NSLog(@"Waiting to ensure it's not xpcproxy anymore...");
+                        int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
+                        while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
+                            proc_pidpath(PID, pathbuf, sizeof(pathbuf));
+                            usleep(100);
+                        }
+                        
+                        NSLog(@"Continuing!");
+                        setcsflagsandplatformize(PID);
+                        kill(PID, SIGCONT);
+                    });
+                    dispatch_release(queue);
+                }
+                
+                if (packet->Command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
+                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d", packet->Pid);
+                    fixupsetuid(packet->Pid);
+                }
+                
+                if (packet->Wait == 1) {
+                    NSLog(@"Packet signified a wait condition. Replying...");
+                    
+                    bzero(buf, 1024);
+                    
+                    struct RESPONSE_PACKET responsePacket;
+                    responsePacket.Response = 0;
+                    memcpy(buf, &responsePacket, sizeof(responsePacket));
+                    
+                    send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+                    NSLog(@"Sent response.");
+                }
+            }
+            
+            bytesProcessed += sizeof(struct JAILBREAKD_PACKET);
+        }
+    }
+    
+    threadCount--;
+    
+    return NULL;
+}
+
+int main(int argc, char **argv, char **envp) {
+    NSLog(@"[jailbreakd] Start");
+    
+    // Write pid file so Meridian.app knows we're running
+    unlink("/var/tmp/jailbreakd.pid");
+    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
+    fprintf(f, "%d\n", getpid());
+    fclose(f);
+    
+    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
+    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
+    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
+    
     remove_memory_limit();
-
+    
     kern_return_t err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
     if (err != KERN_SUCCESS) {
         NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
         return 5;
     }
-
+    
     init_kernel(kernel_base, NULL);
     kernel_slide = kernel_base - 0xFFFFFFF007004000;
     NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
-
+    
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
-
-    NSLog(@"[jailbreakd] Running server...");
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0)
-        NSLog(@"[jailbreakd] Error opening socket");
+    
+    NSLog(@"Running server...");
+    int listenFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listenFd < 0) {
+        NSLog(@"Error opening socket. Ret val: %d", listenFd);
+    }
+    
     int optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
-
+    setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
+    
     struct hostent *server;
     char *hostname = "127.0.0.1";
     server = gethostbyname(hostname);
     if (server == NULL) {
-        NSLog(@"[jailbreakd] ERROR, no such host as %s", hostname);
+        NSLog(@"ERROR, no such host as %s", hostname);
         exit(0);
     }
-
+    
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr,
-          (char *)&serveraddr.sin_addr.s_addr, server->h_length);
+    bcopy((char *)server->h_addr, (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons((unsigned short)5);
-
-    if (bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0){
-        NSLog(@"[jailbreakd] Error binding...");
+    
+    if (bind(listenFd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0){
+        NSLog(@"Error binding...");
         term_kernel();
         exit(-1);
     }
-    NSLog(@"[jailbreakd] Server running!");
     
-    unlink("/var/tmp/jailbreakd.pid");
+    listen(listenFd, 5);
     
-    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
-    fprintf(f, "%d\n", getpid());
-    fclose(f);
-
-    char buf[1024];
-
+    NSLog(@"Server running!");
+    
     socklen_t clientlen = sizeof(clientaddr);
     
     while (true) {
-        bzero(buf, 1024);
+        int clientFd = accept(listenFd, (struct sockaddr *)&clientaddr, &clientlen);
         
-        int size = recvfrom(sockfd, buf, 1024, 0, (struct sockaddr *)&clientaddr, &clientlen);
-        if (size < 0){
-            NSLog(@"Error in recvfrom");
-            continue;
-        }
-        if (size < 1){
-            NSLog(@"Packet must have at least 1 byte");
-            continue;
-        }
-        NSLog(@"Server received %d bytes.", size);
-
-        uint8_t command = buf[0];
-        
-        if (command == JAILBREAKD_COMMAND_ENTITLE) {
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID)) {
-                NSLog(@"Error: ENTITLE packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_ENTITLE_PID *entitlePacket = (struct JAILBREAKD_ENTITLE_PID *)buf;
-            NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d", entitlePacket->Pid);
-            setcsflagsandplatformize(entitlePacket->Pid);
+        if (clientFd < 0) {
+            NSLog(@"Unable to accept.");
+            return -1;
         }
         
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)) {
-                NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", entitleSIGCONTPacket->Pid);
-            setcsflagsandplatformize(entitleSIGCONTPacket->Pid);
-            kill(entitleSIGCONTPacket->Pid, SIGCONT);
+        struct InitThreadArg args;
+        args.clientFd = clientFd;
+        args.clientAddr = clientaddr;
+        args.threadNum = threadCount;
+        
+        pthread_t thread;
+        int err = pthread_create(&thread, NULL, (void *(*)(void *))&initThread, &args);
+        if (err != 0) {
+            NSLog(@"Unable to create thread.");
+            pthread_detach(thread);
         }
         
-        if (command == JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE) {
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID)) {
-                NSLog(@"Error: ENTITLE_PLATFORMIZE packet is too small");
-                continue;
-            }
-            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_PLATFORMIZE");
-            struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID *entitlePlatformizePacket = (struct JAILBREAKD_ENTITLE_PLATFORMIZE_PID *)buf;
-            NSLog(@"Entitle PID %d", entitlePlatformizePacket->EntitlePID);
-            setcsflagsandplatformize(entitlePlatformizePacket->EntitlePID);
-            NSLog(@"Platformize PID %d", entitlePlatformizePacket->PlatformizePID);
-            setcsflagsandplatformize(entitlePlatformizePacket->PlatformizePID);
-        }
-        
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY) {
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)){
-                NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_AFTER_DELAY PID: %d", entitleSIGCONTPacket->Pid);
-            __block int PID = entitleSIGCONTPacket->Pid;
-            dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), queue, ^{
-                setcsflagsandplatformize(PID);
-                kill(PID, SIGCONT);
-            });
-            dispatch_release(queue);
-        }
-        
-        if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-            if (size < sizeof(struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT)){
-                NSLog(@"Error: ENTITLE_SIGCONT packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *entitleSIGCONTPacket = (struct JAILBREAKD_ENTITLE_PID_AND_SIGCONT *)buf;
-            NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", entitleSIGCONTPacket->Pid);
-            __block int PID = entitleSIGCONTPacket->Pid;
-            
-            dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
-            dispatch_async(queue, ^{
-                char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-                bzero(pathbuf, sizeof(pathbuf));
-                
-                NSLog(@"%@", @"Waiting to ensure it's not xpcproxy anymore...");
-                int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
-                while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
-                    proc_pidpath(PID, pathbuf, sizeof(pathbuf));
-                    usleep(100);
-                }
-                
-                NSLog(@"%@",@"Continuing!");
-                setcsflagsandplatformize(PID);
-                kill(PID, SIGCONT);
-            });
-            dispatch_release(queue);
-        }
-        
-        if (command == JAILBREAKD_COMMAND_DUMP_CRED) {
-            if (size < sizeof(struct JAILBREAKD_DUMP_CRED)) {
-                NSLog(@"Error: DUMP_CRED packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_DUMP_CRED *dumpCredPacket = (struct JAILBREAKD_DUMP_CRED *)buf;
-            NSLog(@"JAILBREAKD_COMMAND_DUMP_CRED PID: %d", dumpCredPacket->Pid);
-            dumppid(dumpCredPacket->Pid);
-        }
-        
-        if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-            if (size < sizeof(struct JAILBREAKD_FIXUP_SETUID)) {
-                NSLog(@"Error: FIXUP_SETUID packet is too small");
-                continue;
-            }
-            struct JAILBREAKD_FIXUP_SETUID *fixupSetUIDPacket = (struct JAILBREAKD_FIXUP_SETUID *)buf;
-            NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d", fixupSetUIDPacket->Pid);
-            fixupsetuid(fixupSetUIDPacket->Pid);
-        }
-        
-        if (command == JAILBREAKD_COMMAND_EXIT) {
-            NSLog(@"Got Exit Command! Goodbye!");
-            term_kernel();
-            exit(0);
-        }
-        
-        NSLog(@"Recieved command: %hhu", command);
+        threadCount++;
     }
-
-    _exit(0);
+    
     return 0;
 }
-
-int main(int argc, char **argv, char **envp)
-{
-    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
-    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
-    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
-
-    int ret = runserver();
-    exit(ret);
-}
-

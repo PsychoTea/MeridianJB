@@ -77,7 +77,7 @@ pspawn_t old_pspawn, old_pspawnp;
 int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
     char fullArgs[512];
     
-    const char** currentarg = argv;
+    char** currentarg = argv;
     while (*currentarg != NULL) {
         strcat(fullArgs, " ");
         strcat(fullArgs, *currentarg);
@@ -177,8 +177,9 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     int origret;
     
     if (current_process == PROCESS_XPCPROXY) {
-        calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY);
-        closejailbreakfd();
+        DEBUGLOG("about to call jailbreakd");
+        calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 0);
+        DEBUGLOG("finished calling jailbreakd");
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     } else {
@@ -187,9 +188,13 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT);
+            DEBUGLOG("about to call jailbreakd");
+            calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, 0);
+            DEBUGLOG("finished calling jailbreakd");
         }
     }
+    
+    closejailbreakfd();
     
     return origret;
 }

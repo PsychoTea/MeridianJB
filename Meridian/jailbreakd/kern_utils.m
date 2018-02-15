@@ -62,12 +62,11 @@ CACHED_FIND(uint64_t, our_task_addr) {
   uint64_t our_proc = proc_find(getpid(), 1);
 
   if (our_proc == 0) {
-    printf("failed to find our_task_addr!\n");
+    fprintf(stderr, "failed to find our_task_addr!\n");
     exit(EXIT_FAILURE);
   }
 
   uint64_t addr = rk64(our_proc + offsetof_task);
-  printf("our_task_addr: 0x%llx\n", addr);
   return addr;
 }
 
@@ -103,6 +102,7 @@ void fixupsetuid(int pid) {
     
     if (!(file_st.st_mode & S_ISUID)) {
         fprintf(stderr, "File is not setuid: %s \n", pathbuf);
+        NSLog(@"Not granting setuid - file is not setuid: %s", pathbuf);
         return;
     }
     
