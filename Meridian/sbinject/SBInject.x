@@ -11,7 +11,6 @@
 
 NSArray *sbinjectGenerateDylibList() {
     NSString *processName = [[NSProcessInfo processInfo] processName];
-    NSLog(@"we up in this %@ bitch", processName);
     // launchctl, amfid you are special cases
     if ([processName isEqualToString:@"launchctl"]) {
         return nil;
@@ -203,8 +202,6 @@ BOOL safeMode = false;
 __attribute__ ((constructor))
 static void ctor(void) {
     @autoreleasepool {
-        NSLog(@"SBInject hath liveth!");
-
         if (NSBundle.mainBundle.bundleIdentifier == nil || ![NSBundle.mainBundle.bundleIdentifier isEqualToString:@"zone.sparkes.SafeMode"]) {
             safeMode = false;
             NSString *processName = [[NSProcessInfo processInfo] processName];
