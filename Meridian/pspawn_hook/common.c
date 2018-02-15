@@ -17,9 +17,26 @@
 #include <fcntl.h>
 #include "common.h"
 
+#define COMMON_LOG_PATH "/tmp/common_output.log"
+FILE *log_file;
+#define DEBUGLOG(fmt, args...)                                      \
+do {                                                                \
+    if (log_file == NULL) {                                         \
+        log_file = fopen(COMMON_LOG_PATH, "a");                     \
+        if (log_file == NULL) break;                                \
+    }                                                               \
+    fprintf(log_file, fmt "\n", ##args);                            \
+    fflush(log_file);                                               \
+} while(0);
+
 struct __attribute__((__packed__)) JAILBREAKD_PACKET {
     uint8_t Command;
     int32_t Pid;
+    uint8_t Wait;
+};
+
+struct __attribute__((__packed__)) RESPONSE_PACKET {
+    uint8_t Response;
 };
 
 int jailbreakd_sockfd = -1;
@@ -40,7 +57,7 @@ void openjailbreakdsocket() {
     // Open stream socket
     int sock;
     if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        fprintf(stderr, "Error: could not create socket. \n");
+        DEBUGLOG("Error: could not create socket");
         return;
     }
     
@@ -51,14 +68,14 @@ void openjailbreakdsocket() {
     setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
     
     if (connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) < 0) {
-        fprintf(stderr, "could not connect to server\n");
+        DEBUGLOG("Error: could not connect to server");
         close(sock);
     }
     jailbreakd_sockfd = sock;
     
     int fd = open("/var/tmp/jailbreakd.pid", O_RDONLY, 0600);
     if (fd < 0) {
-        fprintf(stderr, "WHAT! \n");
+        DEBUGLOG("WHAT! \n");
         return;
     }
     char pid[8] = {0};
@@ -67,14 +84,14 @@ void openjailbreakdsocket() {
     close(fd);
 }
 
-void calljailbreakd(pid_t pid, uint8_t command) {
+void calljailbreakd(pid_t pid, uint8_t command, int wait) {
     if (jailbreakd_sockfd == -1) {
         openjailbreakdsocket();
     }
     
     int fd = open("/var/tmp/jailbreakd.pid", O_RDONLY, 0600);
     if (fd < 0) {
-        fprintf(stderr, "WHAT! \n");
+        DEBUGLOG("WHAT! \n");
         return;
     }
     
@@ -84,43 +101,47 @@ void calljailbreakd(pid_t pid, uint8_t command) {
     close(fd);
     
     if (jbd_pid != jailbreakd_pid) {
-        fprintf(stderr, "jailbreakd restart detected... forcing reconnect\n");
+        DEBUGLOG("jailbreakd restart detected... forcing reconnect\n");
         closejailbreakfd();
         openjailbreakdsocket();
     }
     
     if (jailbreakd_sockfd == -1) {
-        fprintf(stderr, "server not connected. giving up...\n");
+        DEBUGLOG("server not connected. giving up...\n");
         return;
     }
     
     char buf[1024];
-    
-    /* get a message from the user */
     bzero(buf, 1024);
     
     struct JAILBREAKD_PACKET entitlePacket;
     entitlePacket.Command = command;
     entitlePacket.Pid = pid;
+    entitlePacket.Wait = wait;
     
     memcpy(buf, &entitlePacket, sizeof(entitlePacket));
     
     int bytesSent = send(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_PACKET), 0);
     if (bytesSent < 0) {
-        fprintf(stderr, "Server probably disconnected. Trying again... \n");
+        DEBUGLOG("Server probably disconnected. Trying again...");
         
         closejailbreakfd();
         openjailbreakdsocket();
         
         if (jailbreakd_sockfd == -1){
-            fprintf(stderr, "Server not connected. Giving up... \n");
+            DEBUGLOG("Server not connected. Giving up...");
             return;
         }
         
         bytesSent = send(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_PACKET), 0);
         if (bytesSent < 0) {
-            fprintf(stderr, "Server probably disconnected again. Giving up... \n");
+            DEBUGLOG("Server probably disconnected again. Giving up...");
         }
+    }
+    
+    if (wait == 1) {
+        bzero(buf, 1024);
+        recv(jailbreakd_sockfd, &buf, sizeof(struct RESPONSE_PACKET), 0);
     }
 }
 
