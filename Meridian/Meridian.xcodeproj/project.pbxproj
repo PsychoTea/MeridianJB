@@ -308,7 +308,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi";
+			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\nlipo -thin arm64 SBInject.dylib -o SBInject.dylib";
 		};
 		B52C43BB200BCC920047B1B4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
