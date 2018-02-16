@@ -17,6 +17,7 @@
 #import "helpers.h"
 #import "libjb.h"
 #import "fucksigningservices.h"
+#import "jailbreak.h"
 #import "DRMController.h"
 #import <sys/utsname.h>
 #import <sys/stat.h>
@@ -37,11 +38,6 @@ NSFileManager *fileMgr;
 NSOperatingSystemVersion osVersion;
 
 id thisClass;
-task_t tfp0;
-uint64_t kslide;
-uint64_t kernel_base;
-uint64_t kern_ucred;
-uint64_t kernprocaddr;
 
 bool jailbreak_has_run = false;
 
@@ -136,8 +132,6 @@ bool jailbreak_has_run = false;
     
     // lets run dat ting
     
-    [self writeTextPlain:@"running v0rtex..."];
-    
     [self.goButton setEnabled:NO];
     [self.goButton setHidden:YES];
     [self.creditsButton setEnabled:NO];
@@ -148,33 +142,16 @@ bool jailbreak_has_run = false;
     
     // background thread so we can update the UI
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+        int ret = makeShitHappen(self);
         
-        // run v0rtex itself
-        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+        if (ret != 0) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self exploitFailed];
+            });
+            
+            return;
+        }
 
-        if (ret != 0)
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self exploitFailed];
-            });
-            
-            return;
-        }
-        
-        [self writeTextPlain:@"exploit succeeded! praize siguza!"];
-        
-        // do all the post-exploitation shit
-        ret = [self makeShitHappen];
-        
-        if (ret != 0)
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self exploitFailed];
-            });
-            
-            return;
-        }
-        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self exploitSucceeded];
         });
@@ -187,7 +164,7 @@ bool jailbreak_has_run = false;
                              completionHandler:nil];
 }
 
--(int) makeShitHappen {
+- (int)makeShitHappen {
     int rv;
     
     kernel_base = 0xFFFFFFF007004000 + kslide;
@@ -323,7 +300,7 @@ bool jailbreak_has_run = false;
             unlink("/meridian/tar");
             
             inject_trust("/usr/bin/killall");
-            [self enableHiddenApps];
+//            [self enableHiddenApps];
             
             touch_file("/meridian/.bootstrap");
             
@@ -461,16 +438,6 @@ bool jailbreak_has_run = false;
     return 0;
 }
 
-- (void)enableHiddenApps {
-    // enable showing of system apps on springboard
-    // this is some funky killall stuff tho
-    killall("cfprefsd", "-SIGSTOP");
-    NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
-    [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
-    [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
-    killall("cfprefsd", "-9");
-}
-
 - (char *)getDeviceIdentifier {
     static struct utsname u;
     uname(&u);
@@ -534,6 +501,11 @@ bool jailbreak_has_run = false;
 }
 
 - (void)doUpdateCheck {
+    // skip the version check if we're running an internal build
+    if ([Version containsString:@"Internal"]) {
+        return;
+    }
+    
     NSURL *url = [NSURL URLWithString:@"https://meridian.sparkes.zone/latest"];
     
     NSURLSessionDataTask *downloadTask = [[NSURLSession sharedSession]

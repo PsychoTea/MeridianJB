@@ -21,6 +21,7 @@
 		B5370199202EAC00004E5E5C /* installer-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5370198202EABFF004E5E5C /* installer-base.tar */; };
 		B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */; };
 		B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */ = {isa = PBXBuildFile; fileRef = B5507C17202A63A5004E4572 /* v0rtex-old.m */; };
+		B56929D7203708030044FF60 /* jailbreak.m in Sources */ = {isa = PBXBuildFile; fileRef = B56929D6203708020044FF60 /* jailbreak.m */; };
 		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E6202CEDF500ACDB9D /* cydia-base.tar */; };
 		B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E7202CEDF500ACDB9D /* optional-base.tar */; };
@@ -63,6 +64,8 @@
 		B5370198202EABFF004E5E5C /* installer-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "installer-base.tar"; sourceTree = "<group>"; };
 		B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "dpkgdb-base.tar"; sourceTree = "<group>"; };
 		B5507C17202A63A5004E4572 /* v0rtex-old.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "v0rtex-old.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		B56929D6203708020044FF60 /* jailbreak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jailbreak.m; sourceTree = "<group>"; };
+		B56929D82037080D0044FF60 /* jailbreak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jailbreak.h; sourceTree = "<group>"; };
 		B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "v0rtex-old.h"; sourceTree = "<group>"; };
 		B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "create-meridian-base.sh"; sourceTree = "<group>"; };
 		B57A06E4202CDF9100ACDB9D /* meridian-base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "meridian-base"; sourceTree = "<group>"; };
@@ -167,6 +170,8 @@
 				B5D23C432002AC6600BF184C /* fucksigningservices.m */,
 				B582405D1FF75A4000D96DB5 /* helpers.h */,
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
+				B56929D82037080D0044FF60 /* jailbreak.h */,
+				B56929D6203708020044FF60 /* jailbreak.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
 				B595328C1FFE786700022CEE /* libjb.h */,
@@ -339,6 +344,7 @@
 				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
 				B58581C4200436AB00295515 /* DRMController.m in Sources */,
+				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,

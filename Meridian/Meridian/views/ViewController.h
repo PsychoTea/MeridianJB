@@ -10,7 +10,8 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
-
+- (void)writeText:(NSString *)message;
+- (void)writeTextPlain:(NSString *)message;
 @end
 
 task_t tfp0;
