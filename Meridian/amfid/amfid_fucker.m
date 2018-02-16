@@ -505,7 +505,7 @@ pid_t amfid_pid;
 mach_port_t get_amfid_task() {
     pid_t new_amfid_pid = get_pid_for_name("amfid");
     while (!new_amfid_pid) {
-        // sleep(1);
+        usleep(500000); // 50 ms
         new_amfid_pid = get_pid_for_name("amfid");
     }
     NSLog(@"[amfid_fucker] got amfid pid %d", new_amfid_pid);
@@ -542,8 +542,8 @@ int patch_amfid(mach_port_t amfi_port) {
 int main(int argc, char* argv[]) {
     NSLog(@"[amfid_fucker] Hey there :^)");
     
-    // Sleep for csflags (0.5 sec)
-    usleep(500000);
+    // Sleep for csflags (0.3 sec)
+    usleep(300000);
     
     // get tfp0 via hgsp4
     kern_return_t kr_tfp = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);

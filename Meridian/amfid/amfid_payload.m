@@ -483,6 +483,7 @@ void* hook_funcs(void* arg) {
 
     remote_read_overwrite(mach_task_self(), binary_load_address(), (uint64_t)buf, buf_size);
     uint8_t* found_at = memmem(buf, buf_size, &sym, sizeof(sym));
+    
     if (found_at == NULL) {
         NSLog(@"[amfid_payload] unable to find MISValidateSignatureAndCopyInfo in __la_symbol_ptr\n");
         return NULL;
