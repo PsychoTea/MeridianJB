@@ -9,7 +9,7 @@
 
 #define dylibDir @"/Library/MobileSubstrate/DynamicLibraries"
 
-NSArray *sbinjectGenerateDylibList() {
+NSArray *generateDylibList() {
     NSString *processName = [[NSProcessInfo processInfo] processName];
     // launchctl, amfid you are special cases
     if ([processName isEqualToString:@"launchctl"]) {
@@ -93,7 +93,7 @@ NSArray *sbinjectGenerateDylibList() {
 void SpringBoardSigHandler(int signo, siginfo_t *info, void *uap){
     NSLog(@"Received signal %d", signo);
 
-    FILE *f = fopen("/var/mobile/.sbinjectSafeMode", "w");
+    FILE *f = fopen("/var/mobile/.safeMode", "w");
     fprintf(f, "Hello World\n");
     fclose(f);
 
@@ -202,7 +202,7 @@ BOOL safeMode = false;
 __attribute__ ((constructor))
 static void ctor(void) {
     @autoreleasepool {
-        if (NSBundle.mainBundle.bundleIdentifier == nil || ![NSBundle.mainBundle.bundleIdentifier isEqualToString:@"zone.sparkes.SafeMode"]) {
+        if (NSBundle.mainBundle.bundleIdentifier == nil) {
             safeMode = false;
             NSString *processName = [[NSProcessInfo processInfo] processName];
             if ([processName isEqualToString:@"backboardd"] || [NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
@@ -222,10 +222,10 @@ static void ctor(void) {
                 sigaction(SIGSEGV, &action, NULL);
                 sigaction(SIGSYS, &action, NULL);
 
-                if (file_exist("/var/mobile/.sbinjectSafeMode")) {
+                if (file_exist("/var/mobile/.safeMode")) {
                     safeMode = true;
                     if ([NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
-                        unlink("/var/mobile/.sbinjectSafeMode");
+                        unlink("/var/mobile/.safeMode");
                         NSLog(@"Entering Safe Mode!");
                         %init(SafeMode);
                     }
@@ -233,7 +233,7 @@ static void ctor(void) {
             }
 
             if (!safeMode){
-                for (NSString *dylib in sbinjectGenerateDylibList()) {
+                for (NSString *dylib in generateDylibList()) {
                     NSLog(@"Injecting %@ into %@", dylib, NSBundle.mainBundle.bundleIdentifier);
                     void *dl = dlopen([dylib UTF8String], RTLD_LAZY | RTLD_GLOBAL);
 
