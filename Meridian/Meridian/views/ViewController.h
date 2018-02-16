@@ -19,5 +19,4 @@ uint64_t kernel_base;
 uint64_t kern_ucred;
 uint64_t kernprocaddr;
 
-bool check_for_jailbreak(void);
 void log_message(NSString *message);

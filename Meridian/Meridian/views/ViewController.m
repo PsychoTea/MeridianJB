@@ -125,7 +125,10 @@ bool jailbreak_has_run = false;
     // when jailbreak runs, 'go' button is
     // turned to 'respring'
     if (jailbreak_has_run) {
-        [self respring];
+        int rv = respring();
+        if (rv != 0) {
+            [self writeTextPlain:@"failed to respring."];
+        }
         return;
     }
     
@@ -145,7 +148,7 @@ bool jailbreak_has_run = false;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+        int ret = v0rtex_old(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
@@ -258,7 +261,7 @@ bool jailbreak_has_run = false;
             inject_trust("/meridian/tar");
             
             // extract meridian-base.tar
-            rv = [self extractBundle:@"meridian-base.tar"];
+            rv = extract_bundle_tar("meridian-base.tar");
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on meridian-base.tar", rv]];
@@ -266,7 +269,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract system-base.tar
-            rv = [self extractBundle:@"system-base.tar"];
+            rv = extract_bundle_tar("system-base.tar");
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
@@ -274,7 +277,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract installer-base.tar
-            rv = [self extractBundle:@"installer-base.tar"];
+            rv = extract_bundle_tar("installer-base.tar");
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on installer-base.tar", rv]];
@@ -282,11 +285,14 @@ bool jailbreak_has_run = false;
             }
             
             // set up dpkg database
+            // if dpkg is already installed (previously jailbroken), we want to move the database
+            // over to the new location, rather than replacing it. this allows users to retain
+            // tweaks and installed package information
             if (file_exists("/private/var/lib/dpkg/status") == 0) {
                 [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
             } else {
                 // extract dpkgdb-base.tar
-                rv = [self extractBundle:@"dpkgdb-base.tar"];
+                rv = extract_bundle_tar("dpkgdb-base.tar");
                 if (rv != 0) {
                     [self writeText:@"failed!"];
                     [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on dpkgdb-base.tar", rv]];
@@ -296,7 +302,7 @@ bool jailbreak_has_run = false;
             symlink("/Library/dpkg", "/private/var/lib/dpkg");
             
             // extract cydia-base.tar
-            rv = [self extractBundle:@"cydia-base.tar"];
+            rv = extract_bundle_tar("cydia-base.tar");
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on system-base.tar", rv]];
@@ -304,7 +310,7 @@ bool jailbreak_has_run = false;
             }
             
             // extract optional-base.tar
-            rv = [self extractBundle:@"optional-base.tar"];
+            rv = extract_bundle_tar("optional-base.tar");
             if (rv != 0) {
                 [self writeText:@"failed!"];
                 [self writeTextPlain:[NSString stringWithFormat:@"got rv %d on optional-base.tar", rv]];
@@ -358,19 +364,9 @@ bool jailbreak_has_run = false;
         // Launch dropbear
         [self writeText:@"launching dropbear..."];
     
-        rv = execprog("/meridian/dropbear", (const char**)&(const char*[]) {
-            "/meridian/dropbear",
-            "-p",
-            "22",
-            "-p",
-            "2222",
-            "-R",
-            "-E",
-            "-m",
-            "-S",
-            "/",
-            NULL
-        });
+        inject_trust("/bin/launchctl");
+        
+        rv = start_launchdaemon("/meridian/dropbear/dropbear.plist");
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"got value %d from posix_spawn: %s", rv, strerror(rv)]];
@@ -398,17 +394,13 @@ bool jailbreak_has_run = false;
     {
         [self writeText:@"starting jailbreakd..."];
         
-        inject_trust("/bin/launchctl");
         inject_trust("/meridian/pspawn_hook.dylib");
-        inject_trust("/usr/lib/SBInject.dylib");
+        inject_trust("/usr/lib/TweakLoader.dylib");
         
         unlink("/var/tmp/jailbreakd.pid");
         
         NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
-        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob
-                                                                             options:NSPropertyListMutableContainers
-                                                                              format:nil
-                                                                               error:nil];
+        NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
         
         job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
         job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
@@ -417,13 +409,7 @@ bool jailbreak_has_run = false;
         chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
         chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);
         
-        rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
-            "/bin/launchctl",
-            "load",
-            "-w",
-            "/meridian/jailbreakd/jailbreakd.plist",
-            NULL
-        });
+        rv = start_launchdaemon("/meridian/jailbreakd/jailbreakd.plist");
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"failed to start jailbreakd: %d", rv]];
@@ -436,12 +422,7 @@ bool jailbreak_has_run = false;
         }
         
         // inject pspawn_hook.dylib to launchd
-        rv = execprog("/meridian/injector", (const char**)&(const char*[]) {
-            "/meridian/injector",
-            itoa(1), // launchd pid
-            "/meridian/pspawn_hook.dylib",
-            NULL
-        });
+        rv = inject_library(1, "/meridian/pspawn_hook.dylib");
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"failed to inject pspawn_hook: %d", rv]];
@@ -464,13 +445,7 @@ bool jailbreak_has_run = false;
             chown([path UTF8String], 0, 0);
         }
         
-        rv = execprog("/bin/launchctl", (const char **)&(const char*[]) {
-            "/bin/launchctl",
-            "load",
-            "-w",
-            "/Library/LaunchDaemons",
-            NULL
-        });
+        rv = start_launchdaemon("/Library/LaunchDaemons");
         if (rv != 0) {
             [self writeText:@"failed!"];
             [self writeTextPlain:[NSString stringWithFormat:@"launchctl returned %d", rv]];
@@ -483,33 +458,14 @@ bool jailbreak_has_run = false;
     return 0;
 }
 
-- (void)respring {
-    pid_t springBoard = get_pid_for_name("SpringBoard");
-    if (springBoard == 0) {
-        [self writeTextPlain:@"Failed to respring."];
-        return;
-    }
-    kill(springBoard, 9);
-}
-
 - (void)enableHiddenApps {
     // enable showing of system apps on springboard
     // this is some funky killall stuff tho
-    execprog("/usr/bin/killall", (const char**)&(const char*[]) {
-        "/usr/bin/killall",
-        "-SIGSTOP",
-        "cfprefsd",
-        NULL
-    });
+    killall("cfprefsd", "-SIGSTOP");
     NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
     [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
     [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
-    execprog("/usr/bin/killall", (const char**)&(const char*[]) {
-        "/usr/bin/killall",
-        "-9",
-        "cfprefsd",
-        NULL
-    });
+    killall("cfprefsd", "-9");
 }
 
 - (char *)getDeviceIdentifier {
@@ -535,19 +491,6 @@ bool jailbreak_has_run = false;
     NSRange range = [regex rangeOfFirstMatchInString:verString options:0 range:NSMakeRange(0, [verString length])];
     
     return [verString substringWithRange:range];
-}
-
-- (int)extractBundle:(NSString *)bundleName {
-    return execprog("/meridian/tar", (const char **)&(const char*[]) {
-        "/meridian/tar",
-        "--preserve-permissions",
-        "--no-overwrite-dir",
-        "-C",
-        "/",
-        "-xvf",
-        bundled_file([bundleName UTF8String]),
-        NULL
-    });
 }
 
 - (void)exploitSucceeded {
@@ -609,15 +552,6 @@ bool jailbreak_has_run = false;
         
         NSLog(@"%@", message);
     });
-}
-
-bool check_for_jailbreak() {
-    int csops(pid_t pid, unsigned int ops, void *useraddr, size_t usersize);
-    
-    uint32_t flags;
-    csops(getpid(), 0, &flags, 0);
-    
-    return flags & CS_PLATFORM_BINARY;
 }
 
 // kinda dumb, kinda lazy, ¯\_(ツ)_/¯
