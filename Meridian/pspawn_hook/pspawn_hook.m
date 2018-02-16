@@ -177,9 +177,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     int origret;
     
     if (current_process == PROCESS_XPCPROXY) {
-        DEBUGLOG("about to call jailbreakd");
         calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 0);
-        DEBUGLOG("finished calling jailbreakd");
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     } else {
@@ -188,9 +186,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            DEBUGLOG("about to call jailbreakd");
             calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, 0);
-            DEBUGLOG("finished calling jailbreakd");
         }
     }
     
