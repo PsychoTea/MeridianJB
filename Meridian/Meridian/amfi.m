@@ -35,12 +35,11 @@ void init_amfi() {
     NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
 }
 
-int defecate_amfi() { /* TODO: hand this all off to jailbreakd/pspawn_hook */
+int defecate_amfi() {
     NSLog(@"[amfi] amfid defecation has been reached");
     
     {
         // trust our payload
-        NSLog(@"[amfi] trusting our patches \n");
         inject_trust("/meridian/amfid/amfid_fucker");
         inject_trust("/meridian/amfid/amfid_payload.dylib");
     }
