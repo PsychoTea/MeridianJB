@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>dropbear</string>
+	<key>Program</key>
+	<string>/meridian/dropbear/dropbear</string>
+	<key>UserName</key>
+	<string>root</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/var/log/dropbear-stderr.log</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/meridian/dropbear/dropbear</string>
+		<string>-p</string>
+		<string>22</string>
+		<string>-p</string>
+		<string>2222</string>
+		<string>-F</string>
+		<string>-R</string>
+		<string>-E</string>
+		<string>-m</string>
+		<string>-S</string>
+		<string>/</string>
+	</array>
+	<key>StandardOutPath</key>
+	<string>/var/log/dropbear-stdout.log</string>
+</dict>
+</plist>
