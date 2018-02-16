@@ -61,6 +61,8 @@ bool jailbreak_has_run = false;
     
     jailbreak_has_run = check_for_jailbreak();
     
+    [self doUpdateCheck];
+    
     // Log current device and version info
     osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     
@@ -148,7 +150,7 @@ bool jailbreak_has_run = false;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         
         // run v0rtex itself
-        int ret = v0rtex_old(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+        int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
         if (ret != 0)
         {
@@ -289,6 +291,7 @@ bool jailbreak_has_run = false;
             // over to the new location, rather than replacing it. this allows users to retain
             // tweaks and installed package information
             if (file_exists("/private/var/lib/dpkg/status") == 0) {
+                [fileMgr removeItemAtPath:@"/Library/dpkg" error:nil];
                 [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
             } else {
                 // extract dpkgdb-base.tar
@@ -418,7 +421,7 @@ bool jailbreak_has_run = false;
         
         while (!file_exist("/var/tmp/jailbreakd.pid")) {
             printf("Waiting for jailbreakd \n");
-            usleep(100000); // 100ms
+            usleep(300000); // 300ms
         }
         
         // inject pspawn_hook.dylib to launchd
@@ -528,6 +531,48 @@ bool jailbreak_has_run = false;
     [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
     [self.goButton setEnabled:NO];
     self.goButton.alpha = 0.5;
+}
+
+- (void)doUpdateCheck {
+    NSURL *url = [NSURL URLWithString:@"https://meridian.sparkes.zone/latest"];
+    
+    NSURLSessionDataTask *downloadTask = [[NSURLSession sharedSession]
+                                          dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *header, NSError *error) {
+                                              if (error != nil) {
+                                                  NSLog(@"failed to get information from the update server.");
+                                                  return;
+                                              }
+                                              
+                                              NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                              if (response != Version) {
+                                                  [self doUpdatePopup:response];
+                                              }
+                                          }];
+    
+    [downloadTask resume];
+}
+
+- (void)doUpdatePopup:(NSString *)update {
+    NSString *message = [NSString stringWithFormat:@"An update is available for Meridian: %@It can be downloaded from the website.", update];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Meridian Update"
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *websiteAction = [UIAlertAction actionWithTitle:@"Website" style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {
+                                                              [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://meridian.sparkes.zone"]
+                                                                                                 options:@{}
+                                                                                       completionHandler:nil];
+                                                          }];
+    
+    UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"Close"
+                                                          style:UIAlertActionStyleCancel
+                                                        handler:nil];
+    
+    [alert addAction:websiteAction];
+    [alert addAction:closeAction];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)writeText:(NSString *)message {
