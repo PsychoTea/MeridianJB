@@ -20,8 +20,8 @@ cp $meridianDir/libjailbreak/libjailbreak.dylib $baseDir/usr/lib
 # jailbreakd
 cp $meridianDir/jailbreakd/jailbreakd $baseDir/meridian/jailbreakd
 
-# SBInject.dylib
-cp $meridianDir/sbinject/SBInject.dylib $baseDir/usr/lib
+# TweakLoader.dylib
+cp $meridianDir/TweakLoader/TweakLoader.dylib $baseDir/usr/lib
 
 # create tar archive
 cd $baseDir

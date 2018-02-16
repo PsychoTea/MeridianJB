@@ -37,7 +37,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B502EF1820275FB400F761C2 /* sbinject */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sbinject; sourceTree = "<group>"; };
+		B502EF1820275FB400F761C2 /* TweakLoader */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TweakLoader; sourceTree = "<group>"; };
 		B506AEC120349CBE00C7D260 /* libjailbreak */ = {isa = PBXFileReference; lastKnownFileType = folder; path = libjailbreak; sourceTree = "<group>"; };
 		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -139,7 +139,7 @@
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
 				B506AEC120349CBE00C7D260 /* libjailbreak */,
 				B589518C201D4018002E0EAD /* jailbreakd */,
-				B502EF1820275FB400F761C2 /* sbinject */,
+				B502EF1820275FB400F761C2 /* TweakLoader */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
@@ -308,7 +308,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/sbinject\nmake\ncp .theos/obj/debug/SBInject.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\nlipo -thin arm64 SBInject.dylib -o SBInject.dylib";
+			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/TweakLoader\nmake\ncp .theos/obj/debug/TweakLoader.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\nlipo -thin arm64 TweakLoader.dylib -o TweakLoader.dylib";
 		};
 		B52C43BB200BCC920047B1B4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
