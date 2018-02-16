@@ -58,6 +58,19 @@ uint64_t proc_find(int pd, int tries) {
     return 0;
 }
 
+char *proc_name(int pd) {
+    uint64_t proc = proc_find(pd, 1);
+    if (proc == 0) {
+        return "";
+    }
+    
+    char *proc_name = (char *)calloc(40, sizeof(char));
+    
+    kread(proc + 0x26c, proc_name, 40);
+    
+    return proc_name;
+}
+
 CACHED_FIND(uint64_t, our_task_addr) {
   uint64_t our_proc = proc_find(getpid(), 1);
 

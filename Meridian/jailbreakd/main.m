@@ -89,19 +89,21 @@ void *initThread(struct InitThreadArg *args) {
                     NSLog(@"Invalid command recieved.");
                 }
                 
+                char *name = proc_name(packet->Pid);
+                
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d", packet->Pid);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", packet->Pid, name);
                     setcsflagsandplatformize(packet->Pid);
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", packet->Pid);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", packet->Pid, name);
                     setcsflagsandplatformize(packet->Pid);
                     kill(packet->Pid, SIGCONT);
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", packet->Pid);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", packet->Pid, name);
                     __block int PID = packet->Pid;
                     
                     dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
@@ -122,7 +124,7 @@ void *initThread(struct InitThreadArg *args) {
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d", packet->Pid);
+                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", packet->Pid, name);
                     fixupsetuid(packet->Pid);
                 }
                 
@@ -139,6 +141,8 @@ void *initThread(struct InitThreadArg *args) {
                         sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
                     }
                 }
+                
+                free(name);
             }
             
             bytesProcessed += sizeof(struct JAILBREAKD_PACKET);
