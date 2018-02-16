@@ -25,7 +25,7 @@ uint64_t find_proc_by_name(char* name) {
         
         tfp0_kread(proc + 0x26c, proc_name, 40);
         
-        if (!strcmp(proc_name, name)) {
+        if (!strcmp(name, proc_name)) {
             return proc;
         }
         
@@ -41,7 +41,7 @@ uint64_t find_proc_by_pid(uint32_t pid) {
     while (proc) {
         uint32_t proc_pid = rk32(proc + 0x10);
         
-        if (proc_pid == pid) {
+        if (pid == proc_pid) {
             return proc;
         }
         
@@ -62,6 +62,53 @@ uint32_t get_pid_for_name(char* name) {
 
 int uicache() {
     return execprog("/bin/uicache", NULL);
+}
+
+int start_launchdaemon(const char *path) {
+    return execprog("/bin/launchctl", (const char **)&(const char*[]) {
+        "/bin/launchctl",
+        "load",
+        "-w",
+        path,
+        NULL
+    });
+}
+
+int respring() {
+    pid_t springBoard = get_pid_for_name("SpringBoard");
+    if (springBoard == 0) {
+        return 1;
+    }
+    
+    kill(springBoard, 9);
+    return 0;
+}
+
+int inject_library(pid_t pid, const char *path) {
+    return execprog("/meridian/injector", (const char **)&(const char*[]) {
+        "/meridian/injector",
+        itoa(pid),
+        path,
+        NULL
+    });
+}
+
+int killall(const char *procname, const char *kill) {
+    return execprog("/usr/bin/killall", (const char **)&(const char *[]) {
+        "/usr/bin/killall",
+        kill,
+        procname,
+        NULL
+    });
+}
+
+int check_for_jailbreak() {
+    int csops(pid_t pid, unsigned int ops, void *useraddr, size_t usersize);
+    
+    uint32_t flags;
+    csops(getpid(), 0, &flags, 0);
+    
+    return flags & CS_PLATFORM_BINARY;
 }
 
 char *itoa(long n) {
@@ -190,6 +237,19 @@ void extract_bundle(const char* bundle_name, const char* directory) {
     untar(fopen(tarFile, "r"), bundle_name);
     
     unlink(tarFile);
+}
+
+int extract_bundle_tar(const char *bundle_name) {
+    return execprog("/meridian/tar", (const char **)&(const char*[]) {
+        "/meridian/tar",
+        "--preserve-permissions",
+        "--no-overwrite-dir",
+        "-C",
+        "/",
+        "-xvf",
+        bundled_file(bundle_name),
+        NULL
+    });
 }
 
 void touch_file(char *path) {
