@@ -85,6 +85,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     }
     
     DEBUGLOG("We got called (fake_posix_spawn)! %s: %s", path, fullArgs);
+    NSLog(@"Called for program: %s", fullArgs);
     
     const char *inject_me = NULL;
     
@@ -104,7 +105,6 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             }
         }
     } else if (current_process == PROCESS_XPCPROXY) {
-        // if we're in xpcproxy just inject into fuckin everytin ;)
         inject_me = SBINJECT_PAYLOAD_DYLIB;
     }
     
