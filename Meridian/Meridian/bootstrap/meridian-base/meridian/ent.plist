@@ -12,7 +12,9 @@
 	<true/>
 	<key>get-task-allow</key>
 	<true/>
-        <key>com.apple.lsapplicationworkspace.rebuildappdatabases</key>
-        <true/>
+	<key>com.apple.private.skip-library-validation</key>
+	<true/>
+	<key>com.apple.lsapplicationworkspace.rebuildappdatabases</key>
+	<true/>
 </dict>
 </plist>
