@@ -253,15 +253,11 @@ void set_sandbox_extensions(uint64_t proc) {
   uint64_t proc_ucred = rk64(proc + 0x100);
   uint64_t sandbox = rk64(rk64(proc_ucred + 0x78) + 8 + 8);
 
-  NSLog(@"proc = 0x%llx & proc_ucred = 0x%llx & sandbox = 0x%llx", proc, proc_ucred, sandbox);
-
   if (sandbox == 0) {
-    NSLog(@"no sandbox, skipping");
     return;
   }
 
   if (has_file_extension(sandbox, abs_path_exceptions[0])) {
-    NSLog(@"already has '%s', skipping", abs_path_exceptions[0]);
     return;
   }
 
@@ -270,13 +266,10 @@ void set_sandbox_extensions(uint64_t proc) {
   while (*path != NULL) {
     ext = extension_create_file(*path, ext);
     if (ext == 0) {
-      NSLog(@"extension_create_file(%s) failed, panic!", *path);
     }
     ++path;
   }
     
-  NSLog(@"last extension_create_file ext: 0x%llx", ext);
-
   if (ext != 0) {
     extension_add(ext, sandbox, exc_key);
   }
@@ -306,15 +299,12 @@ void set_amfi_entitlements(uint64_t proc) {
     } else if (present != get_exception_osarray()) {
         unsigned int itemCount = OSArray_ItemCount(present);
         
-        NSLog(@"present != 0 (0x%llx)! item count: %d", present, itemCount);
-        
         BOOL foundEntitlements = NO;
         
         uint64_t itemBuffer = OSArray_ItemBuffer(present);
         
         for (int i = 0; i < itemCount; i++){
             uint64_t item = rk64(itemBuffer + (i * sizeof(void *)));
-            NSLog(@"Item %d: 0x%llx", i, item);
             char *entitlementString = OSString_CopyString(item);
             if (strcmp(entitlementString, "/meridian/") == 0){
                 foundEntitlements = YES;
@@ -330,7 +320,6 @@ void set_amfi_entitlements(uint64_t proc) {
             rv = 1;
         }
     } else {
-      NSLog(@"Not going to merge array with itself :P (present = %llx, rv = %d, set1 = %d, set2 = %d)", present, rv, set1, set2);
       rv = 1;
     }
 
@@ -341,13 +330,11 @@ void set_amfi_entitlements(uint64_t proc) {
 
 int setcsflagsandplatformize(int pid){
   uint64_t proc = proc_find(pid, 3);
-    NSLog(@"touching pid %d in weird ways: %llx", pid, proc);
   if (proc != 0) {
     set_csflags(proc);
     set_amfi_entitlements(proc);
     set_sandbox_extensions(proc);
     set_csblob(proc);
-    NSLog(@"setcsflagsandplatformize on PID %d", pid);
     return 0;
   }
   NSLog(@"Unable to find PID %d to entitle!", pid);

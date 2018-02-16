@@ -77,9 +77,6 @@ void *initThread(struct InitThreadArg *args) {
     
     while (true) {
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
-        if (bytesRead > 0) {
-            NSLog(@"Bytes Read: %d\n", bytesRead);
-        }
         
         if (!bytesRead) break;
         
@@ -87,8 +84,6 @@ void *initThread(struct InitThreadArg *args) {
         while (bytesProcessed < bytesRead) {
             if (bytesRead - bytesProcessed >= sizeof(struct JAILBREAKD_PACKET)) {
                 struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)(buf + bytesProcessed);
-                
-                NSLog(@"Recieved packet with command: %d", packet->Command);
                 
                 if (!is_valid_command(packet->Command)) {
                     NSLog(@"Invalid command recieved.");
@@ -114,14 +109,12 @@ void *initThread(struct InitThreadArg *args) {
                         char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
                         bzero(pathbuf, sizeof(pathbuf));
                         
-                        NSLog(@"Waiting to ensure it's not xpcproxy anymore...");
                         int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
                         while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
                             proc_pidpath(PID, pathbuf, sizeof(pathbuf));
                             usleep(100);
                         }
                         
-                        NSLog(@"Continuing!");
                         setcsflagsandplatformize(PID);
                         kill(PID, SIGCONT);
                     });
@@ -134,22 +127,25 @@ void *initThread(struct InitThreadArg *args) {
                 }
                 
                 if (packet->Wait == 1) {
-                    NSLog(@"Packet signified a wait condition. Replying...");
-                    
                     bzero(buf, 1024);
                     
                     struct RESPONSE_PACKET responsePacket;
                     responsePacket.Response = 0;
                     memcpy(buf, &responsePacket, sizeof(responsePacket));
                     
-                    send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-                    NSLog(@"Sent response.");
+                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+                    if (sent < 0) {
+                        NSLog(@"Failed to send wait message, trying again...");
+                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+                    }
                 }
             }
             
             bytesProcessed += sizeof(struct JAILBREAKD_PACKET);
         }
     }
+    
+    close(args->clientFd);
     
     threadCount--;
     
