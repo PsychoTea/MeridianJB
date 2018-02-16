@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <mach/mach.h>
 #include <mach-o/loader.h>
+#include <mach-o/fat.h>
 #include <mach/error.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -18,7 +19,6 @@
 #include <spawn.h>
 #include <sys/stat.h>
 #include <pthread.h>
-
 #import <Foundation/Foundation.h>
 #include <CommonCrypto/CommonDigest.h>
 
@@ -63,8 +63,6 @@ enum {
     CSSLOT_CODEDIRECTORY        = 0,            /* slot index for CodeDirectory */
     CSSLOT_ENTITLEMENTS         = 5,
 };
-
-#define MH_MAGIC_FAT 0xbebafeca /* FAT bins have some weird magic at the start - here it is */
 
 kern_return_t mach_vm_allocate(vm_map_t target,
                                mach_vm_address_t *address,
@@ -351,7 +349,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         fread(&mh, sizeof(mh), 1, fd);
         off += sizeof(mh);
         ncmds = mh.ncmds;
-    } else if (magic == MH_MAGIC_FAT) { /* FAT bins can be treated with mach_header_64 */
+    } else if (magic == FAT_CIGAM) { /* FAT bins can be treated with mach_header_64 */
         struct mach_header_64 mh64;
         fread(&mh64, sizeof(mh64), 1, fd);
         off += sizeof(mh64);

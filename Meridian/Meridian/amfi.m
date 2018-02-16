@@ -16,13 +16,12 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <mach-o/loader.h>
 #import <mach-o/dyld_images.h>
+#import <mach-o/fat.h>
 #import <sys/stat.h>
 #import <sys/event.h>
 #import <dlfcn.h>
 #import <pthread.h>
 #import <sys/spawn.h>
-
-#define MH_MAGIC_FAT 0xbebafeca
 
 uint64_t trust_cache;
 uint64_t amficache;
@@ -152,7 +151,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         fread(&mh, sizeof(mh), 1, fd);
         off += sizeof(mh);
         ncmds = mh.ncmds;
-    } else if (magic == MH_MAGIC_FAT) { /* FAT bins can be treated with mach_header_64 */
+    } else if (magic == FAT_CIGAM) { /* FAT bins can be treated with mach_header_64 */
         struct mach_header_64 mh64;
         fread(&mh64, sizeof(mh64), 1, fd);
         off += sizeof(mh64);
