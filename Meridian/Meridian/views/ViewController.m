@@ -15,7 +15,6 @@
 #import "root-rw.h"
 #import "offsets.h"
 #import "helpers.h"
-#import "libjb.h"
 #import "fucksigningservices.h"
 #import "jailbreak.h"
 #import "DRMController.h"

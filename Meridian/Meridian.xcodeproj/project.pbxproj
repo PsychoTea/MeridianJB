@@ -30,8 +30,8 @@
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
 		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
+		B584C54A20376BCB00BF4118 /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.c */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
-		B595328B1FFE786200022CEE /* libjb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B595328A1FFE786100022CEE /* libjb.a */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D23C432002AC6600BF184C /* fucksigningservices.m */; };
@@ -79,6 +79,8 @@
 		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
+		B584C54920376BCA00BF4118 /* untar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
+		B584C54B20376BD200BF4118 /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
 		B58581C3200436AB00295515 /* DRMController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRMController.m; sourceTree = "<group>"; };
 		B58581C52004372E00295515 /* DRMController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRMController.h; sourceTree = "<group>"; };
 		B589517E201D07DB002E0EAD /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
@@ -88,8 +90,6 @@
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
 		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B595328A1FFE786100022CEE /* libjb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjb.a; sourceTree = "<group>"; };
-		B595328C1FFE786700022CEE /* libjb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libjb.h; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
@@ -105,7 +105,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
-				B595328B1FFE786200022CEE /* libjb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,8 +173,6 @@
 				B56929D6203708020044FF60 /* jailbreak.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
-				B595328C1FFE786700022CEE /* libjb.h */,
-				B595328A1FFE786100022CEE /* libjb.a */,
 				B5B7C29F1FF2BA100087619A /* main.m */,
 				B582405C1FF753EC00D96DB5 /* offsets.h */,
 				B582405A1FF7533D00D96DB5 /* offsets.m */,
@@ -183,6 +180,8 @@
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
+				B584C54B20376BD200BF4118 /* untar.h */,
+				B584C54920376BCA00BF4118 /* untar.c */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
 				B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */,
@@ -343,6 +342,7 @@
 			files = (
 				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
+				B584C54A20376BCB00BF4118 /* untar.c in Sources */,
 				B58581C4200436AB00295515 /* DRMController.m in Sources */,
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,

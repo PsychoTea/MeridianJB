@@ -6,9 +6,6 @@
 //  Copyright © 2018 Ben Sparkes. All rights reserved.
 //
 
-#include <mach/mach_types.h>
-#include <sys/stat.h>
-#import <Foundation/Foundation.h>
 #include "v0rtex.h"
 #include "v0rtex-old.h"
 #include "kernel.h"
@@ -19,6 +16,9 @@
 #include "jailbreak.h"
 #include "ViewController.h"
 #include "patchfinder64.h"
+#include <mach/mach_types.h>
+#include <sys/stat.h>
+#import <Foundation/Foundation.h>
 
 NSFileManager *fileMgr;
 
@@ -66,9 +66,8 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // extract bootstrap (if not already extracted)
-    // TEMPORARY
-    [fileMgr removeItemAtPath:@"/meridian/.bootstrap" error:nil];
     if (file_exists("/meridian/.bootstrap") != 0) {
+    // if (true) {
         [view writeText:@"extracting bootstrap..."];
         ret = extractBootstrap();
         
@@ -94,6 +93,9 @@ int makeShitHappen(ViewController *view) {
         
         [view writeText:@"done!"];
     }
+    
+    // TEMPORARY
+    unlink("/usr/lib/SBInject.dylib");
     
     // touch .cydia_no_stash
     touch_file("/.cydia_no_stash");
@@ -141,7 +143,7 @@ int makeShitHappen(ViewController *view) {
 }
 
 int runV0rtex() {
-    int ret = v0rtex_old(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+    int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
 
     kernel_base = 0xFFFFFFF007004000 + kslide;
     

@@ -11,7 +11,6 @@
 #import "amfi.h"
 #import "helpers.h"
 #import "ViewController.h"
-#import "libjb.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <mach-o/loader.h>

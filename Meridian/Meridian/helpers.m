@@ -9,7 +9,7 @@
 #include "helpers.h"
 #include "ViewController.h"
 #include "kernel.h"
-#include "libjb.h"
+#include "untar.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/fcntl.h>

@@ -78,7 +78,7 @@ void *initThread(struct InitThreadArg *args) {
     while (true) {
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
         
-        if (!bytesRead) break;
+        if (!bytesRead) continue;
         
         int bytesProcessed = 0;
         while (bytesProcessed < bytesRead) {
@@ -156,34 +156,7 @@ void *initThread(struct InitThreadArg *args) {
     return NULL;
 }
 
-int main(int argc, char **argv, char **envp) {
-    NSLog(@"[jailbreakd] Start");
-    
-    // Write pid file so Meridian.app knows we're running
-    unlink("/var/tmp/jailbreakd.pid");
-    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
-    fprintf(f, "%d\n", getpid());
-    fclose(f);
-    
-    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
-    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
-    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
-    
-    remove_memory_limit();
-    
-    kern_return_t err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
-    if (err != KERN_SUCCESS) {
-        NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
-        return 5;
-    }
-    
-    init_kernel(kernel_base, NULL);
-    kernel_slide = kernel_base - 0xFFFFFFF007004000;
-    NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
-    NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
-    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
-    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
-    
+void* thd_func(void* arg) {
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
     
@@ -243,6 +216,38 @@ int main(int argc, char **argv, char **envp) {
         
         threadCount++;
     }
+}
+
+int main(int argc, char **argv, char **envp) {
+    NSLog(@"[jailbreakd] Start");
+    
+    // Write pid file so Meridian.app knows we're running
+    unlink("/var/tmp/jailbreakd.pid");
+    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
+    fprintf(f, "%d\n", getpid());
+    fclose(f);
+    
+    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
+    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
+    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
+    
+    remove_memory_limit();
+    
+    kern_return_t err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
+    if (err != KERN_SUCCESS) {
+        NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
+        return 5;
+    }
+    
+    init_kernel(kernel_base, NULL);
+    kernel_slide = kernel_base - 0xFFFFFFF007004000;
+    NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
+    NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
+    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
+    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
+    
+    pthread_t thd;
+    pthread_create(&thd, NULL, thd_func, NULL);
     
     return 0;
 }
