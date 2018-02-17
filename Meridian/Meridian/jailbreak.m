@@ -271,6 +271,7 @@ void setUpSubstitute() {
     if (file_exists("/Library/Frameworks/CydiaSubstrate.framework") == 0) {
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
     }
+    mkdir("/Library/Frameworks", 0755);
     mkdir("/Library/Frameworks/CydiaSubstrate.framework", 0755);
     symlink("/usr/lib/libsubstrate.dylib", "/Library/Frameworks/CydiaSubstrate.framework/CydiaSubstrate");
 }
