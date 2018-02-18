@@ -66,8 +66,8 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // extract bootstrap (if not already extracted)
-    if (file_exists("/meridian/.bootstrap") != 0) {
-    // if (true) {
+    // if (file_exists("/meridian/.bootstrap") != 0) {
+    if (true) {
         [view writeText:@"extracting bootstrap..."];
         ret = extractBootstrap();
         
@@ -143,8 +143,14 @@ int makeShitHappen(ViewController *view) {
 }
 
 int runV0rtex() {
-    int ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
-
+    int ret;
+    
+    if ([thisClass v0rtexSwitch].on) {
+        ret = v0rtex(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+    } else {
+        ret = v0rtex_old(&tfp0, &kslide, &kern_ucred, &kernprocaddr);
+    }
+    
     kernel_base = 0xFFFFFFF007004000 + kslide;
     
     if (ret == 0) {
@@ -203,6 +209,9 @@ int extractBootstrap() {
     // extract meridian-base.tar
     rv = extract_bundle_tar("meridian-base.tar");
     if (rv != 0) return 1;
+    
+    unlink("/meridian/tar");
+    return 0;
     
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");

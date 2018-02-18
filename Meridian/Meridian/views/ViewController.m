@@ -30,6 +30,7 @@
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
+@property (nonatomic, readwrite) IBOutlet UISwitch *v0rtexSwitch;
 @end
 
 NSString *Version = @"Meridian: Internal Beta 7";
