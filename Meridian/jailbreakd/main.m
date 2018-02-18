@@ -17,7 +17,7 @@
 #include "kmem.h"
 #include "kexecute.h"
 
-#define PROC_PIDPATHINFO_MAXSIZE  (4*MAXPATHLEN)
+#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
 int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
 #define JAILBREAKD_COMMAND_ENTITLE 1
@@ -33,6 +33,8 @@ struct __attribute__((__packed__)) JAILBREAKD_PACKET {
     uint8_t Wait;
 };
 
+// resposne packet
+// sent after request to notify it has been completed
 struct __attribute__((__packed__)) RESPONSE_PACKET {
     uint8_t Response;
 };
@@ -57,8 +59,6 @@ int is_valid_command(uint8_t command) {
 
 struct InitThreadArg {
     int clientFd;
-    struct sockaddr_in clientAddr;
-    int threadNum;
 };
 
 int threadCount = 0;
@@ -76,6 +76,7 @@ void *initThread(struct InitThreadArg *args) {
     char buf[1024];
     
     while (true) {
+        bzero(buf, 1024);
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
         
         if (!bytesRead) continue;
@@ -128,19 +129,19 @@ void *initThread(struct InitThreadArg *args) {
                     fixupsetuid(packet->Pid);
                 }
                 
-                if (packet->Wait == 1) {
-                    bzero(buf, 1024);
-                    
-                    struct RESPONSE_PACKET responsePacket;
-                    responsePacket.Response = 0;
-                    memcpy(buf, &responsePacket, sizeof(responsePacket));
-                    
-                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-                    if (sent < 0) {
-                        NSLog(@"Failed to send wait message, trying again...");
-                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-                    }
-                }
+//                if (packet->Wait == 1) {
+//                    bzero(buf, 1024);
+//
+//                    struct RESPONSE_PACKET responsePacket;
+//                    responsePacket.Response = 0;
+//                    memcpy(buf, &responsePacket, sizeof(responsePacket));
+//
+//                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+//                    if (sent < 0) {
+//                        NSLog(@"Failed to send wait message, trying again...");
+//                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+//                    }
+//                }
                 
                 free(name);
             }
@@ -156,7 +157,7 @@ void *initThread(struct InitThreadArg *args) {
     return NULL;
 }
 
-void* thd_func(void* arg) {
+int launch_server() {
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
     
@@ -188,6 +189,8 @@ void* thd_func(void* arg) {
         exit(-1);
     }
     
+    NSLog(@"Successfully bound on socket %d", listenFd);
+    
     listen(listenFd, 5);
     
     NSLog(@"Server running!");
@@ -199,13 +202,11 @@ void* thd_func(void* arg) {
         
         if (clientFd < 0) {
             NSLog(@"Unable to accept.");
-            return -1;
+            continue;
         }
         
         struct InitThreadArg args;
         args.clientFd = clientFd;
-        args.clientAddr = clientaddr;
-        args.threadNum = threadCount;
         
         pthread_t thread;
         int err = pthread_create(&thread, NULL, (void *(*)(void *))&initThread, &args);
@@ -216,6 +217,9 @@ void* thd_func(void* arg) {
         
         threadCount++;
     }
+    
+    _exit(0);
+    return 0;
 }
 
 int main(int argc, char **argv, char **envp) {
@@ -236,7 +240,7 @@ int main(int argc, char **argv, char **envp) {
     kern_return_t err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
     if (err != KERN_SUCCESS) {
         NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
-        return 5;
+        return -1;
     }
     
     init_kernel(kernel_base, NULL);
@@ -246,8 +250,6 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
     
-    pthread_t thd;
-    pthread_create(&thd, NULL, thd_func, NULL);
-    
-    return 0;
+    int ret = launch_server();
+    exit(ret);
 }
