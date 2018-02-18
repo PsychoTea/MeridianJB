@@ -41,12 +41,11 @@ enum CurrentProcess {
 int current_process = PROCESS_XPCPROXY;
 
 #define PSPAWN_HOOK_DYLIB       "/meridian/pspawn_hook.dylib"
-#define SBINJECT_PAYLOAD_DYLIB  "/usr/lib/SBInject.dylib"
+#define TWEAKLOADER_DYLIB  "/usr/lib/TweakLoader.dylib"
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
-    "com.apple.ReportCrash",        // crash reporting
-    "com.apple.WebKit",             // O.o
+    "com.apple.WebKit",             // O_o
     "MTLCompilerService",           // ?_?
     "OTAPKIAssetTool",              // h_h
     "cfprefsd",                     // o_o
@@ -105,7 +104,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             }
         }
     } else if (current_process == PROCESS_XPCPROXY) {
-        inject_me = SBINJECT_PAYLOAD_DYLIB;
+        inject_me = TWEAKLOADER_DYLIB;
     }
     
     if (inject_me == NULL) {
