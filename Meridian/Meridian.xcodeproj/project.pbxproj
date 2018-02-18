@@ -507,7 +507,7 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -537,7 +537,7 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;

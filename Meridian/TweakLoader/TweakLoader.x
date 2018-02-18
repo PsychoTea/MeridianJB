@@ -202,44 +202,42 @@ BOOL safeMode = false;
 __attribute__ ((constructor))
 static void ctor(void) {
     @autoreleasepool {
-        if (NSBundle.mainBundle.bundleIdentifier == nil) {
-            safeMode = false;
-            NSString *processName = [[NSProcessInfo processInfo] processName];
-            if ([processName isEqualToString:@"backboardd"] || [NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
-                struct sigaction action;
-                memset(&action, 0, sizeof(action));
-                action.sa_sigaction = &SpringBoardSigHandler;
-                action.sa_flags = SA_SIGINFO | SA_RESETHAND;
-                sigemptyset(&action.sa_mask);
+        safeMode = false;
+        NSString *processName = [[NSProcessInfo processInfo] processName];
+        if ([processName isEqualToString:@"backboardd"] || [NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
+            struct sigaction action;
+            memset(&action, 0, sizeof(action));
+            action.sa_sigaction = &SpringBoardSigHandler;
+            action.sa_flags = SA_SIGINFO | SA_RESETHAND;
+            sigemptyset(&action.sa_mask);
 
-                sigaction(SIGQUIT, &action, NULL);
-                sigaction(SIGILL, &action, NULL);
-                sigaction(SIGTRAP, &action, NULL);
-                sigaction(SIGABRT, &action, NULL);
-                sigaction(SIGEMT, &action, NULL);
-                sigaction(SIGFPE, &action, NULL);
-                sigaction(SIGBUS, &action, NULL);
-                sigaction(SIGSEGV, &action, NULL);
-                sigaction(SIGSYS, &action, NULL);
+            sigaction(SIGQUIT, &action, NULL);
+            sigaction(SIGILL, &action, NULL);
+            sigaction(SIGTRAP, &action, NULL);
+            sigaction(SIGABRT, &action, NULL);
+            sigaction(SIGEMT, &action, NULL);
+            sigaction(SIGFPE, &action, NULL);
+            sigaction(SIGBUS, &action, NULL);
+            sigaction(SIGSEGV, &action, NULL);
+            sigaction(SIGSYS, &action, NULL);
 
-                if (file_exist("/var/mobile/.safeMode")) {
-                    safeMode = true;
-                    if ([NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
-                        unlink("/var/mobile/.safeMode");
-                        NSLog(@"Entering Safe Mode!");
-                        %init(SafeMode);
-                    }
+            if (file_exist("/var/mobile/.safeMode")) {
+                safeMode = true;
+                if ([NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
+                    unlink("/var/mobile/.safeMode");
+                    NSLog(@"Entering Safe Mode!");
+                    %init(SafeMode);
                 }
             }
+        }
 
-            if (!safeMode){
-                for (NSString *dylib in generateDylibList()) {
-                    NSLog(@"Injecting %@ into %@", dylib, NSBundle.mainBundle.bundleIdentifier);
-                    void *dl = dlopen([dylib UTF8String], RTLD_LAZY | RTLD_GLOBAL);
+        if (!safeMode){
+            for (NSString *dylib in generateDylibList()) {
+                NSLog(@"Injecting %@ into %@", dylib, NSBundle.mainBundle.bundleIdentifier);
+                void *dl = dlopen([dylib UTF8String], RTLD_LAZY | RTLD_GLOBAL);
 
-                    if (dl == NULL) {
-                        NSLog(@"Injection failed: '%s'", dlerror());
-                    }
+                if (dl == NULL) {
+                    NSLog(@"Injection failed: '%s'", dlerror());
                 }
             }
         }
