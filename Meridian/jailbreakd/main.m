@@ -118,8 +118,10 @@ void *initThread(struct InitThreadArg *args) {
                             usleep(100);
                         }
                         
-                        setcsflagsandplatformize(PID);
-                        kill(PID, SIGCONT);
+                        int ret = setcsflagsandplatformize(PID);
+                        if (ret == 0) {
+                            kill(PID, SIGCONT);
+                        }
                     });
                     dispatch_release(queue);
                 }
