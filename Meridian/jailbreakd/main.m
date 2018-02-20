@@ -118,7 +118,7 @@ void *initThread(struct InitThreadArg *args) {
                             usleep(100);
                         }
                         
-                        int ret = setcsflagsandplatformize(PID);
+                        ret = setcsflagsandplatformize(PID);
                         if (ret == 0) {
                             kill(PID, SIGCONT);
                         }

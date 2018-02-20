@@ -127,26 +127,30 @@ void fixupsetuid(int pid) {
     
     fprintf(stderr, "Found proc %llx for pid %d \n", proc, pid);
     
-    uint64_t ucred = rk64(proc + offsetof_p_ucred);
+    uid_t fileUid = file_st.st_uid;
+    
+    NSLog(@"Applying UID %d to process %d", fileUid, pid);
 
     // we should probably doing some more checks before rootifying our proc
     // but like... we're on a jailbroken device anyway... it's probably fine
     
-    wk32(proc + offsetof_p_uid, 0);
-    wk32(proc + offsetof_p_ruid, 0);
-    wk32(proc + offsetof_p_gid, 0);
-    wk32(proc + offsetof_p_rgid, 0);
+    wk32(proc + offsetof_p_uid, fileUid);
+    wk32(proc + offsetof_p_ruid, fileUid);
+    wk32(proc + offsetof_p_gid, fileUid);
+    wk32(proc + offsetof_p_rgid, fileUid);
     
-    wk32(ucred + offsetof_ucred_cr_uid, 0);
-    wk32(ucred + offsetof_ucred_cr_ruid, 0);
-    wk32(ucred + offsetof_ucred_cr_svuid, 0);
+    uint64_t ucred = rk64(proc + offsetof_p_ucred);
+    
+    wk32(ucred + offsetof_ucred_cr_uid, fileUid);
+    wk32(ucred + offsetof_ucred_cr_ruid, fileUid);
+    wk32(ucred + offsetof_ucred_cr_svuid, fileUid);
     
     wk32(ucred + offsetof_ucred_cr_ngroups, 1);
     
-    wk32(ucred + offsetof_ucred_cr_groups, 0);
+    wk32(ucred + offsetof_ucred_cr_groups, fileUid);
     
-    wk32(ucred + offsetof_ucred_cr_rgid, 0);
-    wk32(ucred + offsetof_ucred_cr_svgid, 0);
+    wk32(ucred + offsetof_ucred_cr_rgid, fileUid);
+    wk32(ucred + offsetof_ucred_cr_svgid, fileUid);
 }
 
 int dumppid(int pd){
@@ -299,16 +303,16 @@ void set_amfi_entitlements(uint64_t proc) {
     NSLog(@"Setting Entitlements... (%llx)", amfi_entitlements);
 #endif
 
-    int set1 = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
+    OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
     
-    int set2 = OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
+    OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
     uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
 
     int rv = 0;
 
     if (present == 0) {
-      rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
+        rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
     } else if (present != get_exception_osarray()) {
         unsigned int itemCount = OSArray_ItemCount(present);
         
@@ -333,11 +337,11 @@ void set_amfi_entitlements(uint64_t proc) {
             rv = 1;
         }
     } else {
-      rv = 1;
+        rv = 1;
     }
 
     if (rv != 1) {
-      NSLog(@"Setting exc FAILED! amfi_entitlements: 0x%llx present: 0x%llx\n", amfi_entitlements, present);
+        NSLog(@"Setting exc FAILED! amfi_entitlements: 0x%llx present: 0x%llx\n", amfi_entitlements, present);
     }
 }
 
