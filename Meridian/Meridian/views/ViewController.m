@@ -75,9 +75,6 @@ bool jailbreak_has_run = false;
     
     // Load offsets
     if (load_offsets() != 0) {
-        [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
-        [self writeTextPlain:@"> You will need to find your own offsets."];
-        [self writeTextPlain:@"> Once found, send them to @iBSparkes on Twitter."];
         [self noOffsets];
         return;
     }
@@ -220,6 +217,10 @@ bool jailbreak_has_run = false;
     [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
     [self.goButton setEnabled:NO];
     self.goButton.alpha = 0.5;
+
+    [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
+    [self writeTextPlain:@"> You will need to find your own offsets."];
+    [self writeTextPlain:@"> Once found, send them to @iBSparkes on Twitter."];
 }
 
 - (void)doUpdateCheck {
