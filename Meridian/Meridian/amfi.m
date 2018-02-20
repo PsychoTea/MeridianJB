@@ -121,6 +121,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     
     if (fd == NULL) {
         NSLog(@"[amfi] couldn't open file %s", file_path);
+        fclose(fd);
         return NULL;
     }
     
@@ -130,6 +131,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     
     if (file_off > file_len){
         NSLog(@"[amfi] file offset greater than length");
+        fclose(fd);
         return NULL;
     }
     
@@ -157,11 +159,13 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         ncmds = mh64.ncmds;
     } else {
         NSLog(@"[amfi] your magic is not valid in these lands! %ux", magic);
+        fclose(fd);
         return NULL;
     }
     
     if (off > file_len) {
         NSLog(@"[amfi] unexpected end of file");
+        fclose(fd);
         return NULL;
     }
     
@@ -170,6 +174,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     for (int i = 0; i < ncmds; i++) {
         if (off + sizeof(struct load_command) > file_len) {
             NSLog(@"[amfi] unexpected end of file");
+            fclose(fd);
             return NULL;
         }
         
@@ -184,6 +189,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
             
             if (off_cs + file_off + size_cs > file_len) {
                 NSLog(@"[amfi] unexpected end of file");
+                fclose(fd);
                 return NULL;
             }
             
@@ -195,12 +201,14 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
             off += cmd.cmdsize;
             if (off > file_len) {
                 NSLog(@"[amfi] unexpected end of file");
+                fclose(fd);
                 return NULL;
             }
         }
     }
     
     NSLog(@"[amfi] couldn't find the code sig for %s", file_path);
+    fclose(fd);
     return NULL;
 }
 
