@@ -84,7 +84,6 @@
 		B58581C3200436AB00295515 /* DRMController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRMController.m; sourceTree = "<group>"; };
 		B58581C52004372E00295515 /* DRMController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRMController.h; sourceTree = "<group>"; };
 		B589517E201D07DB002E0EAD /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
-		B5895180201D07EC002E0EAD /* binpack_creator */ = {isa = PBXFileReference; lastKnownFileType = folder; path = binpack_creator; sourceTree = "<group>"; };
 		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
@@ -136,7 +135,6 @@
 				B59532701FFE2B5000022CEE /* LICENSE */,
 				B59532711FFE2B5000022CEE /* README.md */,
 				B589517E201D07DB002E0EAD /* amfid */,
-				B5895180201D07EC002E0EAD /* binpack_creator */,
 				B5895182201D07FD002E0EAD /* injector */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
 				B506AEC120349CBE00C7D260 /* libjailbreak */,
