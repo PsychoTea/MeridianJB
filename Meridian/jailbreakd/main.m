@@ -20,6 +20,8 @@
 #define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
 int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
+#define JAILBREAKD_CLOSE_CONNECTION 0
+
 #define JAILBREAKD_COMMAND_ENTITLE 1
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
@@ -73,6 +75,8 @@ void *initThread(struct InitThreadArg *args) {
     int set = 1;
     setsockopt(args->clientFd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
     
+    int shouldClose = 0;
+    
     char buf[1024];
     
     while (true) {
@@ -91,6 +95,11 @@ void *initThread(struct InitThreadArg *args) {
                 }
                 
                 char *name = proc_name(packet->Pid);
+                
+                if (packet->Command == JAILBREAKD_CLOSE_CONNECTION) {
+                    NSLog(@"JAILBREAKD_CLOSE_CONNECTION PID: %d NAME: %s", packet->Pid, name);
+                    shouldClose = 1;
+                }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE) {
                     NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", packet->Pid, name);
@@ -152,7 +161,9 @@ void *initThread(struct InitThreadArg *args) {
         }
     }
     
-    close(args->clientFd);
+    if (shouldClose == 1) {
+        close(args->clientFd);
+    }
     
     threadCount--;
     
