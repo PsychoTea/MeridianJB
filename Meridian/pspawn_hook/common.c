@@ -146,8 +146,7 @@ void calljailbreakd(pid_t pid, uint8_t command, int wait) {
 //    }
 }
 
-void closejailbreakfd(pid_t pid) {
-    calljailbreakd(pid, JAILBREAKD_CLOSE_CONNECTION, 1);
+void closejailbreakfd() {
     close(jailbreakd_sockfd);
     jailbreakd_sockfd = -1;
 }
