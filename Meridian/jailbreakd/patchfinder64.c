@@ -465,11 +465,6 @@ init_kernel(addr_t base, const char *filename)
 #define close(f)
     rv = kread(base, buf, sizeof(buf));
 
-    for (int i = 0; i < 10; i++){
-        printf("0x%x ", buf[i]);
-    }
-    printf("\n");
-
     if (rv != sizeof(buf)) {
         return -1;
     }
@@ -597,7 +592,6 @@ init_kernel(addr_t base, const char *filename)
             if (!kernel_mh) {
                 kernel_mh = kernel + seg->vmaddr - min;
             }
-			printf("%s\n", seg->segname);
             if (!strcmp(seg->segname, "__LINKEDIT")) {
                 kernel_delta = seg->vmaddr - min - seg->fileoff;
             }
