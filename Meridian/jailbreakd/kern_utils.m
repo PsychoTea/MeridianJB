@@ -61,7 +61,7 @@ uint64_t proc_find(int pd, int tries) {
 char *proc_name(int pd) {
     uint64_t proc = proc_find(pd, 1);
     if (proc == 0) {
-        return "";
+        return NULL;
     }
     
     char *proc_name = (char *)calloc(40, sizeof(char));
