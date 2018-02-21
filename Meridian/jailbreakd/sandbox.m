@@ -60,7 +60,7 @@ uint64_t extension_create_file(const char* path, uint64_t nextptr) {
     size_t slen = strlen(path);
     
     if (path[slen - 1] == '/') {
-        fprintf(stderr, "No traling slash in path pls\n");
+        fprintf(stderr, "No traling slash in path pls \n");
         return 0;
     }
     

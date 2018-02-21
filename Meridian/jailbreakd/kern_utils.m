@@ -241,55 +241,60 @@ void set_csblob(uint64_t proc) {
 }
 
 const char* abs_path_exceptions[] = {
-  "/meridian",
-  "/Library",
-  // XXX there's some weird stuff about linking and special
-  // handling for /private/var/mobile/* in sandbox
-  "/private/var/mobile/Library",
-  NULL
+    "/meridian",
+    "/Library",
+    "/private/var/mobile/Library",
+    "/private/var/mnt",
+    NULL
 };
 
 uint64_t get_exception_osarray(void) {
-  static uint64_t cached = 0;
+    static uint64_t cached = 0;
 
-  if (cached == 0) {
-    // XXX use abs_path_exceptions
-    cached = OSUnserializeXML("<array>"
-    "<string>/meridian/</string>"
-    "<string>/Library/</string>"
-    "<string>/private/var/mobile/Library/</string>"
-    "</array>");
-  }
+    if (cached == 0) {
+        cached = OSUnserializeXML(
+            "<array>"
+            "<string>/meridian/</string>"
+            "<string>/Library/</string>"
+            "<string>/private/var/mobile/Library/</string>"
+            "<string>/private/var/mnt/</string>"
+            "</array>"
+        );
+    }
 
-  return cached;
+    return cached;
 }
 
 static const char *exc_key = "com.apple.security.exception.files.absolute-path.read-only";
 
 void set_sandbox_extensions(uint64_t proc) {
-  uint64_t proc_ucred = rk64(proc + 0x100);
-  uint64_t sandbox = rk64(rk64(proc_ucred + 0x78) + 8 + 8);
+    uint64_t proc_ucred = rk64(proc + 0x100);
+    uint64_t sandbox = rk64(rk64(proc_ucred + 0x78) + 0x8 + 0x8);
 
-  if (sandbox == 0) {
-    return;
-  }
-
-  if (has_file_extension(sandbox, abs_path_exceptions[0])) {
-    return;
-  }
-
-  uint64_t ext = 0;
-  const char** path = abs_path_exceptions;
-  while (*path != NULL) {
-    ext = extension_create_file(*path, ext);
-    if (ext == 0) {
+    if (sandbox == 0) {
+        fprintf(stderr, "no sandbox, skipping \n");
+        return;
     }
-    ++path;
-  }
+
+    if (has_file_extension(sandbox, abs_path_exceptions[0])) {
+        fprintf(stderr, "already has '%s', skipping \n", abs_path_exceptions[0]);
+        return;
+    }
+
+    uint64_t ext = 0;
+    const char** path = abs_path_exceptions;
+    while (*path != NULL) {
+        ext = extension_create_file(*path, ext);
+        if (ext == 0) {
+            fprintf(stderr, "extension_create_file(%s) failed, panic! \n", *path);
+            NSLog(@"extension_create_file(%s) failed, panic!", path);
+        }
+        ++path;
+    }
     
-  if (ext != 0) {
-    extension_add(ext, sandbox, exc_key);
-  }
+    if (ext != 0) {
+        extension_add(ext, sandbox, exc_key);
+    }
 }
 
 void set_amfi_entitlements(uint64_t proc) {
@@ -355,6 +360,6 @@ int setcsflagsandplatformize(int pid){
     set_csflags(proc);
     set_amfi_entitlements(proc);
     set_sandbox_extensions(proc);
-    set_csblob(proc);
+    // set_csblob(proc);
     return 0;
 }
