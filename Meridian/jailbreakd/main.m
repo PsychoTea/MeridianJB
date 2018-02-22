@@ -79,6 +79,8 @@ void *initThread(struct InitThreadArg *args) {
         bzero(buf, 1024);
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
         
+        // Just a test
+        
         if (!bytesRead) continue;
         
         int bytesProcessed = 0;
