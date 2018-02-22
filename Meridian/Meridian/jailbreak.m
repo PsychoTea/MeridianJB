@@ -66,8 +66,7 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // extract bootstrap (if not already extracted)
-    // if (file_exists("/meridian/.bootstrap") != 0) {
-    if (true) {
+    if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
         ret = extractBootstrap();
         
@@ -210,9 +209,6 @@ int extractBootstrap() {
     rv = extract_bundle_tar("meridian-base.tar");
     if (rv != 0) return 1;
     
-    unlink("/meridian/tar");
-    return 0;
-    
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");
     if (rv != 0) return 2;
@@ -225,17 +221,14 @@ int extractBootstrap() {
     // if dpkg is already installed (previously jailbroken), we want to move the database
     // over to the new location, rather than replacing it. this allows users to retain
     // tweaks and installed package information
-    struct stat file;
-    lstat("/private/var/lib/dpkg", &file);
-    if (!S_ISLNK(file.st_mode)) {
-        [fileMgr removeItemAtPath:@"/Library/dpkg" error:nil];
+    if (file_exists("/private/var/lib/dpkg/status")) { // if pre-existing db, move to /Library
         [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
-    } else {
-        // extract dpkgdb-base.tar
-        rv = extract_bundle_tar("dpkgdb-base.tar");
-        if (rv != 0) return 4;
+    } else if (!file_exists("/Library/dpkg/status")) { // doubly ensure Meridian db doesn't exist before overwriting
+        rv = extract_bundle_tar("dpkgdb-base.tar"); // extract new db to /Library
+        if (rv != 0) return rv;
     }
-    symlink("/Library/dpkg", "/private/var/lib/dpkg");
+    [fileMgr removeItemAtPath:@"/private/var/lib/dpkg" error:nil]; // remove old /var folder if exists for any reason
+    symlink("/Library/dpkg", "/private/var/lib/dpkg"); // symlink vanilla folder to new /Library install
     
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
