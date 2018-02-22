@@ -140,10 +140,10 @@ void calljailbreakd(pid_t pid, uint8_t command, int wait) {
         }
     }
     
-//    if (wait == 1) {
-//        bzero(buf, 1024);
-//        recv(jailbreakd_sockfd, &buf, sizeof(struct RESPONSE_PACKET), 0);
-//    }
+    if (wait == 1) {
+        bzero(buf, 1024);
+        recv(jailbreakd_sockfd, &buf, sizeof(struct RESPONSE_PACKET), 0);
+    }
 }
 
 void closejailbreakfd() {

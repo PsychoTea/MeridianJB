@@ -131,19 +131,19 @@ void *initThread(struct InitThreadArg *args) {
                     fixupsetuid(packet->Pid);
                 }
                 
-//                if (packet->Wait == 1) {
-//                    bzero(buf, 1024);
-//
-//                    struct RESPONSE_PACKET responsePacket;
-//                    responsePacket.Response = 0;
-//                    memcpy(buf, &responsePacket, sizeof(responsePacket));
-//
-//                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-//                    if (sent < 0) {
-//                        NSLog(@"Failed to send wait message, trying again...");
-//                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-//                    }
-//                }
+                if (packet->Wait == 1) {
+                    bzero(buf, 1024);
+
+                    struct RESPONSE_PACKET responsePacket;
+                    responsePacket.Response = 0;
+                    memcpy(buf, &responsePacket, sizeof(responsePacket));
+
+                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+                    if (sent < 0) {
+                        NSLog(@"Failed to send wait message, trying again...");
+                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
+                    }
+                }
                 
                 free(name);
             }
