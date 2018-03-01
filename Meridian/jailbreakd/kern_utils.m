@@ -130,27 +130,24 @@ void fixupsetuid(int pid) {
     uid_t fileUid = file_st.st_uid;
     
     NSLog(@"Applying UID %d to process %d", fileUid, pid);
-
-    // we should probably doing some more checks before rootifying our proc
-    // but like... we're on a jailbroken device anyway... it's probably fine
     
-    wk32(proc + offsetof_p_uid, fileUid);
-    wk32(proc + offsetof_p_ruid, fileUid);
-    wk32(proc + offsetof_p_gid, fileUid);
-    wk32(proc + offsetof_p_rgid, fileUid);
+    wk32(proc + offsetof_p_uid, fileUid); // safe
+    wk32(proc + offsetof_p_ruid, fileUid); // safe
+    // wk32(proc + offsetof_p_gid, fileUid); // leaving the gid stuff incase i need to change that too
+    // wk32(proc + offsetof_p_rgid, fileUid);
     
     uint64_t ucred = rk64(proc + offsetof_p_ucred);
     
-    wk32(ucred + offsetof_ucred_cr_uid, fileUid);
-    wk32(ucred + offsetof_ucred_cr_ruid, fileUid);
-    wk32(ucred + offsetof_ucred_cr_svuid, fileUid);
+    wk32(ucred + offsetof_ucred_cr_uid, fileUid); // safe
+    // wk32(ucred + offsetof_ucred_cr_ruid, fileUid); // i think this is the unsafe one causing the panic
+    wk32(ucred + offsetof_ucred_cr_svuid, fileUid); // safe
     
-    wk32(ucred + offsetof_ucred_cr_ngroups, 1);
+    // wk32(ucred + offsetof_ucred_cr_ngroups, 1);
     
-    wk32(ucred + offsetof_ucred_cr_groups, fileUid);
+    // wk32(ucred + offsetof_ucred_cr_groups, fileUid);
     
-    wk32(ucred + offsetof_ucred_cr_rgid, fileUid);
-    wk32(ucred + offsetof_ucred_cr_svgid, fileUid);
+    // wk32(ucred + offsetof_ucred_cr_rgid, fileUid);
+    // wk32(ucred + offsetof_ucred_cr_svgid, fileUid);
 }
 
 int dumppid(int pd){
