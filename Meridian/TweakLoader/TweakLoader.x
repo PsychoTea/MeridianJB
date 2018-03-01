@@ -233,7 +233,6 @@ static void ctor(void) {
 
         if (!safeMode){
             for (NSString *dylib in generateDylibList()) {
-                NSLog(@"Injecting %@ into %@", dylib, NSBundle.mainBundle.bundleIdentifier);
                 void *dl = dlopen([dylib UTF8String], RTLD_LAZY | RTLD_GLOBAL);
 
                 if (dl == NULL) {
