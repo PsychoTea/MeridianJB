@@ -40,7 +40,7 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"failed!"];
         return 1;
     }
-    [view writeText:@"succeeded! praize siguza!"];
+    [view writeTextPlain:@"succeeded! praize siguza!"];
     
     // set up stuff
     init_kernel(tfp0);
@@ -57,7 +57,7 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // remount root fs
-    [view writeText:@"remount rootfs as r/w..."];
+    [view writeText:@"remounting rootfs as r/w..."];
     ret = remountRootFs();
     if (ret != 0) {
         [view writeText:@"failed!"];
@@ -73,18 +73,25 @@ int makeShitHappen(ViewController *view) {
         if (ret != 0) {
             [view writeText:@"failed!"];
             
-            if (ret == 1) {
-                [view writeTextPlain:@"failed to extract meridian-base.tar"];
-            } else if (ret == 2) {
-                [view writeTextPlain:@"failed to extract system-base.tar"];
-            } else if (ret == 3) {
-                [view writeTextPlain:@"failed to extract installer-base.tar"];
-            } else if (ret == 4) {
-                [view writeTextPlain:@"failed to extract dpkgdb-base.tar"];
-            } else if (ret == 5) {
-                [view writeTextPlain:@"failed to extract cydia-base.tar"];
-            } else if (ret == 6) {
-                [view writeTextPlain:@"failed to extract optional-base.tar"];
+            switch (ret) {
+                case 1:
+                    [view writeTextPlain:@"failed to extract meridian-base.tar"];
+                    break;
+                case 2:
+                    [view writeTextPlain:@"failed to extract system-base.tar"];
+                    break;
+                case 3:
+                    [view writeTextPlain:@"failed to extract installer-base.tar"];
+                    break;
+                case 4:
+                    [view writeTextPlain:@"failed to extract dpkgdb-base.tar"];
+                    break;
+                case 5:
+                    [view writeTextPlain:@"failed to extract cydia-base.tar"];
+                    break;
+                case 6:
+                    [view writeTextPlain:@"failed to extract optional-base.tar"];
+                    break;
             }
             
             return 1;
@@ -221,9 +228,9 @@ int extractBootstrap() {
     // if dpkg is already installed (previously jailbroken), we want to move the database
     // over to the new location, rather than replacing it. this allows users to retain
     // tweaks and installed package information
-    if (file_exists("/private/var/lib/dpkg/status")) { // if pre-existing db, move to /Library
+    if (file_exists("/private/var/lib/dpkg/status") == 0) { // if pre-existing db, move to /Library
         [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
-    } else if (!file_exists("/Library/dpkg/status")) { // doubly ensure Meridian db doesn't exist before overwriting
+    } else if (file_exists("/Library/dpkg/status") != 0) { // doubly ensure Meridian db doesn't exist before overwriting
         rv = extract_bundle_tar("dpkgdb-base.tar"); // extract new db to /Library
         if (rv != 0) return rv;
     }
