@@ -43,6 +43,10 @@ int jailbreakd_sockfd = -1;
 pid_t jailbreakd_pid = 0;
 
 void openjailbreakdsocket() {
+    if (jailbreakd_sockfd != -1) {
+        closejailbreakfd();
+    }
+    
     const char *hostname = "127.0.0.1";
     int portno = 5;
     
