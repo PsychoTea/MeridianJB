@@ -57,13 +57,13 @@ int is_valid_command(uint8_t command) {
             command == JAILBREAKD_COMMAND_FIXUP_SETUID);
 }
 
-struct InitThreadArg {
+struct ConnThreadArg {
     int clientFd;
 };
 
 int threadCount = 0;
 
-void *initThread(struct InitThreadArg *args) {
+void *connection_thread(struct ConnThreadArg *args) {
     int yes = 1;
     setsockopt(args->clientFd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(int));
     
@@ -79,7 +79,7 @@ void *initThread(struct InitThreadArg *args) {
         bzero(buf, 1024);
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
         
-        if (!bytesRead) continue;
+        if (bytesRead <= 0) break;
         
         int bytesProcessed = 0;
         while (bytesProcessed < bytesRead) {
@@ -207,13 +207,13 @@ int launch_server() {
             continue;
         }
         
-        struct InitThreadArg args;
+        struct ConnThreadArg args;
         args.clientFd = clientFd;
         
         pthread_t thread;
-        int err = pthread_create(&thread, NULL, (void *(*)(void *))&initThread, &args);
+        int err = pthread_create(&thread, NULL, (void *(*)(void *))&connection_thread, &args);
         if (err != 0) {
-            NSLog(@"Unable to create thread.");
+            NSLog(@"Unable to create thread. Error: %d, threads: %d", err, threadCount);
             pthread_detach(thread);
         }
         
@@ -253,5 +253,5 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
     
     int ret = launch_server();
-    exit(ret);
+    return ret;
 }
