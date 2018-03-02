@@ -13,6 +13,7 @@ int makeShitHappen(id view);
 int runV0rtex(void);
 int patchContainermanagerd(void);
 int remountRootFs(void);
+int extractMeridianData(void);
 int extractBootstrap(void);
 int launchDropbear(void);
 void setUpSubstitute(void);

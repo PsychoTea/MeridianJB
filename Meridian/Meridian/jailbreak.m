@@ -65,6 +65,15 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    // extract meridian-base
+    [view writeText:@"extracting meridian files..."];
+    ret = extractMeridianData();
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        return 1;
+    }
+    [view writeText:@"done!"];
+    
     // extract bootstrap (if not already extracted)
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
@@ -75,22 +84,22 @@ int makeShitHappen(ViewController *view) {
             
             switch (ret) {
                 case 1:
-                    [view writeTextPlain:@"failed to extract meridian-base.tar"];
-                    break;
-                case 2:
                     [view writeTextPlain:@"failed to extract system-base.tar"];
                     break;
-                case 3:
+                case 2:
                     [view writeTextPlain:@"failed to extract installer-base.tar"];
                     break;
-                case 4:
+                case 3:
                     [view writeTextPlain:@"failed to extract dpkgdb-base.tar"];
                     break;
-                case 5:
+                case 4:
                     [view writeTextPlain:@"failed to extract cydia-base.tar"];
                     break;
-                case 6:
+                case 5:
                     [view writeTextPlain:@"failed to extract optional-base.tar"];
+                    break;
+                case 6:
+                    [view writeTextPlain:@"failed to run uicache!"];
                     break;
             }
             
@@ -198,31 +207,20 @@ int remountRootFs() {
     return 0;
 }
 
+int extractMeridianData() {
+    return extract_bundle_tar("meridian-base.tar");
+}
+
 int extractBootstrap() {
     int rv;
     
-    // merk old /meridian folder
-    [fileMgr removeItemAtPath:@"/meridian" error:nil];
-    
-    mkdir("/meridian", 0755);
-    mkdir("/meridian/logs", 0755);
-    
-    // extract tar
-    extract_bundle("tar.tar", "/meridian");
-    chmod("/meridian/tar", 0755);
-    inject_trust("/meridian/tar");
-    
-    // extract meridian-base.tar
-    rv = extract_bundle_tar("meridian-base.tar");
-    if (rv != 0) return 1;
-    
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");
-    if (rv != 0) return 2;
+    if (rv != 0) return 1;
     
     // extract installer-base.tar
     rv = extract_bundle_tar("installer-base.tar");
-    if (rv != 0) return 3;
+    if (rv != 0) return 2;
     
     // set up dpkg database
     // if dpkg is already installed (previously jailbroken), we want to move the database
@@ -232,33 +230,27 @@ int extractBootstrap() {
         [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
     } else if (file_exists("/Library/dpkg/status") != 0) { // doubly ensure Meridian db doesn't exist before overwriting
         rv = extract_bundle_tar("dpkgdb-base.tar"); // extract new db to /Library
-        if (rv != 0) return rv;
+        if (rv != 0) return 3;
     }
     [fileMgr removeItemAtPath:@"/private/var/lib/dpkg" error:nil]; // remove old /var folder if exists for any reason
     symlink("/Library/dpkg", "/private/var/lib/dpkg"); // symlink vanilla folder to new /Library install
     
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
-    if (rv != 0) return 5;
+    if (rv != 0) return 4;
     
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");
-    if (rv != 0) return 6;
-    
-    unlink("/meridian/tar");
+    if (rv != 0) return 5;
     
     inject_trust("/usr/bin/killall");
     enableHiddenApps();
     
     touch_file("/meridian/.bootstrap");
     
-    //            inject_trust("/bin/uicache");
-    //            rv = uicache();
-    //            if (rv != 0) {
-    //                [self writeText:@"failed!"];
-    //                [self writeTextPlain:[NSString stringWithFormat:@"uicache returned %d", rv]];
-    //                return 1;
-    //            }
+    inject_trust("/bin/uicache");
+    rv = uicache();
+    if (rv != 0) return 6;
     
     return 0;
 }
