@@ -10,6 +10,7 @@
 #include "ViewController.h"
 #include "kernel.h"
 #include "untar.h"
+#include "amfi.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
@@ -242,6 +243,12 @@ void extract_bundle(const char* bundle_name, const char* directory) {
 }
 
 int extract_bundle_tar(const char *bundle_name) {
+    if (file_exists("/meridian/tar") != 0) {
+        extract_bundle("tar.tar", "/meridian");
+        chmod("/meridian/tar", 0755);
+    }
+    inject_trust("/meridian/tar");
+    
     return execprog("/meridian/tar", (const char **)&(const char*[]) {
         "/meridian/tar",
         "--preserve-permissions",
