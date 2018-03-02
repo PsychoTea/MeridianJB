@@ -76,6 +76,7 @@ void openjailbreakdsocket() {
         close(sock);
     }
     jailbreakd_sockfd = sock;
+    DEBUGLOG("Successfully connected on socket %d", jailbreakd_sockfd);
     
     int fd = open("/var/tmp/jailbreakd.pid", O_RDONLY, 0600);
     if (fd < 0) {
@@ -89,6 +90,8 @@ void openjailbreakdsocket() {
 }
 
 void calljailbreakd(pid_t pid, uint8_t command, int wait) {
+    DEBUGLOG("calljailbreakd(pid: %d, command: %d, wait: %d)", pid, command, wait);
+    
     if (jailbreakd_sockfd == -1) {
         openjailbreakdsocket();
     }
@@ -126,14 +129,14 @@ void calljailbreakd(pid_t pid, uint8_t command, int wait) {
     memcpy(buf, &entitlePacket, sizeof(entitlePacket));
     
     int bytesSent = send(jailbreakd_sockfd, buf, sizeof(struct JAILBREAKD_PACKET), 0);
-    DEBUGLOG("Sent %d bytes", bytesSent);
+    DEBUGLOG("Sent %d bytes on %d", bytesSent, jailbreakd_sockfd);
     if (bytesSent < 0) {
         DEBUGLOG("Server probably disconnected. Trying again...");
         
         closejailbreakfd();
         openjailbreakdsocket();
         
-        if (jailbreakd_sockfd == -1){
+        if (jailbreakd_sockfd == -1) {
             DEBUGLOG("Server not connected. Giving up...");
             return;
         }
@@ -146,7 +149,9 @@ void calljailbreakd(pid_t pid, uint8_t command, int wait) {
     
     if (wait == 1) {
         bzero(buf, 1024);
+        DEBUGLOG("Waiting for a response...");
         recv(jailbreakd_sockfd, &buf, sizeof(struct RESPONSE_PACKET), 0);
+        DEBUGLOG("Got a response.");
     }
 }
 
