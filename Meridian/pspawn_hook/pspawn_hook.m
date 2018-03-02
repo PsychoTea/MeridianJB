@@ -18,8 +18,8 @@
 #include "fishhook.h"
 #include "common.h"
 
-#define LAUNCHD_LOG_PATH "/tmp/pspawn_hook_launchd.log"
-#define XPCPROXY_LOG_PATH "/tmp/pspawn_hook_xpcproxy.log"
+#define LAUNCHD_LOG_PATH    "/tmp/pspawn_hook_launchd.log"
+#define XPCPROXY_LOG_PATH   "/tmp/pspawn_hook_xpcproxy.log"
 FILE *log_file;
 #define DEBUGLOG(fmt, args...)                                      \
 do {                                                                \
@@ -40,8 +40,8 @@ enum CurrentProcess {
 
 int current_process = PROCESS_XPCPROXY;
 
-#define PSPAWN_HOOK_DYLIB       "/meridian/pspawn_hook.dylib"
-#define TWEAKLOADER_DYLIB  "/usr/lib/TweakLoader.dylib"
+#define PSPAWN_HOOK_DYLIB   "/meridian/pspawn_hook.dylib"
+#define TWEAKLOADER_DYLIB   "/usr/lib/TweakLoader.dylib"
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
@@ -53,12 +53,10 @@ const char* xpcproxy_blacklist[] = {
     NULL
 };
 
-bool is_blacklisted(char* proc) {
+bool is_blacklisted(const char* proc) {
     const char **blacklist = xpcproxy_blacklist;
     
     while (*blacklist) {
-        // i think this should be strcmp, but stek
-        // tells me it should be strstr, so i take his word :)
         if (strstr(proc, *blacklist)) {
             return true;
         }
@@ -97,11 +95,9 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         // let's check the blacklist, we don't wanna be
         // injecting into certain procs, yano
         const char* called_bin = argv[1];
-        if (called_bin != NULL) {
-            if (is_blacklisted(called_bin)) {
-                inject_me = NULL;
-                DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
-            }
+        if (called_bin != NULL && is_blacklisted(called_bin)) {
+            inject_me = NULL;
+            DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
         }
     } else if (current_process == PROCESS_XPCPROXY) {
         inject_me = TWEAKLOADER_DYLIB;
