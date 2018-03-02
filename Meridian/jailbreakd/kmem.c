@@ -114,13 +114,23 @@ int kstrcmp(uint64_t kstr, const char* str) {
 	char *local = malloc(len + 1);
 	local[len] = '\0';
 
+    fprintf(stderr, "kstrcmp(0x%llx, %s) (len == 0x%zx)\n", kstr, str, len);
+    fflush(stderr);
+    usleep(300);
+    
 	int ret = 1;
-
+    
 	if (kread(kstr, local, len) == len) {
 		ret = strcmp(local, str);
 	}
+    
+    fprintf(stderr, "did the kread\n");
+    fflush(stderr);
 
 	free(local);
 
+    fprintf(stderr, "free'd it \n");
+    fflush(stderr);
+    
 	return ret;
 }

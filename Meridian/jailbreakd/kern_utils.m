@@ -350,7 +350,7 @@ void set_amfi_entitlements(uint64_t proc) {
 int setcsflagsandplatformize(int pid){
     uint64_t proc = proc_find(pid, 3);
     if (proc == 0) {
-        NSLog(@"Unable to fnd pid %d to entitle!", pid);
+        NSLog(@"Unable to find pid %d to entitle!", pid);
         return 1;
     }
     

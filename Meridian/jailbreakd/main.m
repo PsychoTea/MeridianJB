@@ -77,7 +77,13 @@ void *connection_thread(struct ConnThreadArg *args) {
     
     while (true) {
         bzero(buf, 1024);
+        NSLog(@"Waiting to recieve some bytes from %d...", args->clientFd);
         int bytesRead = recv(args->clientFd, buf, 1024, 0);
+        NSLog(@"Recieved some bytes (%d) from %d", bytesRead, args->clientFd);
+        
+        if (bytesRead == -1) {
+            NSLog(@"ERROR FROM RECV: %s (%d)", strerror(errno), errno);
+        }
         
         if (bytesRead <= 0) break;
         
@@ -88,23 +94,24 @@ void *connection_thread(struct ConnThreadArg *args) {
                 
                 if (!is_valid_command(packet->Command)) {
                     NSLog(@"Invalid command recieved.");
+                    break;
                 }
                 
                 char *name = proc_name(packet->Pid);
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", packet->Pid, name);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
                     setcsflagsandplatformize(packet->Pid);
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", packet->Pid, name);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
                     setcsflagsandplatformize(packet->Pid);
                     kill(packet->Pid, SIGCONT);
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", packet->Pid, name);
+                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
                     __block int PID = packet->Pid;
                     
                     dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
@@ -118,16 +125,15 @@ void *connection_thread(struct ConnThreadArg *args) {
                             usleep(100);
                         }
                         
-                        ret = setcsflagsandplatformize(PID);
-                        if (ret == 0) {
-                            kill(PID, SIGCONT);
-                        }
+                        setcsflagsandplatformize(PID);
+                        kill(PID, SIGCONT);
+                        NSLog(@"Called SIGCONT on pid %d from ENTITLE_AND_SIGCONT_FROM_XPCPROXY", PID);
                     });
                     dispatch_release(queue);
                 }
                 
                 if (packet->Command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", packet->Pid, name);
+                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
                     fixupsetuid(packet->Pid);
                 }
                 
@@ -152,6 +158,7 @@ void *connection_thread(struct ConnThreadArg *args) {
         }
     }
     
+    NSLog(@"Closed the connection with %d", args->clientFd);
     close(args->clientFd);
     
     threadCount--;
@@ -200,7 +207,9 @@ int launch_server() {
     socklen_t clientlen = sizeof(clientaddr);
     
     while (true) {
+        NSLog(@"Waiting to accept a connection...");
         int clientFd = accept(listenFd, (struct sockaddr *)&clientaddr, &clientlen);
+        NSLog(@"Accepted a new connection from %d", clientFd);
         
         if (clientFd < 0) {
             NSLog(@"Unable to accept.");
