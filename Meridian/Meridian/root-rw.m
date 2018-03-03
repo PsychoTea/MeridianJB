@@ -56,12 +56,16 @@ bool fix_root_iswriteprotected() {
     uint64_t varp_iswp_addr = varp_kaddr + OFF_LWVMPART__ISWP;
     
     // Check we found the right values
-    if (rk64(varp_iswp_addr) != 0) {
-        NSLog(@"rk64(varp_iswp_addr) != 0!");
+    uint64_t varp_iswp = rk64(varp_iswp_addr);
+    if (varp_iswp != 0) {
+        NSLog(@"rk64(varp_iswp_addr) != 0! val: %llx", varp_iswp);
         return false;
     }
-    if (rk64(rootp_iswp_addr) != 1) {
-        NSLog(@"rk64(rootp_iswp_addr) != 1!");
+    
+    uint64_t rootp_iswp = rk64(rootp_iswp);
+    if (rootp_iswp != 1) {
+        NSLog(@"rk64(rootp_iswp_addr) != 1! val: %llx", rootp_iswp);
+        return false;
     }
     
     wk64(rootp_iswp_addr, 0);
