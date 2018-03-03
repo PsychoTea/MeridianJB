@@ -34,6 +34,7 @@
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D23C432002AC6600BF184C /* fucksigningservices.m */; };
+		B5F7CCD0204A29320051F4A7 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = B5F7CCCF204A29320051F4A7 /* LICENSE.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -86,7 +87,6 @@
 		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
-		B59532701FFE2B5000022CEE /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
@@ -95,6 +95,7 @@
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
 		B5D23C432002AC6600BF184C /* fucksigningservices.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fucksigningservices.m; sourceTree = "<group>"; };
 		B5D23C452002B0C600BF184C /* fucksigningservices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fucksigningservices.h; sourceTree = "<group>"; };
+		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,7 +132,7 @@
 		B514CC6D1FECD787005F4E6B = {
 			isa = PBXGroup;
 			children = (
-				B59532701FFE2B5000022CEE /* LICENSE */,
+				B5F7CCCF204A29320051F4A7 /* LICENSE.md */,
 				B59532711FFE2B5000022CEE /* README.md */,
 				B589517E201D07DB002E0EAD /* amfid */,
 				B5895182201D07FD002E0EAD /* injector */,
@@ -291,6 +292,7 @@
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
+				B5F7CCD0204A29320051F4A7 /* LICENSE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
