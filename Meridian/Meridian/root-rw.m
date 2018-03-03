@@ -62,7 +62,7 @@ bool fix_root_iswriteprotected() {
         return false;
     }
     
-    uint64_t rootp_iswp = rk64(rootp_iswp);
+    uint64_t rootp_iswp = rk64(rootp_iswp_addr);
     if (rootp_iswp != 1) {
         NSLog(@"rk64(rootp_iswp_addr) != 1! val: %llx", rootp_iswp);
         return false;
