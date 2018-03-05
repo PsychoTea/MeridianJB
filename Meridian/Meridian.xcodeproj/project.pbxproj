@@ -229,7 +229,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B514CC8C1FECD788005F4E6B /* Build configuration list for PBXNativeTarget "Meridian" */;
 			buildPhases = (
-				B502EF192027611100F761C2 /* Run Script */,
+				B502EF192027611100F761C2 /* ShellScript */,
 				B52C43BB200BCC920047B1B4 /* ShellScript */,
 				B514CC721FECD788005F4E6B /* Sources */,
 				B514CC731FECD788005F4E6B /* Frameworks */,
@@ -299,19 +299,18 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B502EF192027611100F761C2 /* Run Script */ = {
+		B502EF192027611100F761C2 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export THEOS=~/theos\n#export THEOS=/opt/theos\n\ncd $SRCROOT/TweakLoader\nmake\ncp .theos/obj/debug/TweakLoader.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\nlipo -thin arm64 TweakLoader.dylib -o TweakLoader.dylib";
+			shellScript = "export THEOS=/opt/theos\n\ncd $SRCROOT/TweakLoader\nmake\ncp .theos/obj/debug/TweakLoader.dylib .\n\nif [ -e .theos ]; then\n  rm -r .theos\nfi\n\nif [ -e ./obj ]; then\n  rm -r obj\nfi\n\nlipo -thin arm64 TweakLoader.dylib -o TweakLoader.dylib";
 		};
 		B52C43BB200BCC920047B1B4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -491,7 +490,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 23C653WLNB;
+				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
@@ -506,7 +505,7 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = net.sticktron.MeridianJB2;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -522,7 +521,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 23C653WLNB;
+				DEVELOPMENT_TEAM = 6EKJWC698P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
@@ -536,7 +535,7 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.sticktron.MeridianJB2;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
