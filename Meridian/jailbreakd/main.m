@@ -26,7 +26,7 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 #define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
 // Generic TCP packet
-// all jbd packets match this format
+// all packets sent to jbd should match this format
 struct __attribute__((__packed__)) JAILBREAKD_PACKET {
     uint8_t Command;
     int32_t Pid;
@@ -34,7 +34,7 @@ struct __attribute__((__packed__)) JAILBREAKD_PACKET {
 };
 
 // resposne packet
-// sent after request to notify it has been completed
+// sent after a request to jbd has been processed
 struct __attribute__((__packed__)) RESPONSE_PACKET {
     uint8_t Response;
 };
@@ -90,7 +90,7 @@ void *connection_thread(struct ConnThreadArg *args) {
         int bytesProcessed = 0;
         while (bytesProcessed < bytesRead) {
             if (bytesRead - bytesProcessed >= sizeof(struct JAILBREAKD_PACKET)) {
-                struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)(buf + bytesProcessed);
+                struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)buf;
                 
                 if (!is_valid_command(packet->Command)) {
                     NSLog(@"Invalid command recieved.");
@@ -158,7 +158,6 @@ void *connection_thread(struct ConnThreadArg *args) {
         }
     }
     
-    NSLog(@"Closed the connection with %d", args->clientFd);
     close(args->clientFd);
     
     threadCount--;
@@ -204,6 +203,11 @@ int launch_server() {
     
     NSLog(@"Server running!");
     
+    // Write pid file so Meridian.app knows we're running
+    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
+    fprintf(f, "%d\n", getpid());
+    fclose(f);
+    
     socklen_t clientlen = sizeof(clientaddr);
     
     while (true) {
@@ -235,12 +239,7 @@ int launch_server() {
 
 int main(int argc, char **argv, char **envp) {
     NSLog(@"[jailbreakd] Start");
-    
-    // Write pid file so Meridian.app knows we're running
     unlink("/var/tmp/jailbreakd.pid");
-    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
-    fprintf(f, "%d\n", getpid());
-    fclose(f);
     
     kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
     kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
