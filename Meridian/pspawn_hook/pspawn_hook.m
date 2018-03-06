@@ -172,7 +172,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     int origret;
     
     if (current_process == PROCESS_XPCPROXY) {
-        calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 0);
+        calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 1);
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     } else {
