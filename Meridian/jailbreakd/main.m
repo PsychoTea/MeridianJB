@@ -16,9 +16,14 @@
 #include "kern_utils.h"
 #include "kmem.h"
 #include "kexecute.h"
+#include "mach/jailbreak_daemonServer.h"
 
 #define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
 int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
+
+typedef boolean_t (*dispatch_mig_callback_t)(mach_msg_header_t *message, mach_msg_header_t *reply);
+mach_msg_return_t dispatch_mig_server(dispatch_source_t ds, size_t maxmsgsz, dispatch_mig_callback_t callback);
+kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service, mach_port_t *server_port);
 
 #define JAILBREAKD_COMMAND_ENTITLE 1
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
@@ -61,7 +66,54 @@ struct ConnThreadArg {
     int clientFd;
 };
 
-int threadCount = 0;
+void handle_command(uint8_t command, uint32_t pid) {
+    if (!is_valid_command(command)) {
+        NSLog(@"Invalid command recieved.");
+        return;
+    }
+    
+    char *name = proc_name(pid);
+    
+    if (command == JAILBREAKD_COMMAND_ENTITLE) {
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
+        setcsflagsandplatformize(pid);
+    }
+    
+    if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
+        setcsflagsandplatformize(pid);
+        kill(pid, SIGCONT);
+    }
+    
+    if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
+        __block int PID = pid;
+        
+        dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
+        dispatch_async(queue, ^{
+            char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+            bzero(pathbuf, sizeof(pathbuf));
+            
+            int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
+            while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
+                proc_pidpath(PID, pathbuf, sizeof(pathbuf));
+                usleep(100);
+            }
+            
+            setcsflagsandplatformize(PID);
+            kill(PID, SIGCONT);
+            NSLog(@"Called SIGCONT on pid %d from ENTITLE_AND_SIGCONT_FROM_XPCPROXY", PID);
+        });
+        dispatch_release(queue);
+    }
+    
+    if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
+        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", pid, name);
+        fixupsetuid(pid);
+    }
+    
+    free(name);
+}
 
 void *connection_thread(struct ConnThreadArg *args) {
     int yes = 1;
@@ -92,66 +144,21 @@ void *connection_thread(struct ConnThreadArg *args) {
             if (bytesRead - bytesProcessed >= sizeof(struct JAILBREAKD_PACKET)) {
                 struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)buf;
                 
-                if (!is_valid_command(packet->Command)) {
-                    NSLog(@"Invalid command recieved.");
-                    break;
-                }
-                
-                char *name = proc_name(packet->Pid);
-                
-                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
-                    setcsflagsandplatformize(packet->Pid);
-                }
-                
-                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
-                    setcsflagsandplatformize(packet->Pid);
-                    kill(packet->Pid, SIGCONT);
-                }
-                
-                if (packet->Command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-                    NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
-                    __block int PID = packet->Pid;
-                    
-                    dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
-                    dispatch_async(queue, ^{
-                        char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-                        bzero(pathbuf, sizeof(pathbuf));
-                        
-                        int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
-                        while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
-                            proc_pidpath(PID, pathbuf, sizeof(pathbuf));
-                            usleep(100);
-                        }
-                        
-                        setcsflagsandplatformize(PID);
-                        kill(PID, SIGCONT);
-                        NSLog(@"Called SIGCONT on pid %d from ENTITLE_AND_SIGCONT_FROM_XPCPROXY", PID);
-                    });
-                    dispatch_release(queue);
-                }
-                
-                if (packet->Command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-                    NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s CLIENT: %d", packet->Pid, name, args->clientFd);
-                    fixupsetuid(packet->Pid);
-                }
+                handle_command(packet->Command, packet->Pid);
                 
                 if (packet->Wait == 1) {
                     bzero(buf, 1024);
-
+                    
                     struct RESPONSE_PACKET responsePacket;
                     responsePacket.Response = 0;
                     memcpy(buf, &responsePacket, sizeof(responsePacket));
-
+                    
                     int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
                     if (sent < 0) {
                         NSLog(@"Failed to send wait message, trying again...");
                         sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
                     }
                 }
-                
-                free(name);
             }
             
             bytesProcessed += sizeof(struct JAILBREAKD_PACKET);
@@ -159,13 +166,12 @@ void *connection_thread(struct ConnThreadArg *args) {
     }
     
     close(args->clientFd);
-    
-    threadCount--;
+    free(buf);
     
     return NULL;
 }
 
-int launch_server() {
+void *launch_server(void *arg) {
     struct sockaddr_in serveraddr;
     struct sockaddr_in clientaddr;
     
@@ -226,18 +232,24 @@ int launch_server() {
         pthread_t thread;
         int err = pthread_create(&thread, NULL, (void *(*)(void *))&connection_thread, &args);
         if (err != 0) {
-            NSLog(@"Unable to create thread. Error: %d, threads: %d", err, threadCount);
+            NSLog(@"Unable to create thread. Error: %d", err);
             pthread_detach(thread);
         }
-        
-        threadCount++;
     }
     
     _exit(0);
     return 0;
 }
 
+kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
+    NSLog(@"[MIG] New call from %llx: command %x, pid %d", server_port, command, pid);
+    handle_command(command, pid);
+    return KERN_SUCCESS;
+}
+
 int main(int argc, char **argv, char **envp) {
+    kern_return_t err;
+    
     NSLog(@"[jailbreakd] Start");
     unlink("/var/tmp/jailbreakd.pid");
     
@@ -247,7 +259,7 @@ int main(int argc, char **argv, char **envp) {
     
     remove_memory_limit();
     
-    kern_return_t err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
+    err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
     if (err != KERN_SUCCESS) {
         NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
         return -1;
@@ -260,6 +272,25 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
     
-    int ret = launch_server();
-    return ret;
+    // launch TCP thread
+    pthread_t tcp_thread;
+    pthread_create(&tcp_thread, NULL, &launch_server, NULL);
+    pthread_detach(tcp_thread);
+    
+    // set up mach stuff
+    mach_port_t server_port;
+    
+    if ((err = bootstrap_check_in(bootstrap_port, "zone.sparkes.jailbreakd", &server_port))) {
+        NSLog(@"Failed to check in: %s", mach_error_string(err));
+        return -1;
+    }
+    
+    dispatch_source_t server = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, server_port, 0, dispatch_get_main_queue());
+    dispatch_source_set_event_handler(server, ^{
+        dispatch_mig_server(server, jbd_jailbreak_daemon_subsystem.maxsize, jailbreak_daemon_server);
+    });
+    dispatch_resume(server);
+    dispatch_main();
+    
+    return 0;
 }

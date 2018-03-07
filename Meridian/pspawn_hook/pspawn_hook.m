@@ -12,11 +12,13 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <mach/mach.h>
 #include <netdb.h>
 #include <pthread.h>
 #include <Foundation/Foundation.h>
 #include "fishhook.h"
 #include "common.h"
+#include "mach/jailbreak_daemonUser.h"
 
 #define LAUNCHD_LOG_PATH    "/tmp/pspawn_hook_launchd.log"
 #define XPCPROXY_LOG_PATH   "/tmp/pspawn_hook_xpcproxy.log"
@@ -31,6 +33,7 @@ do {                                                                \
     }                                                               \
     fprintf(log_file, fmt "\n", ##args);                            \
     fflush(log_file);                                               \
+    NSLog(@fmt, ##args);                                            \
 } while(0);
 
 enum CurrentProcess {
@@ -39,6 +42,10 @@ enum CurrentProcess {
 };
 
 int current_process = PROCESS_XPCPROXY;
+
+kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
+
+mach_port_t jbd_port;
 
 #define PSPAWN_HOOK_DYLIB   "/meridian/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB   "/usr/lib/TweakLoader.dylib"
@@ -153,9 +160,8 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         DEBUGLOG("\t%s", *currentenv);
         currentenv++;
     }
-    
+        
     posix_spawnattr_t attr;
-    
     posix_spawnattr_t *newattrp = &attr;
     
     if (attrp) { /* add to existing attribs */
@@ -172,20 +178,22 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     int origret;
     
     if (current_process == PROCESS_XPCPROXY) {
-        calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 1);
+        // calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 1);
+        // closejailbreakfd();
+        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
-    } else {
+    } else { // we're in launchd
         int gotpid;
         origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, 0);
+            NSLog(@"CALLING THE FANCY NEW MIG STUFF");
+            jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
+            // calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, 0);
         }
     }
-    
-    closejailbreakfd();
     
     return origret;
 }
@@ -209,6 +217,7 @@ void rebind_pspawns(void) {
 
 void* thd_func(void* arg) {
     DEBUGLOG("in a new thread!");
+    
     rebind_pspawns();
     return NULL;
 }
@@ -218,6 +227,18 @@ static void ctor(void) {
     current_process = (getpid() == 1) ? PROCESS_LAUNCHD : PROCESS_XPCPROXY;
     
     DEBUGLOG("hello from pid %d", getpid());
+    
+    // grab jbd port
+    if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port)) {
+        DEBUGLOG("No bootstrap port - grabbing hgsp15");
+        
+        if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
+            DEBUGLOG("Can't get hgsp15 :(");
+            return;
+        }
+    }
+    
+    DEBUGLOG("Got jbd port: %llx", jbd_port);
     
     if (current_process == PROCESS_LAUNCHD) {
         pthread_t thd;
