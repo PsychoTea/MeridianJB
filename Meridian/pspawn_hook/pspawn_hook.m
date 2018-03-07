@@ -52,7 +52,7 @@ mach_port_t jbd_port;
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
-    // "com.apple.WebKit",             // O_o
+    "com.apple.WebKit",             // O_o
     "MTLCompilerService",           // ?_?
     "OTAPKIAssetTool",              // h_h
     "cfprefsd",                     // o_o
