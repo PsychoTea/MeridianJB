@@ -2,16 +2,8 @@
 #include <stdio.h>
 #include <mach/mach.h>
 #include <mach/error.h>
-#include <mach/message.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <arpa/inet.h>
 #include <unistd.h>
-#include <pthread.h>
 #include "patchfinder64.h"
 #include "kern_utils.h"
 #include "kmem.h"
@@ -29,20 +21,6 @@ kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
 #define JAILBREAKD_COMMAND_FIXUP_SETUID 4
-
-// Generic TCP packet
-// all packets sent to jbd should match this format
-struct __attribute__((__packed__)) JAILBREAKD_PACKET {
-    uint8_t Command;
-    int32_t Pid;
-    uint8_t Wait;
-};
-
-// resposne packet
-// sent after a request to jbd has been processed
-struct __attribute__((__packed__)) RESPONSE_PACKET {
-    uint8_t Response;
-};
 
 mach_port_t tfpzero;
 uint64_t kernel_base;
@@ -62,14 +40,10 @@ int is_valid_command(uint8_t command) {
             command == JAILBREAKD_COMMAND_FIXUP_SETUID);
 }
 
-struct ConnThreadArg {
-    int clientFd;
-};
-
-void handle_command(uint8_t command, uint32_t pid) {
+int handle_command(uint8_t command, uint32_t pid) {
     if (!is_valid_command(command)) {
         NSLog(@"Invalid command recieved.");
-        return;
+        return 1;
     }
     
     char *name = proc_name(pid);
@@ -113,137 +87,13 @@ void handle_command(uint8_t command, uint32_t pid) {
     }
     
     free(name);
-}
-
-void *connection_thread(struct ConnThreadArg *args) {
-    int yes = 1;
-    setsockopt(args->clientFd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(int));
     
-    int alive = 1;
-    setsockopt(args->clientFd, IPPROTO_TCP, TCP_KEEPALIVE, &alive, sizeof(int));
-    
-    int set = 1;
-    setsockopt(args->clientFd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
-    
-    char buf[1024];
-    
-    while (true) {
-        bzero(buf, 1024);
-        NSLog(@"Waiting to recieve some bytes from %d...", args->clientFd);
-        int bytesRead = recv(args->clientFd, buf, 1024, 0);
-        NSLog(@"Recieved some bytes (%d) from %d", bytesRead, args->clientFd);
-        
-        if (bytesRead == -1) {
-            NSLog(@"ERROR FROM RECV: %s (%d)", strerror(errno), errno);
-        }
-        
-        if (bytesRead <= 0) break;
-        
-        int bytesProcessed = 0;
-        while (bytesProcessed < bytesRead) {
-            if (bytesRead - bytesProcessed >= sizeof(struct JAILBREAKD_PACKET)) {
-                struct JAILBREAKD_PACKET *packet = (struct JAILBREAKD_PACKET *)buf;
-                
-                handle_command(packet->Command, packet->Pid);
-                
-                if (packet->Wait == 1) {
-                    bzero(buf, 1024);
-                    
-                    struct RESPONSE_PACKET responsePacket;
-                    responsePacket.Response = 0;
-                    memcpy(buf, &responsePacket, sizeof(responsePacket));
-                    
-                    int sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-                    if (sent < 0) {
-                        NSLog(@"Failed to send wait message, trying again...");
-                        sent = send(args->clientFd, buf, sizeof(struct RESPONSE_PACKET), 0);
-                    }
-                }
-            }
-            
-            bytesProcessed += sizeof(struct JAILBREAKD_PACKET);
-        }
-    }
-    
-    close(args->clientFd);
-    
-    return NULL;
-}
-
-void *launch_server(void *arg) {
-    struct sockaddr_in serveraddr;
-    struct sockaddr_in clientaddr;
-    
-    NSLog(@"Running server...");
-    int listenFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (listenFd < 0) {
-        NSLog(@"Error opening socket. Ret val: %d", listenFd);
-    }
-    
-    int optval = 1;
-    setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
-    
-    struct hostent *server;
-    char *hostname = "127.0.0.1";
-    server = gethostbyname(hostname);
-    if (server == NULL) {
-        NSLog(@"ERROR, no such host as %s", hostname);
-        exit(0);
-    }
-    
-    bzero((char *) &serveraddr, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *)&serveraddr.sin_addr.s_addr, server->h_length);
-    serveraddr.sin_port = htons((unsigned short)5);
-    
-    if (bind(listenFd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0){
-        NSLog(@"Error binding...");
-        term_kernel();
-        exit(-1);
-    }
-    
-    NSLog(@"Successfully bound on socket %d", listenFd);
-    
-    listen(listenFd, 5);
-    
-    NSLog(@"Server running!");
-    
-    // Write pid file so Meridian.app knows we're running
-    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
-    fprintf(f, "%d\n", getpid());
-    fclose(f);
-    
-    socklen_t clientlen = sizeof(clientaddr);
-    
-    while (true) {
-        NSLog(@"Waiting to accept a connection...");
-        int clientFd = accept(listenFd, (struct sockaddr *)&clientaddr, &clientlen);
-        NSLog(@"Accepted a new connection from %d", clientFd);
-        
-        if (clientFd < 0) {
-            NSLog(@"Unable to accept.");
-            continue;
-        }
-        
-        struct ConnThreadArg args;
-        args.clientFd = clientFd;
-        
-        pthread_t thread;
-        int err = pthread_create(&thread, NULL, (void *(*)(void *))&connection_thread, &args);
-        if (err != 0) {
-            NSLog(@"Unable to create thread. Error: %d", err);
-            pthread_detach(thread);
-        }
-    }
-    
-    _exit(0);
     return 0;
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
-    NSLog(@"[MIG] New call from %llx: command %x, pid %d", server_port, command, pid);
-    handle_command(command, pid);
-    return KERN_SUCCESS;
+    NSLog(@"[Mach] New call from %llx: command %x, pid %d", server_port, command, pid);
+    return (handle_command(command, pid) == 0) ? KERN_SUCCESS : KERN_FAILURE;
 }
 
 int main(int argc, char **argv, char **envp) {
@@ -271,11 +121,6 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
     NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
     
-    // launch TCP thread
-    pthread_t tcp_thread;
-    pthread_create(&tcp_thread, NULL, &launch_server, NULL);
-    pthread_detach(tcp_thread);
-    
     // set up mach stuff
     mach_port_t server_port;
     
@@ -289,6 +134,13 @@ int main(int argc, char **argv, char **envp) {
         dispatch_mig_server(server, jbd_jailbreak_daemon_subsystem.maxsize, jailbreak_daemon_server);
     });
     dispatch_resume(server);
+    
+    // Now ready for connections!
+    NSLog(@"Mach server now running!");
+    FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
+    fprintf(f, "%d\n", getpid());
+    fclose(f);
+    
     dispatch_main();
     
     return 0;

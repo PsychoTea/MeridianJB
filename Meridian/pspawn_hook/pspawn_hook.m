@@ -10,14 +10,10 @@
 #include <dlfcn.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <mach/mach.h>
-#include <netdb.h>
 #include <pthread.h>
 #include <Foundation/Foundation.h>
 #include "fishhook.h"
-#include "common.h"
 #include "mach/jailbreak_daemonUser.h"
 
 #define LAUNCHD_LOG_PATH    "/tmp/pspawn_hook_launchd.log"
@@ -34,6 +30,11 @@ do {                                                                \
     fprintf(log_file, fmt "\n", ##args);                            \
     fflush(log_file);                                               \
 } while(0);
+
+#define JAILBREAKD_COMMAND_ENTITLE 1
+#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
+#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
+#define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
 enum CurrentProcess {
     PROCESS_LAUNCHD,
