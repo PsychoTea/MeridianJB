@@ -166,7 +166,6 @@ void *connection_thread(struct ConnThreadArg *args) {
     }
     
     close(args->clientFd);
-    free(buf);
     
     return NULL;
 }

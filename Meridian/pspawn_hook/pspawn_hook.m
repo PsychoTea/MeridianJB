@@ -52,7 +52,7 @@ mach_port_t jbd_port;
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
-    "com.apple.WebKit",             // O_o
+    // "com.apple.WebKit",             // O_o
     "MTLCompilerService",           // ?_?
     "OTAPKIAssetTool",              // h_h
     "cfprefsd",                     // o_o
@@ -160,7 +160,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         DEBUGLOG("\t%s", *currentenv);
         currentenv++;
     }
-        
+    
     posix_spawnattr_t attr;
     posix_spawnattr_t *newattrp = &attr;
     
@@ -177,22 +177,18 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     
     int origret;
     
-    if (current_process == PROCESS_XPCPROXY) {
-        // calljailbreakd(getpid(), JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, 1);
-        // closejailbreakfd();
-        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
-        
-        origret = old(pid, path, file_actions, newattrp, argv, newenvp);
-    } else { // we're in launchd
+    if (current_process == PROCESS_LAUNCHD) {
         int gotpid;
         origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            NSLog(@"CALLING THE FANCY NEW MIG STUFF");
             jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
-            // calljailbreakd(gotpid, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, 0);
         }
+    } else {
+        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
+        
+        origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     }
     
     return origret;
