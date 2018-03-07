@@ -17,6 +17,14 @@
 	</dict>
 	<key>UserName</key>
 	<string>root</string>
+	<key>MachServices</key>
+	<dict>
+		<key>zone.sparkes.jailbreakd</key>
+		<dict>
+			<key>HostSpecialPort</key>
+			<integer>15</integer>
+		</dict>
+	</dict>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>KeepAlive</key>
