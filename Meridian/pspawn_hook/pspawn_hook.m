@@ -33,7 +33,6 @@ do {                                                                \
     }                                                               \
     fprintf(log_file, fmt "\n", ##args);                            \
     fflush(log_file);                                               \
-    NSLog(@fmt, ##args);                                            \
 } while(0);
 
 enum CurrentProcess {
@@ -224,23 +223,23 @@ static void ctor(void) {
     
     DEBUGLOG("hello from pid %d", getpid());
     
-    // grab jbd port
-    if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port)) {
-        DEBUGLOG("No bootstrap port - grabbing hgsp15");
-        
+    if (current_process == PROCESS_LAUNCHD) {
         if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
             DEBUGLOG("Can't get hgsp15 :(");
             return;
         }
-    }
-    
-    DEBUGLOG("Got jbd port: %llx", jbd_port);
-    
-    if (current_process == PROCESS_LAUNCHD) {
+        DEBUGLOG("Got jbd port: %llx", jbd_port);
+        
         pthread_t thd;
         pthread_create(&thd, NULL, thd_func, NULL);
         return;
     }
+    
+    if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port)) {
+        DEBUGLOG("Can't get bootstrap port :(");
+        return;
+    }
+    DEBUGLOG("Got jbd port: %llx", jbd_port);
     
     rebind_pspawns();
 }
