@@ -113,6 +113,9 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    mkdir("/meridian", 0755);
+    extract_bundle("tar.tar", "/meridian");
+    
     // extract meridian-base
     [view writeText:@"extracting meridian files..."];
     ret = extractMeridianData();
