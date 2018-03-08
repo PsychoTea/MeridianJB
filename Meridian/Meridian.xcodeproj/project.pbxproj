@@ -22,6 +22,7 @@
 		B52F29172051C82800F4EB57 /* libplist.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41F20519DB30049C703 /* libplist.a */; };
 		B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41E20519DB30049C703 /* libplist++.a */; };
 		B52F29222051D93C00F4EB57 /* libsub-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B52F29212051D93B00F4EB57 /* libsub-base.tar */; };
+		B52F29242051E33500F4EB57 /* Working_with_libjailbreak.md in Resources */ = {isa = PBXBuildFile; fileRef = B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */; };
 		B5370199202EAC00004E5E5C /* installer-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5370198202EABFF004E5E5C /* installer-base.tar */; };
 		B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */; };
 		B56929D7203708030044FF60 /* jailbreak.m in Sources */ = {isa = PBXBuildFile; fileRef = B56929D6203708020044FF60 /* jailbreak.m */; };
@@ -65,6 +66,7 @@
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		B52F29212051D93B00F4EB57 /* libsub-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "libsub-base.tar"; sourceTree = "<group>"; };
+		B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = Working_with_libjailbreak.md; path = ../Working_with_libjailbreak.md; sourceTree = "<group>"; };
 		B5370198202EABFF004E5E5C /* installer-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "installer-base.tar"; sourceTree = "<group>"; };
 		B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "dpkgdb-base.tar"; sourceTree = "<group>"; };
 		B56929D6203708020044FF60 /* jailbreak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jailbreak.m; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 			children = (
 				B5F7CCCF204A29320051F4A7 /* LICENSE.md */,
 				B59532711FFE2B5000022CEE /* README.md */,
+				B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */,
 				B589517E201D07DB002E0EAD /* amfid */,
 				B5895182201D07FD002E0EAD /* injector */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
@@ -297,6 +300,7 @@
 			files = (
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
+				B52F29242051E33500F4EB57 /* Working_with_libjailbreak.md in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
 				B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */,
 				B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */,

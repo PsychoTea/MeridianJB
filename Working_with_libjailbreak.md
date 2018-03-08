@@ -24,30 +24,30 @@ Protip: you can find your own PID using the `getpid()` function.
 
 ```
 void call_libjailbreak() {
-// open a handle to libjailbreak
-void *handle = dlopen("/usr/lib/libjailbreak.dylib", RTLD_LAZY);
-if (!handle) {
-printf("Err: %s \n", dlerror());
-printf("unable to find libjailbreak.dylib \n");
-return;
-}
+    // open a handle to libjailbreak
+    void *handle = dlopen("/usr/lib/libjailbreak.dylib", RTLD_LAZY);
+    if (!handle) {
+        printf("Err: %s \n", dlerror());
+        printf("unable to find libjailbreak.dylib \n");
+        return;
+    }
 
-typedef void (*libjb_call_ptr_t)(pid_t pid);
+    typedef void (*libjb_call_ptr_t)(pid_t pid);
 
-// grab pointers to the functions we want to call
-libjb_call_ptr_t setuid_ptr = (libjb_call_ptr_t)dlsym(handle, "jb_oneshot_fix_setuid_now");
-libjb_call_ptr_t entitle_ptr = (libjb_call_ptr_t)dlsym(handle, "jb_oneshot_entitle_now");
+    // grab pointers to the functions we want to call
+    libjb_call_ptr_t setuid_ptr = (libjb_call_ptr_t)dlsym(handle, "jb_oneshot_fix_setuid_now");
+    libjb_call_ptr_t entitle_ptr = (libjb_call_ptr_t)dlsym(handle, "jb_oneshot_entitle_now");
 
-// check for any errors
-const char *dlsym_error = dlerror();
-if (dlsym_error) {
-printf("encountered dlsym error: %s \n", dlsym_error);
-return;
-}
+    // check for any errors
+    const char *dlsym_error = dlerror();
+    if (dlsym_error) {
+        printf("encountered dlsym error: %s \n", dlsym_error);
+        return;
+    }
 
-// call them!
-setuid_ptr(getpid());
-entitle_ptr(getpid());
+    // call them!
+    setuid_ptr(getpid());
+    entitle_ptr(getpid());
 }
 ```
 
