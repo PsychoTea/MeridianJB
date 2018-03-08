@@ -17,9 +17,13 @@
 		B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B514CC821FECD788005F4E6B /* Assets.xcassets */; };
 		B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */; };
 		B514CC901FECDC71005F4E6B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B514CC8F1FECDC71005F4E6B /* ViewController.m */; };
+		B52F29152051C82800F4EB57 /* libimg4tool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F42020519DB40049C703 /* libimg4tool.a */; };
+		B52F29162051C82800F4EB57 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41C20519DA30049C703 /* liboffsetfinder64.a */; };
+		B52F29172051C82800F4EB57 /* libplist.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41F20519DB30049C703 /* libplist.a */; };
+		B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41E20519DB30049C703 /* libplist++.a */; };
+		B52F29222051D93C00F4EB57 /* libsub-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B52F29212051D93B00F4EB57 /* libsub-base.tar */; };
 		B5370199202EAC00004E5E5C /* installer-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5370198202EABFF004E5E5C /* installer-base.tar */; };
 		B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */; };
-		B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */ = {isa = PBXBuildFile; fileRef = B5507C17202A63A5004E4572 /* v0rtex-old.m */; };
 		B56929D7203708030044FF60 /* jailbreak.m in Sources */ = {isa = PBXBuildFile; fileRef = B56929D6203708020044FF60 /* jailbreak.m */; };
 		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E6202CEDF500ACDB9D /* cydia-base.tar */; };
@@ -27,14 +31,13 @@
 		B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E8202CEDF500ACDB9D /* system-base.tar */; };
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
-		B582405B1FF7533D00D96DB5 /* offsets.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405A1FF7533D00D96DB5 /* offsets.m */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.c */; };
 		B58581C4200436AB00295515 /* DRMController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58581C3200436AB00295515 /* DRMController.m */; };
+		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D23C432002AC6600BF184C /* fucksigningservices.m */; };
-		B5F7CCD0204A29320051F4A7 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = B5F7CCCF204A29320051F4A7 /* LICENSE.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,12 +64,11 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		B52F29212051D93B00F4EB57 /* libsub-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "libsub-base.tar"; sourceTree = "<group>"; };
 		B5370198202EABFF004E5E5C /* installer-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "installer-base.tar"; sourceTree = "<group>"; };
 		B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "dpkgdb-base.tar"; sourceTree = "<group>"; };
-		B5507C17202A63A5004E4572 /* v0rtex-old.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "v0rtex-old.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B56929D6203708020044FF60 /* jailbreak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jailbreak.m; sourceTree = "<group>"; };
 		B56929D82037080D0044FF60 /* jailbreak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jailbreak.h; sourceTree = "<group>"; };
-		B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "v0rtex-old.h"; sourceTree = "<group>"; };
 		B57A06C2202CDC8B00ACDB9D /* create-meridian-base.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "create-meridian-base.sh"; sourceTree = "<group>"; };
 		B57A06E4202CDF9100ACDB9D /* meridian-base */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "meridian-base"; sourceTree = "<group>"; };
 		B57A06E6202CEDF500ACDB9D /* cydia-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "cydia-base.tar"; sourceTree = "<group>"; };
@@ -75,21 +77,25 @@
 		B57A06E9202CEDF500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
 		B57A06EE202CF4F300ACDB9D /* tar.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = tar.tar; sourceTree = "<group>"; };
 		B57A06F0202CF52500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
-		B582405A1FF7533D00D96DB5 /* offsets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsets.m; sourceTree = "<group>"; };
-		B582405C1FF753EC00D96DB5 /* offsets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsets.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B584C54920376BCA00BF4118 /* untar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
 		B584C54B20376BD200BF4118 /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
 		B58581C3200436AB00295515 /* DRMController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DRMController.m; sourceTree = "<group>"; };
 		B58581C52004372E00295515 /* DRMController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DRMController.h; sourceTree = "<group>"; };
+		B585F414205198DF0049C703 /* liboffsetfinder64.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = liboffsetfinder64.hpp; sourceTree = "<group>"; };
+		B585F4172051993E0049C703 /* offsetfinder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = offsetfinder.mm; sourceTree = "<group>"; };
+		B585F41920519B7E0049C703 /* offsetfinder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetfinder.h; sourceTree = "<group>"; };
+		B585F41C20519DA30049C703 /* liboffsetfinder64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboffsetfinder64.a; sourceTree = "<group>"; };
+		B585F41E20519DB30049C703 /* libplist++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libplist++.a"; sourceTree = "<group>"; };
+		B585F41F20519DB30049C703 /* libplist.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libplist.a; sourceTree = "<group>"; };
+		B585F42020519DB40049C703 /* libimg4tool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libimg4tool.a; sourceTree = "<group>"; };
 		B589517E201D07DB002E0EAD /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
 		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B5B7C2A81FF2C7700087619A /* IOKit */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = IOKit; path = ../../../../../../System/Library/Frameworks/IOKit.framework/Versions/A/IOKit; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
@@ -103,6 +109,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B52F29152051C82800F4EB57 /* libimg4tool.a in Frameworks */,
+				B52F29162051C82800F4EB57 /* liboffsetfinder64.a in Frameworks */,
+				B52F29172051C82800F4EB57 /* libplist.a in Frameworks */,
+				B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */,
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,9 +181,10 @@
 				B56929D6203708020044FF60 /* jailbreak.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
+				B585F414205198DF0049C703 /* liboffsetfinder64.hpp */,
+				B585F41920519B7E0049C703 /* offsetfinder.h */,
+				B585F4172051993E0049C703 /* offsetfinder.mm */,
 				B5B7C29F1FF2BA100087619A /* main.m */,
-				B582405C1FF753EC00D96DB5 /* offsets.h */,
-				B582405A1FF7533D00D96DB5 /* offsets.m */,
 				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
 				B50F79521FF2248C000D6015 /* root-rw.h */,
@@ -182,8 +193,6 @@
 				B584C54920376BCA00BF4118 /* untar.c */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
-				B57A06B0202CAD6700ACDB9D /* v0rtex-old.h */,
-				B5507C17202A63A5004E4572 /* v0rtex-old.m */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -196,6 +205,7 @@
 				B57A06E6202CEDF500ACDB9D /* cydia-base.tar */,
 				B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */,
 				B5370198202EABFF004E5E5C /* installer-base.tar */,
+				B52F29212051D93B00F4EB57 /* libsub-base.tar */,
 				B57A06F0202CF52500ACDB9D /* meridian-base.tar */,
 				B57A06E7202CEDF500ACDB9D /* optional-base.tar */,
 				B57A06E8202CEDF500ACDB9D /* system-base.tar */,
@@ -207,8 +217,11 @@
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B585F42020519DB40049C703 /* libimg4tool.a */,
+				B585F41F20519DB30049C703 /* libplist.a */,
+				B585F41E20519DB30049C703 /* libplist++.a */,
+				B585F41C20519DA30049C703 /* liboffsetfinder64.a */,
 				B5B7C2AA1FF2C7860087619A /* IOKit.framework */,
-				B5B7C2A81FF2C7700087619A /* IOKit */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -291,8 +304,8 @@
 				B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */,
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
+				B52F29222051D93C00F4EB57 /* libsub-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
-				B5F7CCD0204A29320051F4A7 /* LICENSE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,12 +360,11 @@
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
 				B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */,
+				B585F4182051993E0049C703 /* offsetfinder.mm in Sources */,
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B5D23C442002AC6600BF184C /* fucksigningservices.m in Sources */,
-				B5507C18202A63A5004E4572 /* v0rtex-old.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
-				B582405B1FF7533D00D96DB5 /* offsets.m in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -503,6 +515,8 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/usr/lib",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
+					"$(PROJECT_DIR)/Meridian/libs",
+					"$(PROJECT_DIR)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
@@ -510,7 +524,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv7 arm64 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -534,13 +548,15 @@
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/usr/lib",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
 					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
+					"$(PROJECT_DIR)/Meridian/libs",
+					"$(PROJECT_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv7 arm64 armv7s";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};

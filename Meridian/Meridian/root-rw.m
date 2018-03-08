@@ -8,7 +8,6 @@
 
 #include "root-rw.h"
 #include "kernel.h"
-#include "offsets.h"
 #include "patchfinder64.h"
 #include "helpers.h"
 #include "ViewController.h"
