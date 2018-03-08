@@ -5,23 +5,23 @@ meridianDir=$currDir/../../
 baseDir=$currDir/meridian-base/
 
 # amfid (fucker & payload)
-cp $meridianDir/amfid/amfid_fucker $baseDir/meridian/amfid
-cp $meridianDir/amfid/amfid_payload.dylib $baseDir/meridian/amfid
+mv $meridianDir/amfid/amfid_fucker $baseDir/meridian/amfid
+mv $meridianDir/amfid/amfid_payload.dylib $baseDir/meridian/amfid
 
 # injector
-cp $meridianDir/injector/injector $baseDir/meridian/
+mv $meridianDir/injector/injector $baseDir/meridian/
 
 # pspawn_hook.dylib
-cp $meridianDir/pspawn_hook/pspawn_hook.dylib $baseDir/meridian
+mv $meridianDir/pspawn_hook/pspawn_hook.dylib $baseDir/meridian
 
 # libjailbreak.dylib
-cp $meridianDir/libjailbreak/libjailbreak.dylib $baseDir/usr/lib
+mv $meridianDir/libjailbreak/libjailbreak.dylib $baseDir/usr/lib
 
 # jailbreakd
-cp $meridianDir/jailbreakd/jailbreakd $baseDir/meridian/jailbreakd
+mv $meridianDir/jailbreakd/jailbreakd $baseDir/meridian/jailbreakd
 
 # TweakLoader.dylib
-cp $meridianDir/TweakLoader/TweakLoader.dylib $baseDir/usr/lib
+mv $meridianDir/TweakLoader/TweakLoader.dylib $baseDir/usr/lib
 
 # remove all .DS_Store files
 find $baseDir -name '.DS_Store' -delete
