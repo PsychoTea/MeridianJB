@@ -28,7 +28,6 @@ int killall(const char *procname, const char *kill);
 int check_for_jailbreak(void);
 char *itoa(long n);
 int file_exists(const char *path);
-int file_exist(const char *filename);
 void read_file(const char* path);
 int cp(const char *from, const char *to);
 char* bundled_file(const char *filename);

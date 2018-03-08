@@ -123,14 +123,9 @@ char *itoa(long n) {
     return   buf;
 }
 
+// remember: returns 0 if file exists
 int file_exists(const char *path) {
     return access(path, F_OK) == -1;
-}
-
-int file_exist(const char *filename) {
-    struct stat buffer;
-    int r = stat(filename, &buffer);
-    return (r == 0);
 }
 
 void read_file(const char *path) {
