@@ -402,7 +402,7 @@ int startJailbreakd() {
     int rv = start_launchdaemon("/meridian/jailbreakd/jailbreakd.plist");
     if (rv != 0) return 1;
     
-    while (!file_exist("/var/tmp/jailbreakd.pid")) {
+    while (file_exists("/var/tmp/jailbreakd.pid") != 0) {
         printf("Waiting for jailbreakd \n");
         usleep(300000); // 300ms
     }

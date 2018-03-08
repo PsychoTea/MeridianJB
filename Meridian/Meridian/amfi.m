@@ -65,7 +65,7 @@ int defecate_amfi() {
     
     NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
     
-    while (!file_exist("/var/tmp/amfid_payload.alive")) {
+    while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
         NSLog(@"waiting for amfid patch...");
         usleep(100000); // 0.1 sec
     }
@@ -75,7 +75,7 @@ int defecate_amfi() {
 
 // creds to stek29(?)
 void inject_trust(const char *path) {
-    if (!file_exist(path)) {
+    if (file_exists(path) != 0) {
         NSLog(@"[amfi] you wanka, %s doesn't exist!", path);
         return;
     }
