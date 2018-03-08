@@ -22,7 +22,7 @@ Protip: you can find your own PID using the `getpid()` function.
 
 ### Examples
 
-```
+```c
 void call_libjailbreak() {
     // open a handle to libjailbreak
     void *handle = dlopen("/usr/lib/libjailbreak.dylib", RTLD_LAZY);
