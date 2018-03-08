@@ -147,9 +147,12 @@ int makeShitHappen(ViewController *view) {
                     [view writeTextPlain:@"failed to extract cydia-base.tar"];
                     break;
                 case 5:
-                    [view writeTextPlain:@"failed to extract optional-base.tar"];
+                    [view writeTextPlain:@"failed to extract libsub-base.tar"];
                     break;
                 case 6:
+                    [view writeTextPlain:@"failed to extract optional-base.tar"];
+                    break;
+                case 7:
                     [view writeTextPlain:@"failed to run uicache!"];
                     break;
             }
@@ -327,9 +330,13 @@ int extractBootstrap() {
     rv = extract_bundle_tar("cydia-base.tar");
     if (rv != 0) return 4;
     
+    // extract libsub-base.tar
+    rv = extract_bundle_tar("libsub-base.tar");
+    if (rv != 0) return 5;
+    
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");
-    if (rv != 0) return 5;
+    if (rv != 0) return 6;
     
     inject_trust("/usr/bin/killall");
     enableHiddenApps();
@@ -338,7 +345,7 @@ int extractBootstrap() {
     
     inject_trust("/bin/uicache");
     rv = uicache();
-    if (rv != 0) return 6;
+    if (rv != 0) return 7;
     
     return 0;
 }
