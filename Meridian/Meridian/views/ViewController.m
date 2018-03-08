@@ -7,20 +7,11 @@
 //
 
 #import "ViewController.h"
-#import "v0rtex.h"
-#import "v0rtex-old.h"
-#import "patchfinder64.h"
-#import "kernel.h"
-#import "amfi.h"
-#import "root-rw.h"
-#import "offsets.h"
 #import "helpers.h"
 #import "fucksigningservices.h"
 #import "jailbreak.h"
 #import "DRMController.h"
 #import <sys/utsname.h>
-#import <sys/stat.h>
-#import <sys/spawn.h>
 #import <Foundation/Foundation.h>
 
 @interface ViewController ()
@@ -72,12 +63,6 @@ bool jailbreak_has_run = false;
                           [self getDeviceIdentifier],
                           [self getVersionString],
                           [self getBuildString]]];
-    
-    // Load offsets
-    if (load_offsets() != 0) {
-        [self noOffsets];
-        return;
-    }
     
     if (jailbreak_has_run) {
         [self writeTextPlain:@"> already jailbroken."];

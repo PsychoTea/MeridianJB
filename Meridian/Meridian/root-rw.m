@@ -12,6 +12,7 @@
 #include "patchfinder64.h"
 #include "helpers.h"
 #include "ViewController.h"
+#include "offsetfinder.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/utsname.h>
@@ -111,12 +112,13 @@ bool fake_rootedramdisk(void) {
 
 // props to xerub for the original '/' r/w remount code
 int remount_root(uint64_t kslide) {
-    uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
+    uint64_t _rootnode = get_offset_rootvnode() + kslide;
     
-    NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
     NSLog(@"_rootnode = %llx", _rootnode);
     
     uint64_t rootfs_vnode = rk64(_rootnode);
+    
+    NSLog(@"roofs_vnode = %llx", rootfs_vnode);
     
     uint64_t off = VNODE_V_UN;
     struct utsname uts;
@@ -145,18 +147,27 @@ int remount_root(uint64_t kslide) {
 }
 
 int mount_root(uint64_t kslide, int pre130) {
-    if (pre130) {
-        NSLog(@"pre-10.3 detected: patching lwvm...");
-        if (!fix_root_iswriteprotected()) {
-            NSLog(@"fix_root_iswriteprotected failed!");
-            return -61;
-        }
-        if (!fake_rootedramdisk()) {
-            NSLog(@"fake_rootedramdisk failed!");
-            return -62;
-        }
+    int rv;
+   
+    // attempt to remount - this may fail
+    rv = remount_root(kslide);
+    if (rv != 0) return rv;
+    
+    // didnt fail to remount
+    if (can_write_root() == 0) return 0;
+    
+    // failed to remount - further patching is required (pre-10.3)
+    NSLog(@"pre-10.3 detected: patching lwvm...");
+    if (!fix_root_iswriteprotected()) {
+        NSLog(@"fix_root_iswriteprotected failed!");
+        return -61;
+    }
+    if (!fake_rootedramdisk()) {
+        NSLog(@"fake_rootedramdisk failed!");
+        return -62;
     }
     
+    // call remount_root again
     return remount_root(kslide);
 }
 
