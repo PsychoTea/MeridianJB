@@ -8,9 +8,7 @@
 
 #import "ViewController.h"
 #import "helpers.h"
-#import "fucksigningservices.h"
 #import "jailbreak.h"
-#import "DRMController.h"
 #import <sys/utsname.h>
 #import <Foundation/Foundation.h>
 
@@ -82,23 +80,7 @@ bool jailbreak_has_run = false;
     NSLog(@"App bundle directory: %s", bundle_path());
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    if ([fucksigningservices appIsPirated:[NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]]) {
-        // app is pirated, fuckers
-        DRMController *drmController = [self.storyboard instantiateViewControllerWithIdentifier:@"DRMController"];
-        [self presentViewController:drmController animated:YES completion:nil];
-        return;
-    }
-}
-
 - (IBAction)goButtonPressed:(UIButton *)sender {
-    if ([fucksigningservices appIsPirated:[NSString stringWithUTF8String:bundled_file("embedded.mobileprovision")]]) {
-        // app is pirated, fuckers
-        DRMController *drmController = [self.storyboard instantiateViewControllerWithIdentifier:@"DRMController"];
-        [self presentViewController:drmController animated:YES completion:nil];
-        return;
-    }
-    
     // when jailbreak runs, 'go' button is
     // turned to 'respring'
     if (jailbreak_has_run) {
