@@ -125,6 +125,17 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/Tweaks
+    if (file_exists("/usr/lib/Tweaks") != 0) {
+        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
+            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/Tweaks" error:nil];
+        } else {
+            mkdir("/usr/lib/Tweaks", 0755);
+        }
+        
+        symlink("/usr/lib/Tweaks", "/Library/MobileSubstrate/DynamicLibraries");
+    }
+    
     // extract bootstrap (if not already extracted)
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
