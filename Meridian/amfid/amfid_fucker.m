@@ -579,7 +579,7 @@ int main(int argc, char* argv[]) {
             close(kq);
             NSLog(@"[amfid_fucker] amfid is dead!");
             
-            int ret = posix_spawn(NULL, "/meridian/bins/time", NULL, NULL, (char**)&(const char*[]){
+            int ret = posix_spawn(NULL, "/meridian/hello", NULL, NULL, (char**)&(const char*[]){
                 "/meridian/bins/time",
                 NULL
             }, NULL);
