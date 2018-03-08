@@ -7,7 +7,7 @@
 #import <sys/stat.h>
 #import <sys/types.h>
 
-#define dylibDir @"/Library/MobileSubstrate/DynamicLibraries"
+#define dylibDir @"/usr/lib/Tweaks"
 
 NSArray *generateDylibList() {
     NSString *processName = [[NSProcessInfo processInfo] processName];
