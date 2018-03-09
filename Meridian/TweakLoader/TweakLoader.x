@@ -7,7 +7,7 @@
 #import <sys/stat.h>
 #import <sys/types.h>
 
-#define dylibDir @"/usr/lib/Tweaks"
+#define dylibDir @"/usr/lib/tweaks"
 
 NSArray *generateDylibList() {
     NSString *processName = [[NSProcessInfo processInfo] processName];

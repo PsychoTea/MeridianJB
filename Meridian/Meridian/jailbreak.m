@@ -125,15 +125,15 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
-    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/Tweaks
-    if (file_exists("/usr/lib/Tweaks") != 0) {
+    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
+    if (file_exists("/usr/lib/tweaks") != 0) {
         if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
-            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/Tweaks" error:nil];
+            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/tweaks" error:nil];
         } else {
-            mkdir("/usr/lib/Tweaks", 0755);
+            mkdir("/usr/lib/tweaks", 0755);
         }
         
-        symlink("/usr/lib/Tweaks", "/Library/MobileSubstrate/DynamicLibraries");
+        symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
     }
     
     // extract bootstrap (if not already extracted)
