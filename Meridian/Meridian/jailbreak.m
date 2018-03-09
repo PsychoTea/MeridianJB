@@ -28,51 +28,6 @@ uint64_t kern_ucred;
 uint64_t kernprocaddr;
 
 
-void suspend_all_threads() {
-    thread_act_t other_thread, current_thread;
-    unsigned int thread_count;
-    thread_act_array_t thread_list;
-    
-    current_thread = mach_thread_self();
-    int result = task_threads(mach_task_self(), &thread_list, &thread_count);
-    if (result == -1) {
-        exit(1);
-    }
-    if (!result && thread_count) {
-        for (unsigned int i = 0; i < thread_count; ++i) {
-            other_thread = thread_list[i];
-            if (other_thread != current_thread) {
-                int kr = thread_suspend(other_thread);
-                if (kr != KERN_SUCCESS) {
-                    mach_error("thread_suspend:", kr);
-                    exit(1);
-                }
-            }
-        }
-    }
-}
-
-void resume_all_threads() {
-    thread_act_t other_thread, current_thread;
-    unsigned int thread_count;
-    thread_act_array_t thread_list;
-    
-    current_thread = mach_thread_self();
-    int result = task_threads(mach_task_self(), &thread_list, &thread_count);
-    if (!result && thread_count) {
-        for (unsigned int i = 0; i < thread_count; ++i) {
-            other_thread = thread_list[i];
-            if (other_thread != current_thread) {
-                int kr = thread_resume(other_thread);
-                if (kr != KERN_SUCCESS) {
-                    mach_error("thread_suspend:", kr);
-                }
-            }
-        }
-    }
-}
-
-
 int makeShitHappen(ViewController *view) {
     int ret;
     
@@ -80,13 +35,11 @@ int makeShitHappen(ViewController *view) {
 
     // run v0rtex
     [view writeText:@"running v0rtex..."];
-    // suspend_all_threads();
     ret = runV0rtex();
     if (ret != 0) {
         [view writeText:@"failed!"];
         return 1;
     }
-    // resume_all_threads();
     [view writeTextPlain:@"succeeded! praize siguza!"];
     
     // set up stuff
@@ -125,15 +78,15 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
-    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/Tweaks
-    if (file_exists("/usr/lib/Tweaks") != 0) {
+    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
+    if (file_exists("/usr/lib/tweaks") != 0) {
         if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
-            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/Tweaks" error:nil];
+            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/tweaks" error:nil];
         } else {
-            mkdir("/usr/lib/Tweaks", 0755);
+            mkdir("/usr/lib/tweaks", 0755);
         }
         
-        symlink("/usr/lib/Tweaks", "/Library/MobileSubstrate/DynamicLibraries");
+        symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
     }
     
     // extract bootstrap (if not already extracted)
