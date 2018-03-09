@@ -38,6 +38,9 @@
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
+		B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD42052E67600F82D43 /* JailbreakController.m */; };
+		B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD72052E67700F82D43 /* MeridianController.m */; };
+		B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD92052E67700F82D43 /* SettingsController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -100,6 +103,12 @@
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
+		B5C4FBD42052E67600F82D43 /* JailbreakController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JailbreakController.m; sourceTree = "<group>"; };
+		B5C4FBD52052E67700F82D43 /* JailbreakController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailbreakController.h; sourceTree = "<group>"; };
+		B5C4FBD62052E67700F82D43 /* MeridianController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeridianController.h; sourceTree = "<group>"; };
+		B5C4FBD72052E67700F82D43 /* MeridianController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeridianController.m; sourceTree = "<group>"; };
+		B5C4FBD82052E67700F82D43 /* SettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsController.h; sourceTree = "<group>"; };
+		B5C4FBD92052E67700F82D43 /* SettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsController.m; sourceTree = "<group>"; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -129,6 +138,12 @@
 				B50F79471FF2248B000D6015 /* CreditsController.m */,
 				B514CC7C1FECD788005F4E6B /* ViewController.h */,
 				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
+				B5C4FBD52052E67700F82D43 /* JailbreakController.h */,
+				B5C4FBD42052E67600F82D43 /* JailbreakController.m */,
+				B5C4FBD62052E67700F82D43 /* MeridianController.h */,
+				B5C4FBD72052E67700F82D43 /* MeridianController.m */,
+				B5C4FBD82052E67700F82D43 /* SettingsController.h */,
+				B5C4FBD92052E67700F82D43 /* SettingsController.m */,
 				B514CC821FECD788005F4E6B /* Assets.xcassets */,
 				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
 				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
@@ -362,13 +377,16 @@
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
 				B584C54A20376BCB00BF4118 /* untar.c in Sources */,
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
+				B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B52F29282051F10800F4EB57 /* fucksigningservices.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
+				B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */,
 				B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */,
 				B585F4182051993E0049C703 /* offsetfinder.mm in Sources */,
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
+				B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
