@@ -74,6 +74,7 @@ int makeShitHappen(ViewController *view) {
     ret = extractMeridianData();
     if (ret != 0) {
         [view writeText:@"failed!"];
+        [view writeTextPlain:[NSString stringWithFormat:@"error code: %d", ret]];
         return 1;
     }
     [view writeText:@"done!"];
