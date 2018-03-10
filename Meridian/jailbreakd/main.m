@@ -91,7 +91,7 @@ int handle_command(uint8_t command, uint32_t pid) {
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
-    NSLog(@"[Mach] New call from %llx: command %x, pid %d", server_port, command, pid);
+    NSLog(@"[Mach] New call from %x: command %x, pid %d", server_port, command, pid);
     return (handle_command(command, pid) == 0) ? KERN_SUCCESS : KERN_FAILURE;
 }
 
