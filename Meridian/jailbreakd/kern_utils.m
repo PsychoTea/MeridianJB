@@ -72,29 +72,28 @@ char *proc_name(int pd) {
 }
 
 CACHED_FIND(uint64_t, our_task_addr) {
-  uint64_t our_proc = proc_find(getpid(), 1);
+    uint64_t our_proc = proc_find(getpid(), 1);
 
-  if (our_proc == 0) {
-    fprintf(stderr, "failed to find our_task_addr!\n");
-    exit(EXIT_FAILURE);
-  }
+    if (our_proc == 0) {
+        fprintf(stderr, "failed to find our_task_addr!\n");
+        exit(EXIT_FAILURE);
+    }
 
-  uint64_t addr = rk64(our_proc + offsetof_task);
-  return addr;
+    return rk64(our_proc + offsetof_task);
 }
 
-uint64_t find_port(mach_port_name_t port){
-  uint64_t task_addr = our_task_addr();
+uint64_t find_port(mach_port_name_t port) {
+    uint64_t task_addr = our_task_addr();
   
-  uint64_t itk_space = rk64(task_addr + offsetof_itk_space);
+    uint64_t itk_space = rk64(task_addr + offsetof_itk_space);
   
-  uint64_t is_table = rk64(itk_space + offsetof_ipc_space_is_table);
+    uint64_t is_table = rk64(itk_space + offsetof_ipc_space_is_table);
   
-  uint32_t port_index = port >> 8;
-  const int sizeof_ipc_entry_t = 0x18;
+    uint32_t port_index = port >> 8;
+    const int sizeof_ipc_entry_t = 0x18;
   
-  uint64_t port_addr = rk64(is_table + (port_index * sizeof_ipc_entry_t));
-  return port_addr;
+    uint64_t port_addr = rk64(is_table + (port_index * sizeof_ipc_entry_t));
+    return port_addr;
 }
 
 void fixupsetuid(int pid) {
@@ -131,86 +130,38 @@ void fixupsetuid(int pid) {
     
     NSLog(@"Applying UID %d to process %d", fileUid, pid);
     
-    wk32(proc + offsetof_p_uid, fileUid); // safe
-    wk32(proc + offsetof_p_ruid, fileUid); // safe
-    // wk32(proc + offsetof_p_gid, fileUid); // leaving the gid stuff incase i need to change that too
+    wk32(proc + offsetof_p_uid, fileUid);
+    wk32(proc + offsetof_p_ruid, fileUid);
+    // leaving the gid stuff incase i need to change that too
+    // wk32(proc + offsetof_p_gid, fileUid);
     // wk32(proc + offsetof_p_rgid, fileUid);
     
     uint64_t ucred = rk64(proc + offsetof_p_ucred);
     
-    wk32(ucred + offsetof_ucred_cr_uid, fileUid); // safe
-    // wk32(ucred + offsetof_ucred_cr_ruid, fileUid); // i think this is the unsafe one causing the panic
-    wk32(ucred + offsetof_ucred_cr_svuid, fileUid); // safe
-    
-    // wk32(ucred + offsetof_ucred_cr_ngroups, 1);
-    
-    // wk32(ucred + offsetof_ucred_cr_groups, fileUid);
-    
-    // wk32(ucred + offsetof_ucred_cr_rgid, fileUid);
-    // wk32(ucred + offsetof_ucred_cr_svgid, fileUid);
-}
-
-int dumppid(int pd){
-  uint64_t proc = proc_find(pd, 3);
-  if (proc != 0) {
-    uid_t p_uid = rk32(proc + offsetof_p_uid);
-    gid_t p_gid = rk32(proc + offsetof_p_gid);
-    uid_t p_ruid = rk32(proc + offsetof_p_ruid);
-    gid_t p_rgid = rk32(proc + offsetof_p_rgid);
-
-    uint64_t ucred = rk64(proc + offsetof_p_ucred);
-    uid_t cr_uid = rk32(ucred + offsetof_ucred_cr_uid);
-    uid_t cr_ruid = rk32(ucred + offsetof_ucred_cr_ruid);
-    uid_t cr_svuid = rk32(ucred + offsetof_ucred_cr_svuid);
-
-    NSLog(@"Found PID %d", pd);
-    NSLog(@"UID: %d GID: %d RUID: %d RGID: %d", p_uid, p_gid, p_ruid, p_rgid);
-    NSLog(@"CR_UID: %d CR_RUID: %d CR_SVUID: %d", cr_uid, cr_ruid, cr_svuid);
-    return 0;
-  } else {
-    return 1;
-  }
+    wk32(ucred + offsetof_ucred_cr_uid, fileUid);
+    wk32(ucred + offsetof_ucred_cr_svuid, fileUid);
 }
 
 void set_csflags(uint64_t proc) {
     uint32_t csflags = rk32(proc + offsetof_p_csflags);
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"Previous CSFlags: 0x%x", csflags);
-#endif
     csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW | CS_DEBUGGED) & ~(CS_RESTRICT | CS_HARD | CS_KILL);
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"New CSFlags: 0x%x", csflags);
-#endif
     wk32(proc + offsetof_p_csflags, csflags);
 }
 
 void set_csblob(uint64_t proc) {
-    uint64_t textvp = rk64(proc + offsetof_p_textvp); //vnode of executable
+    uint64_t textvp = rk64(proc + offsetof_p_textvp); // vnode of executable
     off_t textoff = rk64(proc + offsetof_p_textoff);
     
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"\t__TEXT at 0x%llx. Offset: 0x%llx", textvp, textoff);
-#endif
     if (textvp != 0){
       uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
       uint16_t vnode_type = vnode_type_tag & 0xffff;
       uint16_t vnode_tag = (vnode_type_tag >> 16);
-#ifdef JAILBREAKDDEBUG
-      NSLog(@"\tVNode Type: 0x%x. Tag: 0x%x.", vnode_type, vnode_tag);
-#endif
       
-      if (vnode_type == 1){
+      if (vnode_type == 1) {
           uint64_t ubcinfo = rk64(textvp + offsetof_v_ubcinfo);
-#ifdef JAILBREAKDDEBUG
-          NSLog(@"\t\tUBCInfo at 0x%llx.\n", ubcinfo);
-#endif
           
           uint64_t csblobs = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
-          while (csblobs != 0){
-#ifdef JAILBREAKDDEBUG
-              NSLog(@"\t\t\tCSBlobs at 0x%llx.", csblobs);
-#endif
-              
+          while (csblobs != 0) {
               cpu_type_t csblob_cputype = rk32(csblobs + offsetof_csb_cputype);
               unsigned int csblob_flags = rk32(csblobs + offsetof_csb_flags);
               off_t csb_base_offset = rk64(csblobs + offsetof_csb_base_offset);
@@ -219,18 +170,10 @@ void set_csblob(uint64_t proc) {
               unsigned int csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
               unsigned int csb_platform_path = rk32(csblobs + offsetof_csb_platform_path);
 
-#ifdef JAILBREAKDDEBUG
-              NSLog(@"\t\t\tCSBlob CPU Type: 0x%x. Flags: 0x%x. Offset: 0x%llx", csblob_cputype, csblob_flags, csb_base_offset);
-              NSLog(@"\t\t\tCSBlob Signer Type: 0x%x. Platform Binary: %d Path: %d", csb_signer_type, csb_platform_binary, csb_platform_path);
-#endif
               wk32(csblobs + offsetof_csb_platform_binary, 1);
 
               csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
-#ifdef JAILBREAKDDEBUG
-              NSLog(@"\t\t\tCSBlob Signer Type: 0x%x. Platform Binary: %d Path: %d", csb_signer_type, csb_platform_binary, csb_platform_path);
               
-              NSLog(@"\t\t\t\tEntitlements at 0x%llx.\n", csb_entitlements);
-#endif
               csblobs = rk64(csblobs);
           }
       }
@@ -295,15 +238,8 @@ void set_sandbox_extensions(uint64_t proc) {
 }
 
 void set_amfi_entitlements(uint64_t proc) {
-    // AMFI entitlements
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"%@",@"AMFI:");
-#endif
     uint64_t proc_ucred = rk64(proc + 0x100);
     uint64_t amfi_entitlements = rk64(rk64(proc_ucred + 0x78) + 0x8);
-#ifdef JAILBREAKDDEBUG
-    NSLog(@"Setting Entitlements... (%llx)", amfi_entitlements);
-#endif
 
     OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
     
