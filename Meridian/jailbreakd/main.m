@@ -76,7 +76,6 @@ int handle_command(uint8_t command, uint32_t pid) {
             
             setcsflagsandplatformize(PID);
             kill(PID, SIGCONT);
-            NSLog(@"Called SIGCONT on pid %d from ENTITLE_AND_SIGCONT_FROM_XPCPROXY", PID);
         });
         dispatch_release(queue);
     }
