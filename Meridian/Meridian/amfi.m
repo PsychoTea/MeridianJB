@@ -16,6 +16,7 @@
 #import <mach-o/loader.h>
 #import <mach-o/dyld_images.h>
 #import <mach-o/fat.h>
+#import <mach-o/swap.h>
 #import <sys/stat.h>
 #import <sys/event.h>
 #import <dlfcn.h>
@@ -139,6 +140,8 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     fread(&magic, sizeof(magic), 1, fd);
     fseek(fd, 0, SEEK_SET);
     
+    int is_swap = (magic == MH_CIGAM || magic == MH_CIGAM_64 || magic == FAT_CIGAM);
+    
     uint64_t off = file_off;
     int ncmds;
     
@@ -152,11 +155,39 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
         fread(&mh, sizeof(mh), 1, fd);
         off += sizeof(mh);
         ncmds = mh.ncmds;
-    } else if (magic == FAT_CIGAM) { /* FAT bins can be treated with mach_header_64 */
-        struct mach_header_64 mh64;
-        fread(&mh64, sizeof(mh64), 1, fd);
-        off += sizeof(mh64);
-        ncmds = mh64.ncmds;
+    } else if (magic == FAT_CIGAM || magic == FAT_CIGAM_64) {
+        struct fat_header header;
+        fread(&header, sizeof(header), 1, fd);
+        if (is_swap) swap_fat_header(&header, 0);
+        
+        int arch_offset = sizeof(header);
+        for (int i = 0; i < header.nfat_arch; i++) {
+            struct fat_arch arch;
+            fseek(fd, arch_offset, 0);
+            fread(&arch, sizeof(struct fat_arch), 1, fd);
+            if (is_swap) swap_fat_arch(&arch, 1, 0);
+            
+            if (arch.cputype != CPU_TYPE_ARM64) continue;
+            
+            fseek(fd, arch.offset, 0);
+            
+            uint32_t magic;
+            fread(&magic, sizeof(magic), 1, fd);
+            
+            if (magic == MH_MAGIC) {
+                struct mach_header mh;
+                fread(&mh, sizeof(mh), 1, fd);
+                off += arch.offset + sizeof(mh);
+                ncmds = mh.ncmds;
+            } else if (magic == MH_MAGIC_64) {
+                struct mach_header_64 mh64;
+                fread(&mh64, sizeof(mh64), 1, fd);
+                off += arch.offset + sizeof(mh64);
+                ncmds = mh64.ncmds;
+            }
+            
+            arch_offset += sizeof(arch);
+        }
     } else {
         NSLog(@"[amfi] your magic is not valid in these lands! %ux", magic);
         fclose(fd);
