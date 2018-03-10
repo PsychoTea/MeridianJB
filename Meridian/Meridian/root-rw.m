@@ -146,11 +146,8 @@ int remount_root(uint64_t kslide) {
 }
 
 int mount_root(uint64_t kslide, int pre130) {
-    int rv;
-   
     // attempt to remount - this may fail
-    rv = remount_root(kslide);
-    if (rv != 0) return rv;
+    remount_root(kslide);
     
     // didnt fail to remount
     if (can_write_root() == 0) return 0;
