@@ -238,11 +238,13 @@ void extract_bundle(const char* bundle_name, const char* directory) {
 }
 
 int extract_bundle_tar(const char *bundle_name) {
-    if (file_exists("/meridian/tar") != 0) {
-        extract_bundle("tar.tar", "/meridian");
-        chmod("/meridian/tar", 0755);
+    const char *file_path = bundled_file(bundle_name);
+    
+    if (file_exists(file_path) != 0) {
+        log_message([NSString stringWithFormat:@"Error, bundle file %s was not found at path %s!",
+                     bundle_name, file_path]);
+        return -1;
     }
-    inject_trust("/meridian/tar");
     
     return execprog("/meridian/tar", (const char **)&(const char*[]) {
         "/meridian/tar",
@@ -251,7 +253,7 @@ int extract_bundle_tar(const char *bundle_name) {
         "-C",
         "/",
         "-xvf",
-        bundled_file(bundle_name),
+        file_path,
         NULL
     });
 }
