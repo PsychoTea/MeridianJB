@@ -1,5 +1,6 @@
 .DS_Store
-*.DS_Store
 xcuserdata
 *.xcuserstate
-*.xcuserstate
+.theos
+obj
+bin
