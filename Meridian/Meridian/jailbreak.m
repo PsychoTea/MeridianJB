@@ -68,6 +68,8 @@ int makeShitHappen(ViewController *view) {
     mkdir("/meridian", 0755);
     mkdir("/meridian/logs", 0755);
     extract_bundle("tar.tar", "/meridian");
+    chmod("/meridian/tar", 0755);
+    inject_trust("/meridian/tar");
     
     // extract meridian-base
     [view writeText:@"extracting meridian files..."];
@@ -128,6 +130,8 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
+    unlink("/meridian/tar");
+    
     // TEMPORARY
     unlink("/usr/lib/SBInject.dylib");
     
@@ -187,42 +191,9 @@ kern_return_t callback(task_t kern_task, kptr_t kbase, uint64_t kernucred, uint6
 }
 
 int runV0rtex() {
-    int ret;
-    
-#include "offsetfinder.h"
     offsets_t *offsets = get_offsets();
     
-//        offsets_t *offsets = &(offsets_t){
-//            .base                               = 0xfffffff007004000,
-//            .sizeof_task                        = 0x550,
-//            .task_itk_self                      = 0xd8,
-//            .task_itk_registered                = 0x2e8,
-//            .task_bsd_info                      = 0x360,
-//            .proc_ucred                         = 0x100,
-//            .vm_map_hdr                         = 0x10,
-//            .ipc_space_is_task                  = 0x28,
-//            .realhost_special                   = 0x10,
-//            .iouserclient_ipc                   = 0x9c,
-//            .vtab_get_retain_count              = 0x3,
-//            .vtab_get_external_trap_for_index   = 0xb7,
-//            .zone_map                           = OFFSET_ZONE_MAP,
-//            .kernel_map                         = OFFSET_KERNEL_MAP,
-//            .kernel_task                        = OFFSET_KERNEL_TASK,
-//            .realhost                           = OFFSET_REALHOST,
-//            .copyin                             = OFFSET_COPYIN,
-//            .copyout                            = OFFSET_COPYOUT,
-//            .chgproccnt                         = OFFSET_CHGPROCCNT,
-//            .kauth_cred_ref                     = OFFSET_KAUTH_CRED_REF,
-//            .ipc_port_alloc_special             = OFFSET_IPC_PORT_ALLOC_SPECIAL,
-//            .ipc_kobject_set                    = OFFSET_IPC_KOBJECT_SET,
-//            .ipc_port_make_send                 = OFFSET_IPC_PORT_MAKE_SEND,
-//            .osserializer_serialize             = OFFSET_OSSERIALIZER_SERIALIZE,
-//            .rop_ldr_x0_x0_0x10                 = OFFSET_ROP_LDR_X0_X0_0x10,
-//        };
-        
-        ret = v0rtex(offsets, &callback);
-    
-    // kernel_base = 0xFFFFFFF007004000 + kslide;
+    int ret = v0rtex(offsets, &callback);
     
     if (ret == 0) {
         NSLog(@"tfp0: 0x%x", tfp0);
@@ -307,6 +278,7 @@ int extractBootstrap() {
     enableHiddenApps();
     
     touch_file("/meridian/.bootstrap");
+    unlink("/meridian/tar");
     
     inject_trust("/bin/uicache");
     rv = uicache();
