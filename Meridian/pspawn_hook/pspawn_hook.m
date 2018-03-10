@@ -81,7 +81,7 @@ pspawn_t old_pspawn, old_pspawnp;
 int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
     char fullArgs[512];
     
-    char** currentarg = argv;
+    char** currentarg = (char **)argv;
     while (*currentarg != NULL) {
         strcat(fullArgs, " ");
         strcat(fullArgs, *currentarg);
@@ -229,7 +229,7 @@ static void ctor(void) {
             DEBUGLOG("Can't get hgsp15 :(");
             return;
         }
-        DEBUGLOG("Got jbd port: %llx", jbd_port);
+        DEBUGLOG("Got jbd port: %x", jbd_port);
         
         pthread_t thd;
         pthread_create(&thd, NULL, thd_func, NULL);
@@ -240,7 +240,7 @@ static void ctor(void) {
         DEBUGLOG("Can't get bootstrap port :(");
         return;
     }
-    DEBUGLOG("Got jbd port: %llx", jbd_port);
+    DEBUGLOG("Got jbd port: %x", jbd_port);
     
     rebind_pspawns();
 }
