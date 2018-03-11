@@ -143,7 +143,7 @@ uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
     int is_swap = (magic == MH_CIGAM || magic == MH_CIGAM_64 || magic == FAT_CIGAM);
     
     uint64_t off = file_off;
-    int ncmds;
+    int ncmds = 0;
     
     if (magic == MH_MAGIC_64) {
         struct mach_header_64 mh64;

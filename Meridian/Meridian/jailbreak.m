@@ -27,7 +27,6 @@ uint64_t kernel_base;
 uint64_t kern_ucred;
 uint64_t kernprocaddr;
 
-
 int makeShitHappen(ViewController *view) {
     int ret;
     
@@ -192,6 +191,10 @@ kern_return_t callback(task_t kern_task, kptr_t kbase, uint64_t kernucred, uint6
 
 int runV0rtex() {
     offsets_t *offsets = get_offsets();
+    
+    if (offsets == NULL) {
+        return -1;
+    }
     
     int ret = v0rtex(offsets, &callback);
     

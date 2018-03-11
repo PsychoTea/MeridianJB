@@ -107,6 +107,8 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
         }
     } else if (current_process == PROCESS_XPCPROXY) {
+        // in theory... PSPAWN_HOOK_DYLIB + ":" + TWEAKLOADER_DYLIB
+        // should fix library validation errors and stuff from child procs...
         inject_me = TWEAKLOADER_DYLIB;
     }
     
