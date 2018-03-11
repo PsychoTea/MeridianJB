@@ -696,7 +696,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7s armv7";
+				VALID_ARCHS = arm64;
 			};
 			name = Debug;
 		};
@@ -728,7 +728,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 armv7s armv7";
+				VALID_ARCHS = arm64;
 			};
 			name = Release;
 		};
@@ -860,7 +860,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGET_CODESIGN_FLAGS = "-Sentitlements.xml";
 				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
@@ -875,7 +874,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGET_CODESIGN_FLAGS = "-Sentitlements.xml";
 				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
