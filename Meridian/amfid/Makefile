@@ -18,7 +18,7 @@ $(OUTDIR)/$(TARGET1): amfid_fucker.m | $(OUTDIR)
 
 $(OUTDIR)/$(TARGET2): amfid_payload.m | $(OUTDIR)
 	$(CC) -dynamiclib -framework Foundation -o $@ $^
-	$(LDID) -Sentitlements.xml $@
+	$(LDID) -S $@
 
 clean:
 	rm -rf $(OUTDIR)
