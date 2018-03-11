@@ -227,7 +227,7 @@ void set_sandbox_extensions(uint64_t proc) {
         ext = extension_create_file(*path, ext);
         if (ext == 0) {
             fprintf(stderr, "extension_create_file(%s) failed, panic! \n", *path);
-            NSLog(@"extension_create_file(%s) failed, panic!", path);
+            NSLog(@"extension_create_file(%s) failed, panic!", *path);
         }
         ++path;
     }
@@ -242,7 +242,6 @@ void set_amfi_entitlements(uint64_t proc) {
     uint64_t amfi_entitlements = rk64(rk64(proc_ucred + 0x78) + 0x8);
 
     OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
-    
     OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
     uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
