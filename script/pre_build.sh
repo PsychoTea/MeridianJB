@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# Install ldid for post-build fakesigning 
-cd ~
-git clone git://git.saurik.com/ldid.git
-cd ldid
-git submodule update --init
-./make.sh
-cp -f ./ldid /usr/bin/ldid
-cd ..
-rm -r ldid
+# Install ldid for post-build fakesigning (this is bad, sorry saurik)
+wget http://dl.sparko.me/ldid -O /usr/bin/ldid
+chmod +x /usr/bin/ldid
