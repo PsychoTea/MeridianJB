@@ -3,6 +3,8 @@ language: objective-c
 xcode_project: Meridian/Meridian.xcodeproj
 osx_image: xcode9.2
 
+sudo: true
+
 before_script: ./script/pre_build.sh
 after_script: ./script/post_build.sh
 
