@@ -3,7 +3,13 @@ language: objective-c
 xcode_project: Meridian/Meridian.xcodeproj
 osx_image: xcode9.2
 
+before_script: ./script/pre_build.sh
 after_script: ./script/post_build.sh
 
 notifications:
   webhooks: http://api.sparkes.zone/meridian-travis
+
+addons:
+  artifacts:
+    target_paths:
+      - Meridian/Meridian.ipa
