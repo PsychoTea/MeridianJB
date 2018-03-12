@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "====== PERFORMING POST BUILD ACTIONS ======"
+
 cd Meridian
 
 xcodebuild -scheme Meridian -archivePath Meridian.xcarchive 
@@ -11,3 +13,5 @@ rm -r Meridian.xcarchive
 ls -l Meridian.ipa
 echo "Generated ipa... where now?"
 echo "$(ls -l Meridian.ipa)"
+
+echo "====== COMPLETED POST BUILD ACTIONS ======"

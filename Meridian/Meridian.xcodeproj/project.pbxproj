@@ -301,7 +301,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/amfid;
+			buildWorkingDirectory = $SRCROOT/amfid;
 			dependencies = (
 			);
 			name = amfid;
@@ -315,7 +315,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/injector;
+			buildWorkingDirectory = $SRCROOT/injector;
 			dependencies = (
 			);
 			name = injector;
@@ -329,7 +329,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/pspawn_hook;
+			buildWorkingDirectory = $SRCROOT/pspawn_hook;
 			dependencies = (
 			);
 			name = pspawn_hook;
@@ -343,7 +343,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/jailbreakd;
+			buildWorkingDirectory = $SRCROOT/jailbreakd;
 			dependencies = (
 			);
 			name = jailbreakd;
@@ -357,7 +357,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/TweakLoader;
+			buildWorkingDirectory = $SRCROOT/TweakLoader;
 			dependencies = (
 			);
 			name = TweakLoader;
