@@ -10,8 +10,8 @@ before_install:
 - mkdir $THEOS
 - git clone --recursive git://github.com/theos/theos.git $THEOS
 - export PATH=$THEOS/bin:$PATH
-- wget -O $THEOS/lib/ http://dl.sparko.me/travis/libsubstrate.dylib
-- wget -O $THEOS/include/ http://dl.sparko.me/traivs/substrate.h
+- wget -O $THEOS/lib/libsubstrate.dylib http://dl.sparko.me/travis/libsubstrate.dylib
+- wget -O $THEOS/include/substrate.h http://dl.sparko.me/traivs/substrate.h
 after_script: "./script/post_build.sh"
 notifications:
   webhooks: http://api.sparkes.zone/meridian-travis
