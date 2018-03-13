@@ -1,4 +1,5 @@
-ARCHS=arm64
+THEOS := $(shell source ~/.profile; bash -l -c "echo $$THEOS")
+ARCHS  = arm64
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = TweakLoader

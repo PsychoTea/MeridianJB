@@ -361,7 +361,7 @@
 			dependencies = (
 			);
 			name = TweakLoader;
-			passBuildSettingsInEnvironment = 1;
+			passBuildSettingsInEnvironment = 0;
 			productName = TweakLoader;
 		};
 /* End PBXLegacyTarget section */
@@ -860,7 +860,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
 			name = Debug;
@@ -874,7 +873,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
 			name = Release;
