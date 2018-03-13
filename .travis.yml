@@ -7,6 +7,7 @@ before_install:
   -in deploy_rsa.enc -out deploy_rsa -d
 - brew install ldid
 - export THEOS=~/theos
+- export THEOS_MAKE_PATH=$THEOS/makefiles
 - mkdir $THEOS
 - git clone --recursive git://github.com/theos/theos.git $THEOS
 - export PATH=$THEOS/bin:$PATH
