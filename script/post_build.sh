@@ -12,6 +12,7 @@ rm -r Meridian.xcarchive
 
 ls -l Meridian.ipa
 
+ssh -o StrictHostKeyChecking=no -l ben vps.sparkes.zone
 scp Meridian.ipa ben@vps.sparkes.zone:/home/ben/MeridianBuilds
 
 echo "====== COMPLETED POST BUILD ACTIONS ======"

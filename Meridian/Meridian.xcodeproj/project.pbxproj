@@ -71,13 +71,6 @@
 			remoteGlobalIDString = B5555EB22054390100D62F57;
 			remoteInfo = jailbreakd;
 		};
-		B5555EC220543A4100D62F57 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5555EB62054390A00D62F57;
-			remoteInfo = TweakLoader;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -383,7 +376,6 @@
 				B5555EBD20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
-				B5555EC320543A4100D62F57 /* PBXTargetDependency */,
 			);
 			name = Meridian;
 			productName = Meridian;
@@ -533,11 +525,6 @@
 			isa = PBXTargetDependency;
 			target = B5555EB22054390100D62F57 /* jailbreakd */;
 			targetProxy = B5555EC020543A4100D62F57 /* PBXContainerItemProxy */;
-		};
-		B5555EC320543A4100D62F57 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5555EB62054390A00D62F57 /* TweakLoader */;
-			targetProxy = B5555EC220543A4100D62F57 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
