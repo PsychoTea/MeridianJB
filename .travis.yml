@@ -6,7 +6,7 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_e98fc6d03aa6_key -iv $encrypted_e98fc6d03aa6_iv
   -in deploy_rsa.enc -out deploy_rsa -d
 - brew install ldid
-- export THEOS=/opt/theos
+- export THEOS=~/theos
 - mkdir $THEOS
 - git clone --recursive git://github.com/theos/theos.git $THEOS
 - export PATH=$THEOS/bin:$PATH
