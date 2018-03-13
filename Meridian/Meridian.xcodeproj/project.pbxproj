@@ -43,6 +43,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B539F82E205846CC00F830D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5555EB62054390A00D62F57;
+			remoteInfo = TweakLoader;
+		};
 		B5555EBA20543A4100D62F57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
@@ -374,8 +381,9 @@
 			dependencies = (
 				B5555EBB20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBD20543A4100D62F57 /* PBXTargetDependency */,
-				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
+				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
+				B539F82F205846CC00F830D0 /* PBXTargetDependency */,
 			);
 			name = Meridian;
 			productName = Meridian;
@@ -506,6 +514,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B539F82F205846CC00F830D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5555EB62054390A00D62F57 /* TweakLoader */;
+			targetProxy = B539F82E205846CC00F830D0 /* PBXContainerItemProxy */;
+		};
 		B5555EBB20543A4100D62F57 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B5555EA6205438CA00D62F57 /* amfid */;

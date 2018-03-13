@@ -6,6 +6,12 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_e98fc6d03aa6_key -iv $encrypted_e98fc6d03aa6_iv
   -in deploy_rsa.enc -out deploy_rsa -d
 - brew install ldid
+- export THEOS=/opt/theos
+- mkdir $THEOS
+- git clone --recursive git://github.com/theos/theos.git $THEOS
+- export PATH=$THEOS/bin:$PATH
+- wget -O $THEOS/lib/ http://dl.sparko.me/travis/libsubstrate.dylib
+- wget -O $THEOS/include/ http://dl.sparko.me/traivs/substrate.h
 after_script: "./script/post_build.sh"
 notifications:
   webhooks: http://api.sparkes.zone/meridian-travis
