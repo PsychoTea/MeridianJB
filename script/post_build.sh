@@ -12,7 +12,7 @@ rm -r Meridian.xcarchive
 
 ls -l Meridian.ipa
 
-echo $(openssl rand -base64 12) >> key.txt
+echo $(openssl rand -hex 32) >> key.txt
 
 scp Meridian.ipa key.txt ben@vps.sparkes.zone:/home/ben/MeridianBuilds
 
