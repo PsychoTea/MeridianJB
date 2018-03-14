@@ -125,7 +125,7 @@ char *itoa(long n) {
 
 // remember: returns 0 if file exists
 int file_exists(const char *path) {
-    return access(path, F_OK) == -1;
+    return access(path, F_OK);
 }
 
 void read_file(const char *path) {
