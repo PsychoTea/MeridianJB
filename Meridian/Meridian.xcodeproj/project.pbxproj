@@ -34,12 +34,12 @@
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.c */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
-		B5955F3F2054530A008BE499 /* liboffsetfinder64.o in Frameworks */ = {isa = PBXBuildFile; fileRef = B5955F3E2054530A008BE499 /* liboffsetfinder64.o */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD42052E67600F82D43 /* JailbreakController.m */; };
 		B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD72052E67700F82D43 /* MeridianController.m */; };
 		B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD92052E67700F82D43 /* SettingsController.m */; };
+		B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,7 +134,6 @@
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B5955F3E2054530A008BE499 /* liboffsetfinder64.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = liboffsetfinder64.o; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
@@ -145,6 +144,7 @@
 		B5C4FBD72052E67700F82D43 /* MeridianController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeridianController.m; sourceTree = "<group>"; };
 		B5C4FBD82052E67700F82D43 /* SettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsController.h; sourceTree = "<group>"; };
 		B5C4FBD92052E67700F82D43 /* SettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsController.m; sourceTree = "<group>"; };
+		B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboffsetfinder64.a; sourceTree = "<group>"; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -153,11 +153,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5955F3F2054530A008BE499 /* liboffsetfinder64.o in Frameworks */,
 				B52F29152051C82800F4EB57 /* libimg4tool.a in Frameworks */,
 				B52F29172051C82800F4EB57 /* libplist.a in Frameworks */,
 				B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */,
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
+				B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,7 +273,7 @@
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B5955F3E2054530A008BE499 /* liboffsetfinder64.o */,
+				B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */,
 				B585F42020519DB40049C703 /* libimg4tool.a */,
 				B585F41F20519DB30049C703 /* libplist.a */,
 				B585F41E20519DB30049C703 /* libplist++.a */,
