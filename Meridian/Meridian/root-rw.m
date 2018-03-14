@@ -168,5 +168,13 @@ int mount_root(uint64_t kslide, int pre130) {
 }
 
 int can_write_root() {
-    return access("/", W_OK);
+    FILE *fd = fopen("/.filetest", "w+");
+    
+    if (fd == NULL) {
+        return -1;
+    }
+    
+    fclose(fd);
+    unlink("/.filetest");
+    return 0;
 }
