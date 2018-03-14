@@ -131,9 +131,6 @@ int makeShitHappen(ViewController *view) {
     
     unlink("/meridian/tar");
     
-    // TEMPORARY
-    unlink("/usr/lib/SBInject.dylib");
-    
     // touch .cydia_no_stash
     touch_file("/.cydia_no_stash");
     
