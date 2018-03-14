@@ -32,7 +32,7 @@
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
-		B584C54A20376BCB00BF4118 /* untar.c in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.c */; };
+		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
@@ -40,6 +40,8 @@
 		B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD72052E67700F82D43 /* MeridianController.m */; };
 		B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD92052E67700F82D43 /* SettingsController.m */; };
 		B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */; };
+		B5DF1AC22059C0E20090B4B5 /* libmerged.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC12059C0E20090B4B5 /* libmerged.a */; };
+		B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -121,7 +123,7 @@
 		B57A06F0202CF52500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
-		B584C54920376BCA00BF4118 /* untar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = untar.c; sourceTree = "<group>"; };
+		B584C54920376BCA00BF4118 /* untar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = untar.m; sourceTree = "<group>"; };
 		B584C54B20376BD200BF4118 /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
 		B585F414205198DF0049C703 /* liboffsetfinder64.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = liboffsetfinder64.hpp; sourceTree = "<group>"; };
 		B585F4172051993E0049C703 /* offsetfinder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = offsetfinder.mm; sourceTree = "<group>"; };
@@ -145,6 +147,8 @@
 		B5C4FBD82052E67700F82D43 /* SettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsController.h; sourceTree = "<group>"; };
 		B5C4FBD92052E67700F82D43 /* SettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsController.m; sourceTree = "<group>"; };
 		B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboffsetfinder64.a; sourceTree = "<group>"; };
+		B5DF1AC12059C0E20090B4B5 /* libmerged.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmerged.a; sourceTree = "<group>"; };
+		B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -153,11 +157,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */,
 				B52F29152051C82800F4EB57 /* libimg4tool.a in Frameworks */,
 				B52F29172051C82800F4EB57 /* libplist.a in Frameworks */,
 				B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */,
 				B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */,
 				B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */,
+				B5DF1AC22059C0E20090B4B5 /* libmerged.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,7 +240,7 @@
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
 				B584C54B20376BD200BF4118 /* untar.h */,
-				B584C54920376BCA00BF4118 /* untar.c */,
+				B584C54920376BCA00BF4118 /* untar.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
 			);
@@ -273,6 +279,8 @@
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */,
+				B5DF1AC12059C0E20090B4B5 /* libmerged.a */,
 				B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */,
 				B585F42020519DB40049C703 /* libimg4tool.a */,
 				B585F41F20519DB30049C703 /* libplist.a */,
@@ -493,7 +501,7 @@
 			files = (
 				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
-				B584C54A20376BCB00BF4118 /* untar.c in Sources */,
+				B584C54A20376BCB00BF4118 /* untar.m in Sources */,
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
 				B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,

@@ -314,7 +314,6 @@ void setUpSubstitute() {
 
 int startJailbreakd() {
     inject_trust("/meridian/pspawn_hook.dylib");
-    inject_trust("/usr/lib/TweakLoader.dylib");
     
     unlink("/var/tmp/jailbreakd.pid");
     
