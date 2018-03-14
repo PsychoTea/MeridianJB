@@ -55,6 +55,8 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    NSLog(@"before remount: %d", can_write_root());
+    
     // remount root fs
     [view writeText:@"remounting rootfs as r/w..."];
     ret = remountRootFs();
@@ -228,6 +230,7 @@ int remountRootFs() {
     
     rv = can_write_root();
     if (rv != 0) {
+        NSLog(@"failed can write root check!");
         return 1;
     }
     

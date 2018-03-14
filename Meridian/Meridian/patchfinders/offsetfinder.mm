@@ -55,6 +55,12 @@ extern "C" offsets_t *get_offsets() {
 
         offset_rootvnode                        = (kptr_t)fi.find_rootvnode();
         offset_zonemap                          = off.zone_map;
+        
+        NSLog(@"[OFFSET] sizeof_task = %llx", off.sizeof_task);
+        NSLog(@"[OFFSET] task_itk_self = %llx", off.task_itk_self);
+        NSLog(@"[OFFSET] task_itk_registered = %llx", off.task_itk_registered);
+        NSLog(@"[OFFSET] kernel_task = %llx", off.kernel_task);
+        NSLog(@"[OFFSET] rootvnode = %llx", offset_rootvnode);
     } catch (tihmstar::exception &e) {
         NSLog(@"offsetfinder failure! %d (%s)", e.code(), e.what());
         return NULL;
