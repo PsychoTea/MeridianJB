@@ -9,6 +9,6 @@
 #ifndef untar_h
 #define untar_h
 
-void untar(FILE *a, const char *path);
+int untar(FILE *a, const char *path);
 
 #endif /* untar_h */

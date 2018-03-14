@@ -36,6 +36,8 @@
 /* This is for mkdir(); this may need to be changed for some platforms. */
 #include <sys/stat.h>  /* For mkdir() */
 
+#include <Foundation/Foundation.h>
+
 /* Parse an octal number, ignoring leading and trailing nonsense. */
 static int
 parseoct(const char *p, size_t n)
@@ -97,7 +99,7 @@ create_dir(char *pathname, int mode, int owner, int group)
 		}
 	}
 	if (r != 0)
-		fprintf(stderr, "Could not create directory %s\n", pathname);
+		NSLog(@"Could not create directory %s", pathname);
 	else if (owner >= 0 && group >= 0)
 		chown(pathname, owner, group);
 }
@@ -142,7 +144,7 @@ verify_checksum(const char *p)
 }
 
 /* Extract a tar archive. */
-void
+int
 untar(FILE *a, const char *path)
 {
 	char buff[512];
@@ -150,61 +152,57 @@ untar(FILE *a, const char *path)
 	size_t bytes_read;
 	int filesize;
 
-	printf("Extracting from %s\n", path);
+	NSLog(@"Extracting from %s", path);
 	for (;;) {
 		bytes_read = fread(buff, 1, 512, a);
 		if (bytes_read < 512) {
-			fprintf(stderr,
-			    "Short read on %s: expected 512, got %zd\n",
-			    path, bytes_read);
-			return;
+			NSLog(@"Short read on %s: expected 512, got %d", path, (int)bytes_read);
+			return -1;
 		}
 		if (is_end_of_archive(buff)) {
-			printf("End of %s\n", path);
-			return;
+			NSLog(@"End of %s", path);
+			return 0;
 		}
 		if (!verify_checksum(buff)) {
-			fprintf(stderr, "Checksum failure\n");
-			return;
+			NSLog(@"Checksum failure");
+			return -2;
 		}
 		filesize = parseoct(buff + 124, 12);
 		switch (buff[156]) {
 		case '1':
-			printf(" Ignoring hardlink %s\n", buff);
+			NSLog(@" Ignoring hardlink %s", buff);
 			break;
 		case '2':
-			printf(" Extracting symlink %s -> %s\n", buff, buff + 157);
+			NSLog(@" Extracting symlink %s -> %s", buff, buff + 157);
 			if (unlink(buff) && errno != ENOENT) {
 				break;
 			}
 			symlink(buff + 157, buff);
 			break;
 		case '3':
-			printf(" Ignoring character device %s\n", buff);
+			NSLog(@" Ignoring character device %s", buff);
 				break;
 		case '4':
-			printf(" Ignoring block device %s\n", buff);
+			NSLog(@" Ignoring block device %s", buff);
 			break;
 		case '5':
-			printf(" Extracting dir %s\n", buff);
+			NSLog(@" Extracting dir %s", buff);
 			create_dir(buff, parseoct(buff + 100, 8), parseoct(buff + 108, 8), parseoct(buff + 116, 8));
 			filesize = 0;
 			break;
 		case '6':
-			printf(" Ignoring FIFO %s\n", buff);
+			NSLog(@" Ignoring FIFO %s", buff);
 			break;
 		default:
-			printf(" Extracting file %s\n", buff);
+			NSLog(@" Extracting file %s", buff);
 			f = create_file(buff, parseoct(buff + 100, 8), parseoct(buff + 108, 8), parseoct(buff + 116, 8));
 			break;
 		}
 		while (filesize > 0) {
 			bytes_read = fread(buff, 1, 512, a);
 			if (bytes_read < 512) {
-				fprintf(stderr,
-				    "Short read on %s: Expected 512, got %zd\n",
-				    path, bytes_read);
-				return;
+				NSLog(@"Short read on %s: Expected 512, got %zd", path, bytes_read);
+				return -3;
 			}
 			if (filesize < 512)
 				bytes_read = filesize;
@@ -212,7 +210,7 @@ untar(FILE *a, const char *path)
 				if (write(f, buff, bytes_read)
 				    != bytes_read)
 				{
-					fprintf(stderr, "Failed write\n");
+					NSLog(@"Failed write");
 					close(f);
 					f = -1;
 				}
@@ -224,6 +222,8 @@ untar(FILE *a, const char *path)
 			f = -1;
 		}
 	}
+    
+    return 0;
 }
 
 #ifdef HAVE_MAIN
@@ -236,7 +236,7 @@ main(int argc, char **argv)
 	for ( ;*argv != NULL; ++argv) {
 		a = fopen(*argv, "r");
 		if (a == NULL)
-			fprintf(stderr, "Unable to open %s\n", *argv);
+			NSLog(@"Unable to open %s", *argv);
 		else {
 			untar(a, *argv);
 			fclose(a);
