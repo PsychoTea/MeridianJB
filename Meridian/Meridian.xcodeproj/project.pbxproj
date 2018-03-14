@@ -43,6 +43,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B539F82E205846CC00F830D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5555EB62054390A00D62F57;
+			remoteInfo = TweakLoader;
+		};
 		B5555EBA20543A4100D62F57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
@@ -70,13 +77,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = B5555EB22054390100D62F57;
 			remoteInfo = jailbreakd;
-		};
-		B5555EC220543A4100D62F57 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5555EB62054390A00D62F57;
-			remoteInfo = TweakLoader;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -301,7 +301,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/amfid;
+			buildWorkingDirectory = $SRCROOT/amfid;
 			dependencies = (
 			);
 			name = amfid;
@@ -315,7 +315,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/injector;
+			buildWorkingDirectory = $SRCROOT/injector;
 			dependencies = (
 			);
 			name = injector;
@@ -329,7 +329,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/pspawn_hook;
+			buildWorkingDirectory = $SRCROOT/pspawn_hook;
 			dependencies = (
 			);
 			name = pspawn_hook;
@@ -343,7 +343,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/jailbreakd;
+			buildWorkingDirectory = $SRCROOT/jailbreakd;
 			dependencies = (
 			);
 			name = jailbreakd;
@@ -357,11 +357,11 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/ben/Documents/GitHub/MeridianJB/Meridian/TweakLoader;
+			buildWorkingDirectory = $SRCROOT/TweakLoader;
 			dependencies = (
 			);
 			name = TweakLoader;
-			passBuildSettingsInEnvironment = 1;
+			passBuildSettingsInEnvironment = 0;
 			productName = TweakLoader;
 		};
 /* End PBXLegacyTarget section */
@@ -381,9 +381,9 @@
 			dependencies = (
 				B5555EBB20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBD20543A4100D62F57 /* PBXTargetDependency */,
-				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
-				B5555EC320543A4100D62F57 /* PBXTargetDependency */,
+				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
+				B539F82F205846CC00F830D0 /* PBXTargetDependency */,
 			);
 			name = Meridian;
 			productName = Meridian;
@@ -514,6 +514,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B539F82F205846CC00F830D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5555EB62054390A00D62F57 /* TweakLoader */;
+			targetProxy = B539F82E205846CC00F830D0 /* PBXContainerItemProxy */;
+		};
 		B5555EBB20543A4100D62F57 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B5555EA6205438CA00D62F57 /* amfid */;
@@ -533,11 +538,6 @@
 			isa = PBXTargetDependency;
 			target = B5555EB22054390100D62F57 /* jailbreakd */;
 			targetProxy = B5555EC020543A4100D62F57 /* PBXContainerItemProxy */;
-		};
-		B5555EC320543A4100D62F57 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5555EB62054390A00D62F57 /* TweakLoader */;
-			targetProxy = B5555EC220543A4100D62F57 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -860,7 +860,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
 			name = Debug;
@@ -874,7 +873,6 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				THEOS = /opt/theos;
 				VALID_ARCHS = "arm64,armv7,armv7s";
 			};
 			name = Release;
