@@ -55,8 +55,6 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
-    NSLog(@"before remount: %d", can_write_root());
-    
     // remount root fs
     [view writeText:@"remounting rootfs as r/w..."];
     ret = remountRootFs();
@@ -68,9 +66,23 @@ int makeShitHappen(ViewController *view) {
     
     mkdir("/meridian", 0755);
     mkdir("/meridian/logs", 0755);
-    extract_bundle("tar.tar", "/meridian");
+    ret = extract_bundle("tar.tar", "/meridian");
+    if (ret != 0) {
+        [view writeTextPlain:@"failed to extract tar.tar bundle!"];
+        return 1;
+    }
+    
     chmod("/meridian/tar", 0755);
     inject_trust("/meridian/tar");
+    
+    if (file_exists("/meridian") != 0) {
+        [view writeTextPlain:@"failed to create /meridian directory!"];
+        return 1;
+    }
+    if (file_exists("/meridian/tar") != 0) {
+        [view writeTextPlain:@"failed to extract tar binary (not found)!"];
+        return 1;
+    }
     
     // extract meridian-base
     [view writeText:@"extracting meridian files..."];
@@ -225,12 +237,6 @@ int remountRootFs() {
     
     int rv = mount_root(kslide, pre130);
     if (rv != 0) {
-        return 1;
-    }
-    
-    rv = can_write_root();
-    if (rv != 0) {
-        NSLog(@"failed can write root check!");
         return 1;
     }
     

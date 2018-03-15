@@ -146,35 +146,18 @@ int remount_root(uint64_t kslide) {
 }
 
 int mount_root(uint64_t kslide, int pre130) {
-    // attempt to remount - this may fail
-    remount_root(kslide);
-    
-    // didnt fail to remount
-    if (can_write_root() == 0) return 0;
-    
-    // failed to remount - further patching is required (pre-10.3)
-    NSLog(@"pre-10.3 detected: patching lwvm...");
-    if (!fix_root_iswriteprotected()) {
-        NSLog(@"fix_root_iswriteprotected failed!");
-        return -61;
-    }
-    if (!fake_rootedramdisk()) {
-        NSLog(@"fake_rootedramdisk failed!");
-        return -62;
+    if (pre130 == 1) {
+        // further patches are requried on <10.3
+        NSLog(@"pre-10.3 detected: patching lwvm...");
+        if (!fix_root_iswriteprotected()) {
+            NSLog(@"fix_root_iswriteprotected failed!");
+            return -61;
+        }
+        if (!fake_rootedramdisk()) {
+            NSLog(@"fake_rootedramdisk failed!");
+            return -62;
+        }
     }
     
-    // call remount_root again
     return remount_root(kslide);
-}
-
-int can_write_root() {
-    FILE *fd = fopen("/.filetest", "w+");
-    
-    if (fd == NULL) {
-        return -1;
-    }
-    
-    fclose(fd);
-    unlink("/.filetest");
-    return 0;
 }

@@ -32,7 +32,7 @@ void read_file(const char* path);
 int cp(const char *from, const char *to);
 char* bundled_file(const char *filename);
 char* bundle_path(void);
-void extract_bundle(const char* bundle_name, const char* directory);
+int extract_bundle(const char* bundle_name, const char* directory);
 int extract_bundle_tar(const char *bundle_name);
 void touch_file(char *path);
 char* concat(const char *s1, const char *s2);

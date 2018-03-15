@@ -219,22 +219,30 @@ char* bundle_path() {
     return concat(path, "/");
 }
 
-void extract_bundle(const char* bundle_name, const char* directory) {
+int extract_bundle(const char* bundle_name, const char* directory) {
+    int ret;
+    
     char *tarFile = malloc(strlen(bundle_name) +
                            strlen("/") +
                            strlen(bundle_name) +
                            3);
+    
     strcpy(tarFile, directory);
     strcat(tarFile, "/");
     strcat(tarFile, bundle_name);
     
-    cp(bundled_file(bundle_name), tarFile);
+    ret = cp(bundled_file(bundle_name), tarFile);
+    if (ret != 0) {
+        return -10;
+    }
     
     chdir(directory);
     
-    untar(fopen(tarFile, "r"), bundle_name);
+    ret = untar(fopen(tarFile, "r"), bundle_name);
     
     unlink(tarFile);
+    
+    return ret;
 }
 
 int extract_bundle_tar(const char *bundle_name) {
