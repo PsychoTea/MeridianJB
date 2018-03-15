@@ -112,7 +112,7 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         inject_me = TWEAKLOADER_DYLIB;
     }
     
-    if (inject_me == NULL) {
+    if (inject_me == NULL || file_exists(inject_me) != 0) {
         DEBUGLOG("Nothing to inject.");
         return old(pid, path, file_actions, attrp, argv, envp);
     }
