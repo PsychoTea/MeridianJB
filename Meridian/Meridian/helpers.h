@@ -39,5 +39,6 @@ char* concat(const char *s1, const char *s2);
 void grant_csflags(pid_t pd);
 int execprog(const char *prog, const char* args[]);
 void restart_device(void);
+double uptime(void);
 
 #endif

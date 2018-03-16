@@ -16,6 +16,7 @@
 #include <sys/fcntl.h>
 #include <sys/spawn.h>
 #include <sys/stat.h>
+#include <sys/sysctl.h>
 #import <Foundation/Foundation.h>
 
 uint64_t find_proc_by_name(char* name) {
@@ -375,6 +376,7 @@ io_service_t IOServiceGetMatchingService(mach_port_t masterPort, CFDictionaryRef
 kern_return_t IOServiceOpen(io_service_t service, task_port_t owningTask, uint32_t type, io_connect_t *client);
 kern_return_t IOConnectCallAsyncStructMethod(mach_port_t connection, uint32_t selector, mach_port_t wake_port, uint64_t *reference, uint32_t referenceCnt, const void *inputStruct, size_t inputStructCnt, void *outputStruct, size_t *outputStructCnt);
 
+// credits to tihmstar
 void restart_device() {
     // open user client
     CFMutableDictionaryRef matching = IOServiceMatching("IOSurfaceRoot");
@@ -391,4 +393,18 @@ void restart_device() {
     while (1) {
         IOConnectCallAsyncStructMethod(connect, 17, port, &references, 1, input, sizeof(input), NULL, NULL);
     }
+}
+
+// credits to tihmstar
+double uptime() {
+    struct timeval boottime;
+    size_t len = sizeof(boottime);
+    int mib[2] = { CTL_KERN, KERN_BOOTTIME };
+    if (sysctl(mib, 2, &boottime, &len, NULL, 0) < 0) {
+        return -1.0;
+    }
+    
+    time_t bsec = boottime.tv_sec, csec = time(NULL);
+    
+    return difftime(csec, bsec);
 }

@@ -76,7 +76,26 @@ bool jailbreak_has_run = false;
         return;
     }
     
-    [self writeTextPlain:@"> ready."];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+        int waitTime;
+        while ((waitTime = 20 - uptime()) > 0) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.goButton setTitle:[NSString stringWithFormat:@"wait: %d", waitTime] forState:UIControlStateNormal];
+                [self.goButton setEnabled:false];
+                [self.goButton setAlpha:0.6];
+            });
+            
+            sleep(1);
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.goButton setTitle:@"go" forState:UIControlStateNormal];
+            [self.goButton setEnabled:true];
+            [self.goButton setAlpha:1];
+            
+            [self writeTextPlain:@"> ready."];
+        });
+    });
     
     NSLog(@"App bundle directory: %s", bundle_path());
 }
