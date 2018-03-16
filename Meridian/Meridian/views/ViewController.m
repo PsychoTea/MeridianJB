@@ -78,7 +78,7 @@ bool jailbreak_has_run = false;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         int waitTime;
-        while ((waitTime = 40 - uptime()) > 0) {
+        while ((waitTime = 60 - uptime()) > 0) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.goButton setTitle:[NSString stringWithFormat:@"wait: %d", waitTime] forState:UIControlStateNormal];
                 [self.goButton setEnabled:false];
