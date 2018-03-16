@@ -20,7 +20,6 @@
 		B52F29152051C82800F4EB57 /* libimg4tool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F42020519DB40049C703 /* libimg4tool.a */; };
 		B52F29172051C82800F4EB57 /* libplist.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41F20519DB30049C703 /* libplist.a */; };
 		B52F29182051C82800F4EB57 /* libplist++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B585F41E20519DB30049C703 /* libplist++.a */; };
-		B52F29222051D93C00F4EB57 /* libsub-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B52F29212051D93B00F4EB57 /* libsub-base.tar */; };
 		B52F29282051F10800F4EB57 /* fucksigningservices.m in Sources */ = {isa = PBXBuildFile; fileRef = B52F29272051F10800F4EB57 /* fucksigningservices.m */; };
 		B5370199202EAC00004E5E5C /* installer-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5370198202EABFF004E5E5C /* installer-base.tar */; };
 		B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */; };
@@ -105,7 +104,6 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		B52F29212051D93B00F4EB57 /* libsub-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "libsub-base.tar"; sourceTree = "<group>"; };
 		B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = Working_with_libjailbreak.md; path = ../Working_with_libjailbreak.md; sourceTree = "<group>"; };
 		B52F29262051F10800F4EB57 /* fucksigningservices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fucksigningservices.h; sourceTree = "<group>"; };
 		B52F29272051F10800F4EB57 /* fucksigningservices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = fucksigningservices.m; sourceTree = "<group>"; };
@@ -267,7 +265,6 @@
 				B57A06E6202CEDF500ACDB9D /* cydia-base.tar */,
 				B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */,
 				B5370198202EABFF004E5E5C /* installer-base.tar */,
-				B52F29212051D93B00F4EB57 /* libsub-base.tar */,
 				B57A06F0202CF52500ACDB9D /* meridian-base.tar */,
 				B57A06E7202CEDF500ACDB9D /* optional-base.tar */,
 				B57A06E8202CEDF500ACDB9D /* system-base.tar */,
@@ -470,7 +467,6 @@
 				B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */,
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
-				B52F29222051D93C00F4EB57 /* libsub-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
