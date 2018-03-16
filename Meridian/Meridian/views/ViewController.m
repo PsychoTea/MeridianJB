@@ -27,6 +27,7 @@ NSOperatingSystemVersion osVersion;
 
 id thisClass;
 
+bool has_run_once = false;
 bool jailbreak_has_run = false;
 
 @implementation ViewController
@@ -91,6 +92,13 @@ bool jailbreak_has_run = false;
         return;
     }
     
+    // if we've run once, just reboot
+    if (has_run_once) {
+        [self.goButton setHidden:YES];
+        restart_device();
+        return;
+    }
+    
     // set up the UI to 'running' state
     [self.goButton setEnabled:NO];
     [self.goButton setHidden:YES];
@@ -99,6 +107,8 @@ bool jailbreak_has_run = false;
     [self.websiteButton setEnabled:NO];
     self.websiteButton.alpha = 0.5;
     [self.progressSpinner startAnimating];
+    
+    has_run_once = true;
     
     // background thread so we can update the UI
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
@@ -171,25 +181,19 @@ bool jailbreak_has_run = false;
 }
 
 - (void)exploitFailed {
-    [self writeTextPlain:@"exploit failed. please try again. \n"];
+    [self writeTextPlain:@"exploit failed. please reboot & try again."];
     
     [self.goButton setEnabled:YES];
     [self.goButton setHidden:NO];
+    [self.goButton setTitle:@"reboot" forState:UIControlStateNormal];
+    
     [self.creditsButton setEnabled:YES];
-    self.creditsButton.alpha = 1;
+    [self.creditsButton setAlpha:1];
+    
     [self.websiteButton setEnabled:YES];
-    self.websiteButton.alpha = 1;
+    [self.websiteButton setAlpha:1];
+    
     [self.progressSpinner stopAnimating];
-}
-
-- (void)noOffsets {
-    [self.goButton setTitle:@"no offsets" forState:UIControlStateNormal];
-    [self.goButton setEnabled:NO];
-    self.goButton.alpha = 0.5;
-
-    [self writeTextPlain:@"> Your device is not supported; no offsets were found."];
-    [self writeTextPlain:@"> You will need to find your own offsets."];
-    [self writeTextPlain:@"> Once found, send them to @iBSparkes on Twitter."];
 }
 
 - (void)doUpdateCheck {

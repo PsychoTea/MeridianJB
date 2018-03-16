@@ -365,3 +365,30 @@ int execprog(const char *prog, const char* args[]) {
     
     return 0;
 }
+
+// too lazy to find & add IOKit headers so here we are
+typedef mach_port_t io_service_t;
+typedef mach_port_t io_connect_t;
+extern const mach_port_t kIOMasterPortDefault;
+CFMutableDictionaryRef IOServiceMatching(const char *name) CF_RETURNS_RETAINED;
+io_service_t IOServiceGetMatchingService(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT);
+kern_return_t IOServiceOpen(io_service_t service, task_port_t owningTask, uint32_t type, io_connect_t *client);
+kern_return_t IOConnectCallAsyncStructMethod(mach_port_t connection, uint32_t selector, mach_port_t wake_port, uint64_t *reference, uint32_t referenceCnt, const void *inputStruct, size_t inputStructCnt, void *outputStruct, size_t *outputStructCnt);
+
+void restart_device() {
+    // open user client
+    CFMutableDictionaryRef matching = IOServiceMatching("IOSurfaceRoot");
+    io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, matching);
+    io_connect_t connect = 0;
+    IOServiceOpen(service, mach_task_self(), 0, &connect);
+    
+    // add notification port with same refcon multiple times
+    mach_port_t port = 0;
+    mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port);
+    uint32_t references;
+    uint64_t input[3] = {0};
+    input[1] = 1234;  // keep refcon the same value
+    while (1) {
+        IOConnectCallAsyncStructMethod(connect, 17, port, &references, 1, input, sizeof(input), NULL, NULL);
+    }
+}
