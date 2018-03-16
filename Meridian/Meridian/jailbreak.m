@@ -276,8 +276,8 @@ int extractBootstrap() {
     if (rv != 0) return 4;
     
     // extract libsub-base.tar
-    rv = extract_bundle_tar("libsub-base.tar");
-    if (rv != 0) return 5;
+//    rv = extract_bundle_tar("libsub-base.tar");
+//    if (rv != 0) return 5;
     
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");

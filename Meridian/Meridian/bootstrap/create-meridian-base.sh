@@ -17,7 +17,7 @@ cp $meridianDir/pspawn_hook/bin/* $baseDir/meridian
 cp $meridianDir/jailbreakd/bin/* $baseDir/meridian/jailbreakd
 
 # TweakLoader.dylib
-cp $meridianDir/TweakLoader/.theos/obj/debug/*.dylib $baseDir/usr/lib
+# cp $meridianDir/TweakLoader/.theos/obj/debug/*.dylib $baseDir/usr/lib
 
 # remove all .DS_Store files
 find $baseDir -name '.DS_Store' -delete
