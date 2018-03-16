@@ -223,22 +223,13 @@
 				B50F79671FF224F0000D6015 /* views */,
 				B57A06B7202CDA9F00ACDB9D /* bootstrap */,
 				B52F29252051E93A00F4EB57 /* patchfinders */,
+				B5E98535205B4CE500AD1FEC /* helpers */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
-				B50F793B1FF2248A000D6015 /* common.h */,
-				B52F29262051F10800F4EB57 /* fucksigningservices.h */,
-				B52F29272051F10800F4EB57 /* fucksigningservices.m */,
-				B582405D1FF75A4000D96DB5 /* helpers.h */,
-				B582405E1FF75A4000D96DB5 /* helpers.m */,
 				B56929D82037080D0044FF60 /* jailbreak.h */,
 				B56929D6203708020044FF60 /* jailbreak.m */,
-				B50F79511FF2248C000D6015 /* kernel.h */,
-				B50F794F1FF2248C000D6015 /* kernel.m */,
-				B5B7C29F1FF2BA100087619A /* main.m */,
 				B50F79521FF2248C000D6015 /* root-rw.h */,
 				B50F79461FF2248B000D6015 /* root-rw.m */,
-				B584C54B20376BD200BF4118 /* untar.h */,
-				B584C54920376BCA00BF4118 /* untar.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
 			);
@@ -294,6 +285,23 @@
 				B57A06E9202CEDF500ACDB9D /* meridian-base.tar */,
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B5E98535205B4CE500AD1FEC /* helpers */ = {
+			isa = PBXGroup;
+			children = (
+				B5B7C29F1FF2BA100087619A /* main.m */,
+				B584C54B20376BD200BF4118 /* untar.h */,
+				B584C54920376BCA00BF4118 /* untar.m */,
+				B50F793B1FF2248A000D6015 /* common.h */,
+				B52F29262051F10800F4EB57 /* fucksigningservices.h */,
+				B52F29272051F10800F4EB57 /* fucksigningservices.m */,
+				B582405D1FF75A4000D96DB5 /* helpers.h */,
+				B582405E1FF75A4000D96DB5 /* helpers.m */,
+				B50F79511FF2248C000D6015 /* kernel.h */,
+				B50F794F1FF2248C000D6015 /* kernel.m */,
+			);
+			path = helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
