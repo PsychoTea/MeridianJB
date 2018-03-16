@@ -40,5 +40,7 @@ void grant_csflags(pid_t pd);
 int execprog(const char *prog, const char* args[]);
 void restart_device(void);
 double uptime(void);
+void suspend_all_threads(void);
+void resume_all_threads(void);
 
 #endif

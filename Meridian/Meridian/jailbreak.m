@@ -34,7 +34,9 @@ int makeShitHappen(ViewController *view) {
 
     // run v0rtex
     [view writeText:@"running v0rtex..."];
+    suspend_all_threads();
     ret = runV0rtex();
+    resume_all_threads();
     if (ret != 0) {
         [view writeText:@"failed!"];
         return 1;
