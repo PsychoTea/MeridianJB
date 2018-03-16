@@ -97,10 +97,18 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
-    if (file_exists("/usr/lib/tweaks") != 0) {
+    struct stat file;
+    stat("/Library/MobileSubstrate/DynamicLibraries", &file);
+    if (file_exists("/usr/lib/tweaks") != 0 || !S_ISLNK(file.st_mode)) {
+        if (S_ISLNK(file.st_mode)) {
+            unlink("/Library/MobileSubstrate/DynamicLibraries");
+        }
+        
         if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
             [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/tweaks" error:nil];
-        } else {
+        }
+        
+        if (file_exists("/usr/lib/tweaks") != 0) {
             mkdir("/usr/lib/tweaks", 0755);
         }
         
