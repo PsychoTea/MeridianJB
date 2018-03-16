@@ -112,7 +112,9 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
         inject_me = TWEAKLOADER_DYLIB;
     }
     
-    if (inject_me == NULL || file_exists(inject_me) != 0) {
+    // check we have something to ineject, and that the file exists
+    // can have some race conditions during (un)installation of TweakLoader
+    if (inject_me == NULL || access(inject_me, F_OK) != 0) {
         DEBUGLOG("Nothing to inject.");
         return old(pid, path, file_actions, attrp, argv, envp);
     }
