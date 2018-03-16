@@ -44,13 +44,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B539F82E205846CC00F830D0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5555EB62054390A00D62F57;
-			remoteInfo = TweakLoader;
-		};
 		B5555EBA20543A4100D62F57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
@@ -82,7 +75,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B502EF1820275FB400F761C2 /* TweakLoader */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TweakLoader; sourceTree = "<group>"; };
 		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
@@ -201,7 +193,6 @@
 				B5895182201D07FD002E0EAD /* injector */,
 				B589518C201D4018002E0EAD /* jailbreakd */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
-				B502EF1820275FB400F761C2 /* TweakLoader */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
@@ -363,20 +354,6 @@
 			passBuildSettingsInEnvironment = 1;
 			productName = jailbreakd;
 		};
-		B5555EB62054390A00D62F57 /* TweakLoader */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
-			buildConfigurationList = B5555EB72054390A00D62F57 /* Build configuration list for PBXLegacyTarget "TweakLoader" */;
-			buildPhases = (
-			);
-			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = $SRCROOT/TweakLoader;
-			dependencies = (
-			);
-			name = TweakLoader;
-			passBuildSettingsInEnvironment = 0;
-			productName = TweakLoader;
-		};
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
@@ -396,7 +373,6 @@
 				B5555EBD20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
-				B539F82F205846CC00F830D0 /* PBXTargetDependency */,
 			);
 			name = Meridian;
 			productName = Meridian;
@@ -432,10 +408,6 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
-					B5555EB62054390A00D62F57 = {
-						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = B514CC711FECD787005F4E6B /* Build configuration list for PBXProject "Meridian" */;
@@ -456,7 +428,6 @@
 				B5555EAA205438D800D62F57 /* injector */,
 				B5555EAE205438F300D62F57 /* pspawn_hook */,
 				B5555EB22054390100D62F57 /* jailbreakd */,
-				B5555EB62054390A00D62F57 /* TweakLoader */,
 			);
 		};
 /* End PBXProject section */
@@ -526,11 +497,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B539F82F205846CC00F830D0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5555EB62054390A00D62F57 /* TweakLoader */;
-			targetProxy = B539F82E205846CC00F830D0 /* PBXContainerItemProxy */;
-		};
 		B5555EBB20543A4100D62F57 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B5555EA6205438CA00D62F57 /* amfid */;
@@ -860,35 +826,6 @@
 			};
 			name = Release;
 		};
-		B5555EB82054390A00D62F57 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 6EKJWC698P;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64,armv7,armv7s";
-			};
-			name = Debug;
-		};
-		B5555EB92054390A00D62F57 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 6EKJWC698P;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64,armv7,armv7s";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -942,15 +879,6 @@
 			buildConfigurations = (
 				B5555EB42054390100D62F57 /* Debug */,
 				B5555EB52054390100D62F57 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B5555EB72054390A00D62F57 /* Build configuration list for PBXLegacyTarget "TweakLoader" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B5555EB82054390A00D62F57 /* Debug */,
-				B5555EB92054390A00D62F57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
