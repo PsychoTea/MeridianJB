@@ -134,7 +134,7 @@ bool jailbreak_has_run = false;
         int ret = makeShitHappen(self);
         
         if (ret != 0) {
-            NSLog(@"MERIDIAN HAS FAILED TO RUN :( Ret: %d", ret);
+            NSLog(@"MERIDIAN HAS FAILED TO RUN :(");
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self exploitFailed];
