@@ -580,10 +580,10 @@ int main(int argc, char* argv[]) {
             NSLog(@"[amfid_fucker] amfid is dead!");
             
             int ret = posix_spawn(NULL, "/meridian/hello", NULL, NULL, (char**)&(const char*[]){
-                "/meridian/bins/time",
+                "/meridian/hello",
                 NULL
             }, NULL);
-            NSLog(@"[amfid_fucker] launched time bianry - returned %d", ret);
+            NSLog(@"[amfid_fucker] launched hello binary - returned %d", ret);
             
             mach_port_t amfid_task = get_amfid_task();
             patch_amfid(amfid_task);
