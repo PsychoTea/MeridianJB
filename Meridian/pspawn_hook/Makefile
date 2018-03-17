@@ -1,7 +1,7 @@
 TARGET  = pspawn_hook.dylib
 OUTDIR ?= bin
 
-CC      = xcrun -sdk iphoneos gcc -arch arm64
+CC      = xcrun -sdk iphoneos gcc -arch arm64 -arch armv7 -arch armv7s
 LDID    = ldid
 
 all: $(OUTDIR)/$(TARGET)

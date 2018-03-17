@@ -331,8 +331,6 @@ void setUpSubstitute() {
 }
 
 int startJailbreakd() {
-    inject_trust("/usr/lib/pspawn_hook.dylib");
-    
     unlink("/var/tmp/jailbreakd.pid");
     
     NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
@@ -353,9 +351,16 @@ int startJailbreakd() {
         usleep(300000); // 300ms
     }
     
+    // tell jailbreakd to platformize launchd
+    // this adds skip-lib-val to MACF slot and allows us
+    // to inject pspawn without it being in trust cache
+    // (FAT/multiarch in trust cache is a pain to code, i'm lazy)
+    rv = call_jailbreakd(JAILBREAKD_COMMAND_ENTITLE, 1);
+    if (rv != 0) return 2;
+    
     // inject pspawn_hook.dylib to launchd
     rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
-    if (rv != 0) return 2;
+    if (rv != 0) return 3;
     
     return 0;
 }

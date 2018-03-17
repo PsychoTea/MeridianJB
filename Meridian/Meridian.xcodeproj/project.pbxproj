@@ -30,6 +30,7 @@
 		B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E8202CEDF500ACDB9D /* system-base.tar */; };
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
+		B57CBF62205DA3DF00EEDA20 /* jailbreak_daemonUser.c in Sources */ = {isa = PBXBuildFile; fileRef = B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
@@ -111,6 +112,8 @@
 		B57A06E9202CEDF500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
 		B57A06EE202CF4F300ACDB9D /* tar.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = tar.tar; sourceTree = "<group>"; };
 		B57A06F0202CF52500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
+		B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jailbreak_daemonUser.c; sourceTree = "<group>"; };
+		B57CBF61205DA3DF00EEDA20 /* jailbreak_daemonUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jailbreak_daemonUser.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B584C54920376BCA00BF4118 /* untar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = untar.m; sourceTree = "<group>"; };
@@ -215,6 +218,7 @@
 				B57A06B7202CDA9F00ACDB9D /* bootstrap */,
 				B52F29252051E93A00F4EB57 /* patchfinders */,
 				B5E98535205B4CE500AD1FEC /* helpers */,
+				B57CBF5F205DA3DF00EEDA20 /* mach */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
 				B56929D82037080D0044FF60 /* jailbreak.h */,
@@ -253,6 +257,15 @@
 				B57A06EE202CF4F300ACDB9D /* tar.tar */,
 			);
 			path = bootstrap;
+			sourceTree = "<group>";
+		};
+		B57CBF5F205DA3DF00EEDA20 /* mach */ = {
+			isa = PBXGroup;
+			children = (
+				B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */,
+				B57CBF61205DA3DF00EEDA20 /* jailbreak_daemonUser.h */,
+			);
+			path = mach;
 			sourceTree = "<group>";
 		};
 		B5B7C2A31FF2C5CE0087619A /* Frameworks */ = {
@@ -486,6 +499,7 @@
 				B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */,
 				B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */,
 				B585F4182051993E0049C703 /* offsetfinder.mm in Sources */,
+				B57CBF62205DA3DF00EEDA20 /* jailbreak_daemonUser.c in Sources */,
 				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
 				B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
