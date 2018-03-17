@@ -8,6 +8,24 @@
 
 #include <mach/mach.h>
 
+enum arg_type {
+    ARG_LITERAL,
+    ARG_BUFFER,
+    ARG_BUFFER_PERSISTENT, // don't free the buffer after the call
+    ARG_OUT_BUFFER,
+    ARG_INOUT_BUFFER
+};
+
+typedef struct _arg_desc {
+    uint64_t type;
+    uint64_t value;
+    uint64_t length;
+} arg_desc;
+
+#define REMOTE_LITERAL(val) &(arg_desc){ARG_LITERAL, (uint64_t)val, (uint64_t)0}
+#define REMOTE_BUFFER(ptr, size) &(arg_desc){ARG_BUFFER, (uint64_t)ptr, (uint64_t)size}
+#define REMOTE_CSTRING(str) &(arg_desc){ARG_BUFFER, (uint64_t)str, (uint64_t)(strlen(str)+1)}
+
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
                             vm_offset_t data,
@@ -58,3 +76,4 @@ uint64_t binary_load_address(mach_port_t tp);
 uint64_t ktask_self_addr(void);
 mach_port_t task_for_pid_workaround(int pid);
 uint64_t find_port_address(mach_port_name_t port);
+uint64_t call_remote(mach_port_t task_port, void* fptr, int n_params, ...);

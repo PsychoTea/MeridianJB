@@ -100,12 +100,27 @@ int respring() {
 }
 
 int inject_library(pid_t pid, const char *path) {
-    return execprog("/meridian/injector", (const char **)&(const char*[]) {
-        "/meridian/injector",
-        itoa(pid),
-        path,
-        NULL
-    });
+    mach_port_t task_port;
+    kern_return_t ret = task_for_pid(mach_task_self(), pid, &task_port);
+    if (ret != KERN_SUCCESS || task_port == MACH_PORT_NULL) {
+        NSLog(@"[injector] failed to get task for pid %d", pid);
+        return ret;
+    }
+    
+    NSLog(@"[injector] got task port: %x", task_port);
+    
+    call_remote(task_port, dlopen, 2, REMOTE_CSTRING(path), REMOTE_LITERAL(RTLD_NOW));
+    uint64_t error = call_remote(task_port, dlerror, 0);
+    if (error != 0) {
+        uint64_t len = call_remote(task_port, strlen, 1, REMOTE_LITERAL(error));
+        char* local_cstring = malloc(len +  1);
+        remote_read_overwrite(task_port, error, (uint64_t)local_cstring, len + 1);
+        
+        NSLog(@"[injector] error: %s", local_cstring);
+        return -1;
+    }
+    
+    return 0;
 }
 
 int killall(const char *procname, const char *kill) {

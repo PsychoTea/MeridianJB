@@ -7,9 +7,6 @@ baseDir=$currDir/meridian-base
 # amfid (fucker & payload)
 cp $meridianDir/amfid/bin/* $baseDir/meridian/amfid/
 
-# injector
-cp $meridianDir/injector/bin/* $baseDir/meridian/
-
 # pspawn_hook.dylib
 cp $meridianDir/pspawn_hook/bin/* $baseDir/usr/lib/
 
