@@ -182,7 +182,7 @@ int hash_code_signature(const void *csblob, uint32_t csblob_size, uint8_t dst[CS
     if (ntohl(gen_blob->magic) == CSMAGIC_EMBEDDED_SIGNATURE) {
         uint8_t highest_cd_hash_rank = 0;
         
-        const CS_SuperBlob *super_blob = (const CS_SuperBlob *) csblob;
+        const CS_SuperBlob *super_blob = (const CS_SuperBlob *)csblob;
         if (!BLOB_FITS(super_blob, csblob_size)) {
             ERROR("csblob too small for superblob");
             return 1;
@@ -345,11 +345,11 @@ const uint8_t *find_code_signature(img_info_t* info, uint32_t* cs_size) {
         return NULL;
     }
     
-    const struct load_command *cmd = (const struct load_command *) ((uintptr_t) info->addr + sizeofmh);
+    const struct load_command *cmd = (const struct load_command *)((uintptr_t) info->addr + sizeofmh);
     for (int i = 0; i != mh->ncmds; ++i) {
         if (cmd->cmd == LC_CODE_SIGNATURE) {
-            const struct linkedit_data_command* cscmd = (const struct linkedit_data_command*) cmd;
-            if (cscmd->dataoff + cscmd->datasize > info->size){
+            const struct linkedit_data_command* cscmd = (const struct linkedit_data_command*)cmd;
+            if (cscmd->dataoff + cscmd->datasize > info->size) {
                 _LOG_ERROR("Corrupted LC_CODE_SIGNATURE: dataoff + datasize > fsize");
                 return NULL;
             }
@@ -358,10 +358,10 @@ const uint8_t *find_code_signature(img_info_t* info, uint32_t* cs_size) {
                 *cs_size = cscmd->datasize;
             }
             
-            return (const uint8_t*) ((uintptr_t) info->addr + cscmd->dataoff);
+            return (const uint8_t*)((uintptr_t)info->addr + cscmd->dataoff);
         }
         
-        cmd = (const struct load_command *) ((uintptr_t)cmd + cmd->cmdsize);
+        cmd = (const struct load_command *)((uintptr_t)cmd + cmd->cmdsize);
         if ((uintptr_t)cmd + sizeof(struct load_command) > (uintptr_t)info->addr + info->size) {
             _LOG_ERROR("Corrupted macho: Unexpected end of file while parsing load commands");
             return NULL;
