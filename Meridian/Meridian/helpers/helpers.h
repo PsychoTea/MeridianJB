@@ -17,6 +17,12 @@
 #define CS_RESTRICT             0x0000800    /* tell dyld to treat restricted  */
 #define CS_PLATFORM_BINARY      0x4000000    /* this is a platform binary      */
 
+#define JAILBREAKD_COMMAND_ENTITLE 1
+#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
+#define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
+#define JAILBREAKD_COMMAND_FIXUP_SETUID 4
+
+int call_jailbreakd(int command, pid_t pid);
 uint64_t find_proc_by_name(char* name);
 uint64_t find_proc_by_pid(uint32_t pid);
 uint32_t get_pid_for_name(char* name);

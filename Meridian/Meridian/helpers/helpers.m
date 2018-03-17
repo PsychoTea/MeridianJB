@@ -11,13 +11,24 @@
 #include "kernel.h"
 #include "untar.h"
 #include "amfi.h"
+#include "jailbreak_daemonUser.h"
 #include <dirent.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include <sys/fcntl.h>
 #include <sys/spawn.h>
 #include <sys/stat.h>
 #include <sys/sysctl.h>
 #import <Foundation/Foundation.h>
+
+int call_jailbreakd(int command, pid_t pid) {
+    mach_port_t jbd_port;
+    if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port) != 0) {
+        return -1;
+    }
+    
+    return jbd_call(jbd_port, command, pid);
+}
 
 uint64_t find_proc_by_name(char* name) {
     uint64_t proc = rk64(kernprocaddr + 0x08);

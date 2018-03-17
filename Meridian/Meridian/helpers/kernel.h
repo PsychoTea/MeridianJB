@@ -35,6 +35,8 @@ kern_return_t mach_vm_region(vm_map_t target_task,
                              mach_msg_type_number_t *infoCnt,
                              mach_port_t *object_name);
 
+kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
+
 void init_kernel(task_t tfp0);
 size_t tfp0_kread(uint64_t where, void *p, size_t size);
 uint64_t rk64(uint64_t kaddr);
