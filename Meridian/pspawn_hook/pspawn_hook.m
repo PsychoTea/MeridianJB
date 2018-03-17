@@ -31,6 +31,9 @@ do {                                                                \
     fflush(log_file);                                               \
 } while(0);
 
+#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
+int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
+
 #define JAILBREAKD_COMMAND_ENTITLE 1
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
@@ -38,7 +41,8 @@ do {                                                                \
 
 enum CurrentProcess {
     PROCESS_LAUNCHD,
-    PROCESS_XPCPROXY
+    PROCESS_XPCPROXY,
+    PROCESS_OTHER
 };
 
 int current_process = PROCESS_XPCPROXY;
@@ -79,17 +83,7 @@ typedef int (*pspawn_t)(pid_t * pid, const char* path, const posix_spawn_file_ac
 pspawn_t old_pspawn, old_pspawnp;
 
 int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
-    char fullArgs[512];
-    
-    char** currentarg = (char **)argv;
-    while (*currentarg != NULL) {
-        strcat(fullArgs, " ");
-        strcat(fullArgs, *currentarg);
-        currentarg++;
-    }
-    
-    DEBUGLOG("We got called (fake_posix_spawn)! %s: %s", path, fullArgs);
-    NSLog(@"Called for program: %s", fullArgs);
+    DEBUGLOG("fake_posix_spawn_common: %s", path);
     
     const char *inject_me = NULL;
     
@@ -109,17 +103,21 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
     } else if (current_process == PROCESS_XPCPROXY) {
         // in theory... PSPAWN_HOOK_DYLIB + ":" + TWEAKLOADER_DYLIB
         // should fix library validation errors and stuff from child procs...
-        inject_me = TWEAKLOADER_DYLIB;
+        if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
+            inject_me = PSPAWN_HOOK_DYLIB ":" TWEAKLOADER_DYLIB;
+        } else {
+            inject_me = PSPAWN_HOOK_DYLIB;
+        }
     }
     
     // check we have something to ineject, and that the file exists
     // can have some race conditions during (un)installation of TweakLoader
-    if (inject_me == NULL || access(inject_me, F_OK) != 0) {
+    if (inject_me == NULL) {
         DEBUGLOG("Nothing to inject.");
         return old(pid, path, file_actions, attrp, argv, envp);
     }
     
-    DEBUGLOG("Injecting %s into %s", inject_me, path);
+    DEBUGLOG("Injecting %s", inject_me);
     
     int envcount = 0;
     
@@ -190,7 +188,9 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
         }
     } else {
-        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
+        pid_t pidToCall = (current_process == PROCESS_OTHER) ? *pid : getpid();
+        DEBUGLOG("calling with pid: %d", pidToCall);
+        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, pidToCall);
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     }
@@ -224,16 +224,31 @@ void* thd_func(void* arg) {
 
 __attribute__ ((constructor))
 static void ctor(void) {
-    current_process = (getpid() == 1) ? PROCESS_LAUNCHD : PROCESS_XPCPROXY;
-    
+    DEBUGLOG("========================");
     DEBUGLOG("hello from pid %d", getpid());
+    
+    if (getpid() == 1) {
+        current_process = PROCESS_LAUNCHD;
+    } else {
+        char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+        bzero(pathbuf, sizeof(pathbuf));
+        proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
+        
+        DEBUGLOG("my path: %s", pathbuf);
+        
+        if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
+            current_process = PROCESS_XPCPROXY;
+        } else {
+            current_process = PROCESS_OTHER;
+        }
+    }
     
     if (current_process == PROCESS_LAUNCHD) {
         if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
             DEBUGLOG("Can't get hgsp15 :(");
             return;
         }
-        DEBUGLOG("Got jbd port: %x", jbd_port);
+        DEBUGLOG("got jbd port: %x", jbd_port);
         
         pthread_t thd;
         pthread_create(&thd, NULL, thd_func, NULL);
@@ -244,7 +259,7 @@ static void ctor(void) {
         DEBUGLOG("Can't get bootstrap port :(");
         return;
     }
-    DEBUGLOG("Got jbd port: %x", jbd_port);
+    DEBUGLOG("got jbd port: %x", jbd_port);
     
     rebind_pspawns();
 }
