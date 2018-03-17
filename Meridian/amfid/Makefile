@@ -1,22 +1,15 @@
-TARGET1 = amfid_fucker
-TARGET2 = amfid_payload.dylib
+TARGET  = amfid_payload.dylib
 OUTDIR ?= bin
 
 CC      = xcrun -sdk iphoneos gcc -arch arm64
 LDID    = ldid
-CHMOD   = chmod
 
-all: $(OUTDIR)/$(TARGET1) $(OUTDIR)/$(TARGET2)
+all: $(OUTDIR)/$(TARGET)
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
-$(OUTDIR)/$(TARGET1): amfid_fucker.m | $(OUTDIR)
-	$(CC) -framework Foundation -o $@ $^
-	$(LDID) -Sentitlements.xml $@
-	$(CHMOD) 755 $@
-
-$(OUTDIR)/$(TARGET2): amfid_payload.m | $(OUTDIR)
+$(OUTDIR)/$(TARGET): amfid_payload.m fishhook.c | $(OUTDIR)
 	$(CC) -dynamiclib -framework Foundation -o $@ $^
 	$(LDID) -S $@
 

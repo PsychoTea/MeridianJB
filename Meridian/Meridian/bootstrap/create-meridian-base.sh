@@ -4,8 +4,8 @@ currDir=$(dirname $0)
 meridianDir=$currDir/../..
 baseDir=$currDir/meridian-base
 
-# amfid (fucker & payload)
-cp $meridianDir/amfid/bin/* $baseDir/meridian/amfid/
+# amfid_payload.dylib 
+cp $meridianDir/amfid/bin/* $baseDir/meridian/
 
 # pspawn_hook.dylib
 cp $meridianDir/pspawn_hook/bin/* $baseDir/usr/lib/

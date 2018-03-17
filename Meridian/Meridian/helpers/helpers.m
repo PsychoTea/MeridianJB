@@ -103,8 +103,11 @@ int inject_library(pid_t pid, const char *path) {
     mach_port_t task_port;
     kern_return_t ret = task_for_pid(mach_task_self(), pid, &task_port);
     if (ret != KERN_SUCCESS || task_port == MACH_PORT_NULL) {
-        NSLog(@"[injector] failed to get task for pid %d", pid);
-        return ret;
+        task_port = task_for_pid_workaround(pid);
+        if (task_port == MACH_PORT_NULL) {
+            NSLog(@"[injector] failed to get task for pid %d", pid);
+            return ret;
+        }
     }
     
     NSLog(@"[injector] got task port: %x", task_port);

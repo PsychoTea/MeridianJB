@@ -31,6 +31,7 @@
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06F0202CF52500ACDB9D /* meridian-base.tar */; };
 		B57CBF62205DA3DF00EEDA20 /* jailbreak_daemonUser.c in Sources */ = {isa = PBXBuildFile; fileRef = B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */; };
+		B57CBF66205DB35F00EEDA20 /* fishhook in Resources */ = {isa = PBXBuildFile; fileRef = B57CBF65205DB35F00EEDA20 /* fishhook */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
@@ -51,13 +52,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = B5555EA6205438CA00D62F57;
 			remoteInfo = amfid;
-		};
-		B5555EBC20543A4100D62F57 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5555EAA205438D800D62F57;
-			remoteInfo = injector;
 		};
 		B5555EBE20543A4100D62F57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -114,6 +108,7 @@
 		B57A06F0202CF52500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
 		B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jailbreak_daemonUser.c; sourceTree = "<group>"; };
 		B57CBF61205DA3DF00EEDA20 /* jailbreak_daemonUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jailbreak_daemonUser.h; sourceTree = "<group>"; };
+		B57CBF65205DB35F00EEDA20 /* fishhook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fishhook; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B584C54920376BCA00BF4118 /* untar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = untar.m; sourceTree = "<group>"; };
@@ -125,7 +120,6 @@
 		B585F41F20519DB30049C703 /* libplist.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libplist.a; sourceTree = "<group>"; };
 		B585F42020519DB40049C703 /* libimg4tool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libimg4tool.a; sourceTree = "<group>"; };
 		B589517E201D07DB002E0EAD /* amfid */ = {isa = PBXFileReference; lastKnownFileType = folder; path = amfid; sourceTree = "<group>"; };
-		B5895182201D07FD002E0EAD /* injector */ = {isa = PBXFileReference; lastKnownFileType = folder; path = injector; sourceTree = "<group>"; };
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -193,7 +187,7 @@
 				B59532711FFE2B5000022CEE /* README.md */,
 				B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */,
 				B589517E201D07DB002E0EAD /* amfid */,
-				B5895182201D07FD002E0EAD /* injector */,
+				B57CBF65205DB35F00EEDA20 /* fishhook */,
 				B589518C201D4018002E0EAD /* jailbreakd */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
 				B514CC781FECD788005F4E6B /* Meridian */,
@@ -325,20 +319,6 @@
 			passBuildSettingsInEnvironment = 1;
 			productName = amfid;
 		};
-		B5555EAA205438D800D62F57 /* injector */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
-			buildConfigurationList = B5555EAB205438D800D62F57 /* Build configuration list for PBXLegacyTarget "injector" */;
-			buildPhases = (
-			);
-			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = $SRCROOT/injector;
-			dependencies = (
-			);
-			name = injector;
-			passBuildSettingsInEnvironment = 1;
-			productName = injector;
-		};
 		B5555EAE205438F300D62F57 /* pspawn_hook */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "";
@@ -383,7 +363,6 @@
 			);
 			dependencies = (
 				B5555EBB20543A4100D62F57 /* PBXTargetDependency */,
-				B5555EBD20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
 			);
@@ -406,10 +385,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					B5555EA6205438CA00D62F57 = {
-						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
-					};
-					B5555EAA205438D800D62F57 = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
@@ -438,7 +413,6 @@
 			targets = (
 				B514CC751FECD788005F4E6B /* Meridian */,
 				B5555EA6205438CA00D62F57 /* amfid */,
-				B5555EAA205438D800D62F57 /* injector */,
 				B5555EAE205438F300D62F57 /* pspawn_hook */,
 				B5555EB22054390100D62F57 /* jailbreakd */,
 			);
@@ -458,6 +432,7 @@
 				B5370199202EAC00004E5E5C /* installer-base.tar in Resources */,
 				B57A06F1202CF52500ACDB9D /* meridian-base.tar in Resources */,
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
+				B57CBF66205DB35F00EEDA20 /* fishhook in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
 			);
@@ -515,11 +490,6 @@
 			isa = PBXTargetDependency;
 			target = B5555EA6205438CA00D62F57 /* amfid */;
 			targetProxy = B5555EBA20543A4100D62F57 /* PBXContainerItemProxy */;
-		};
-		B5555EBD20543A4100D62F57 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5555EAA205438D800D62F57 /* injector */;
-			targetProxy = B5555EBC20543A4100D62F57 /* PBXContainerItemProxy */;
 		};
 		B5555EBF20543A4100D62F57 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -753,35 +723,6 @@
 			};
 			name = Release;
 		};
-		B5555EAC205438D800D62F57 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 6EKJWC698P;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64,armv7,armv7s";
-			};
-			name = Debug;
-		};
-		B5555EAD205438D800D62F57 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 6EKJWC698P;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64,armv7,armv7s";
-			};
-			name = Release;
-		};
 		B5555EB0205438F300D62F57 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -866,15 +807,6 @@
 			buildConfigurations = (
 				B5555EA8205438CA00D62F57 /* Debug */,
 				B5555EA9205438CA00D62F57 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B5555EAB205438D800D62F57 /* Build configuration list for PBXLegacyTarget "injector" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B5555EAC205438D800D62F57 /* Debug */,
-				B5555EAD205438D800D62F57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -20,6 +20,7 @@
 #include <Foundation/Foundation.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "cs_blobs.h"
+#include "fishhook.h"
 
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
@@ -373,17 +374,15 @@ const uint8_t *find_code_signature(img_info_t* info, uint32_t* cs_size) {
 #undef _LOG_ERROR
 }
 
-uint64_t real_func = 0;
-
-typedef int (*t)(NSString* file, NSDictionary* options, NSMutableDictionary** info);
+int (*old_MISValidateSignatureAndCopyInfo)(NSString* file, NSDictionary* options, NSMutableDictionary** info);
+int (*old_MISValidateSignatureAndCopyInfo_broken)(NSString* file, NSDictionary* options, NSMutableDictionary** info);
 
 int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, NSMutableDictionary** info) {
     const char* file_path = [file UTF8String];
     INFO(@"called for file %s", file_path);
     
     // Call the original func
-    t actual_func = (t)real_func;
-    actual_func(file, options, info);
+    old_MISValidateSignatureAndCopyInfo(file, options, info);
     
     if (info == NULL) {
         INFO("info is null - skipping");
@@ -438,45 +437,19 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     return 0;
 }
 
-void* hook_funcs(void* arg) {
-    if (binary_load_address() == -1) {
-        return NULL;
-    }
-
-    /* Finding the location of MISValidateSignatureAndCopyInfo from Ian Beer's triple_fetch */
-    void* libmis_handle = dlopen("libmis.dylib", RTLD_NOW);
-    if (libmis_handle == NULL) {
-        NSLog(@"Failed to open the dylib!");
-        return NULL;
-    }
+void *hook_funcs(void *arg) {
+    // This is some wicked crazy shit that needs to happen to correctly patch
+    // after amfid has been killed & launched & patched again... it's nuts.
+    // shouldn't even work. creds whoever came up w this @ ElectraTeam
+    void *libmis = dlopen("/usr/lib/libmis.dylib", RTLD_NOW);
+    old_MISValidateSignatureAndCopyInfo = dlsym(libmis, "MISValidateSignatureAndCopyInfo");
     
-    void* sym = dlsym(libmis_handle, "MISValidateSignatureAndCopyInfo");
-    if (sym == NULL) {
-        NSLog(@"[amfid_payload] unable to resolve MISValidateSignatureAndCopyInfo\n");
-        return NULL;
-    }
+    struct rebinding rebindings[] = {
+        { "MISValidateSignatureAndCopyInfo", (void *)fake_MISValidateSignatureAndCopyInfo, (void **)&old_MISValidateSignatureAndCopyInfo_broken },
+        /*                                                                                                                               ^^^^^^ you can say that again */
+    };
     
-    uint64_t buf_size = 0x8000;
-    uint8_t* buf = malloc(buf_size);
-
-    remote_read_overwrite(mach_task_self(), binary_load_address(), (uint64_t)buf, buf_size);
-    uint8_t* found_at = memmem(buf, buf_size, &sym, sizeof(sym));
-    
-    if (found_at == NULL) {
-        NSLog(@"[amfid_payload] unable to find MISValidateSignatureAndCopyInfo in __la_symbol_ptr\n");
-        return NULL;
-    }
-    
-    uint64_t patch_offset = found_at - buf;
-
-    uint64_t fake_func_addr = (uint64_t)&fake_MISValidateSignatureAndCopyInfo;
-
-    real_func = kread64(binary_load_address() + patch_offset);
-    
-    // Replace it with our version
-    remote_write(mach_task_self(), binary_load_address() + patch_offset, (uint64_t)&fake_func_addr, 8);
-
-    NSLog(@"[amfid_payload] The MISValidateSignatureAndCopyInfo function has been successfully hooked!");
+    rebind_symbols(rebindings, 1);
     
     // touch file so Meridian know's we're alive in here
     fclose(fopen("/var/tmp/amfid_payload.alive", "w+"));

@@ -21,6 +21,7 @@
 FILE *log_file;
 #define DEBUGLOG(fmt, args...)                                      \
 do {                                                                \
+    if (current_process == PROCESS_OTHER) break;                    \
     if (log_file == NULL) {                                         \
         log_file = fopen((current_process == PROCESS_LAUNCHD) ?     \
                          LAUNCHD_LOG_PATH :                         \
@@ -45,14 +46,15 @@ enum CurrentProcess {
     PROCESS_OTHER
 };
 
-int current_process = PROCESS_XPCPROXY;
+int current_process = PROCESS_OTHER;
 
 kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
 
 mach_port_t jbd_port;
 
-#define PSPAWN_HOOK_DYLIB   "/usr/lib/pspawn_hook.dylib"
-#define TWEAKLOADER_DYLIB   "/usr/lib/TweakLoader.dylib"
+#define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
+#define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
+#define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
@@ -78,19 +80,18 @@ bool is_blacklisted(const char* proc) {
     return false;
 }
 
-typedef int (*pspawn_t)(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[]);
+typedef int (*pspawn_t)(pid_t *pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[]);
 
 pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const* argv[], const char* envp[], pspawn_t old) {
+int fake_posix_spawn_common(pid_t *pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
     DEBUGLOG("fake_posix_spawn_common: %s", path);
     
     const char *inject_me = NULL;
     
     // is the process that's being called xpcproxy?
     // cus we wanna inject into that bitch
-    if (current_process == PROCESS_LAUNCHD &&
-        strcmp(path, "/usr/libexec/xpcproxy") == 0) {
+    if (current_process == PROCESS_LAUNCHD && strcmp(path, "/usr/libexec/xpcproxy") == 0) {
         inject_me = PSPAWN_HOOK_DYLIB;
         
         // let's check the blacklist, we don't wanna be
@@ -101,11 +102,11 @@ int fake_posix_spawn_common(pid_t * pid, const char* path, const posix_spawn_fil
             DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
         }
     } else if (current_process == PROCESS_XPCPROXY) {
-        // in theory... PSPAWN_HOOK_DYLIB + ":" + TWEAKLOADER_DYLIB
-        // should fix library validation errors and stuff from child procs...
-        if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
+        if (strcmp(path, "/usr/libexec/amfid") == 0) {      /* patch amfid                              */
+            inject_me = AMFID_PAYLOAD_DYLIB;
+        } else if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {  /* if twkldr is installed, load it + pspawn */
             inject_me = PSPAWN_HOOK_DYLIB ":" TWEAKLOADER_DYLIB;
-        } else {
+        } else {                                            /* just load pspawn                         */
             inject_me = PSPAWN_HOOK_DYLIB;
         }
     }
@@ -229,21 +230,7 @@ static void ctor(void) {
     
     if (getpid() == 1) {
         current_process = PROCESS_LAUNCHD;
-    } else {
-        char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-        bzero(pathbuf, sizeof(pathbuf));
-        proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
         
-        DEBUGLOG("my path: %s", pathbuf);
-        
-        if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
-            current_process = PROCESS_XPCPROXY;
-        } else {
-            current_process = PROCESS_OTHER;
-        }
-    }
-    
-    if (current_process == PROCESS_LAUNCHD) {
         if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
             DEBUGLOG("Can't get hgsp15 :(");
             return;
@@ -253,6 +240,16 @@ static void ctor(void) {
         pthread_t thd;
         pthread_create(&thd, NULL, thd_func, NULL);
         return;
+    }
+    
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    bzero(pathbuf, sizeof(pathbuf));
+    proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
+    
+    DEBUGLOG("my path: %s", pathbuf);
+    
+    if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
+        current_process = PROCESS_XPCPROXY;
     }
     
     if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port)) {

@@ -39,39 +39,46 @@ int defecate_amfi() {
     
     {
         // trust our payload
-        inject_trust("/meridian/amfid/amfid_fucker");
+//        inject_trust("/meridian/amfid/amfid_fucker");
         inject_trust("/meridian/amfid/amfid_payload.dylib");
     }
     
     unlink("/var/tmp/amfid_payload.alive");
-    
-    NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
-    NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
-    
-    char* prog_args[] =  {
-        "/meridian/amfid/amfid_fucker",
-        (char *)[kernprocstring UTF8String],
-        NULL
-    };
-    
-    pid_t pd;
-    int rv = posix_spawn(&pd, "/meridian/amfid/amfid_fucker", NULL, NULL, prog_args, NULL);
-    if (rv != 0) {
-        NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
-        return rv;
+
+    pid_t pid = get_pid_for_name("amfid");
+    if (pid == 0) {
+        return -1;
     }
     
-    // i'm not sure if this is needed but i cba to test it without so w/e
-    grant_csflags(pd);
+    inject_library(pid, "/meridian/amfid/amfid_payload.dylib");
     
-    NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
+//    NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
+//    NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
+//
+//    char* prog_args[] =  {
+//        "/meridian/amfid/amfid_fucker",
+//        (char *)[kernprocstring UTF8String],
+//        NULL
+//    };
+//
+//    pid_t pd;
+//    int rv = posix_spawn(&pd, "/meridian/amfid/amfid_fucker", NULL, NULL, prog_args, NULL);
+//    if (rv != 0) {
+//        NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
+//        return rv;
+//    }
+//
+//    // i'm not sure if this is needed but i cba to test it without so w/e
+//    grant_csflags(pd);
+//
+//    NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
     
     while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
         NSLog(@"waiting for amfid patch...");
         usleep(100000); // 0.1 sec
     }
     
-    return rv;
+    return 0;
 }
 
 // creds to stek29(?)
