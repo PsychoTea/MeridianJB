@@ -225,23 +225,3 @@ untar(FILE *a, const char *path)
     
     return 0;
 }
-
-#ifdef HAVE_MAIN
-int
-main(int argc, char **argv)
-{
-	FILE *a;
-
-	++argv; /* Skip program name */
-	for ( ;*argv != NULL; ++argv) {
-		a = fopen(*argv, "r");
-		if (a == NULL)
-			NSLog(@"Unable to open %s", *argv);
-		else {
-			untar(a, *argv);
-			fclose(a);
-		}
-	}
-	return (0);
-}
-#endif
