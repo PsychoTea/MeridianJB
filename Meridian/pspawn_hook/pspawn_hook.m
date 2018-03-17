@@ -51,7 +51,7 @@ kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port
 
 mach_port_t jbd_port;
 
-#define PSPAWN_HOOK_DYLIB   "/meridian/pspawn_hook.dylib"
+#define PSPAWN_HOOK_DYLIB   "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB   "/usr/lib/TweakLoader.dylib"
 
 const char* xpcproxy_blacklist[] = {

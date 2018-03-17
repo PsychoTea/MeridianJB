@@ -331,7 +331,7 @@ void setUpSubstitute() {
 }
 
 int startJailbreakd() {
-    inject_trust("/meridian/pspawn_hook.dylib");
+    inject_trust("/usr/lib/pspawn_hook.dylib");
     
     unlink("/var/tmp/jailbreakd.pid");
     
@@ -354,7 +354,7 @@ int startJailbreakd() {
     }
     
     // inject pspawn_hook.dylib to launchd
-    rv = inject_library(1, "/meridian/pspawn_hook.dylib");
+    rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
     if (rv != 0) return 2;
     
     return 0;
