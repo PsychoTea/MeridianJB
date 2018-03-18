@@ -40,7 +40,10 @@ bool jailbreak_has_run = false;
     [self.creditsButton.layer setCornerRadius:5];
     [self.websiteButton.layer setCornerRadius:5];
     
-    [self.versionLabel setText:Version];
+    NSString *buildDate = [NSString stringWithContentsOfFile:[NSString stringWithFormat:@"%s", bundled_file("build_time")]
+                                                    encoding:NSUTF8StringEncoding
+                                                       error:nil];
+    [self.versionLabel setText:[NSString stringWithFormat:@"%@: %@", Version, buildDate]];
     
     jailbreak_has_run = check_for_jailbreak();
     
