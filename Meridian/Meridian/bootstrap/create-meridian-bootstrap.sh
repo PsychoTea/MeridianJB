@@ -2,7 +2,7 @@
 
 currDir=$(dirname $0)
 meridianDir=$currDir/../..
-baseDir=$currDir/meridian-base
+baseDir=$currDir/meridian-bootstrap
 
 # amfid_payload.dylib 
 cp $meridianDir/amfid/bin/* $baseDir/meridian/
@@ -18,5 +18,5 @@ find $baseDir -name '.DS_Store' -delete
 
 # create tar archive
 cd $baseDir
-tar -cf meridian-base.tar ./*
-mv meridian-base.tar $currDir
+tar -cf meridian-bootstrap.tar ./*
+mv meridian-bootstrap.tar $currDir
