@@ -86,7 +86,7 @@ int makeShitHappen(ViewController *view) {
         return 1;
     }
     
-    // extract meridian-base
+    // extract meridian-bootstrap
     [view writeText:@"extracting meridian files..."];
     ret = extractMeridianData();
     if (ret != 0) {
@@ -260,7 +260,7 @@ int remountRootFs() {
 }
 
 int extractMeridianData() {
-    return extract_bundle_tar("meridian-base.tar");
+    return extract_bundle_tar("meridian-bootstrap.tar");
 }
 
 int extractBootstrap() {
