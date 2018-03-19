@@ -10,8 +10,8 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
-- (void)writeText:(NSString *)message;
-- (void)writeTextPlain:(NSString *)message;
+- (void)writeText:(NSString *)message, ...;
+- (void)writeTextPlain:(NSString *)message, ...;
 @property (nonatomic, readonly) IBOutlet UISwitch *v0rtexSwitch;
 @end
 

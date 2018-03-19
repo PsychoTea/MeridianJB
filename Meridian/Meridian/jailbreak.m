@@ -70,7 +70,7 @@ int makeShitHappen(ViewController *view) {
     mkdir("/meridian/logs", 0755);
     ret = extract_bundle("tar.tar", "/meridian");
     if (ret != 0) {
-        [view writeTextPlain:@"failed to extract tar.tar bundle!"];
+        [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d", ret, errno];
         return 1;
     }
     
