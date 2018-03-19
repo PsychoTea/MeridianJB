@@ -37,6 +37,7 @@
 		B5A4EA95205F14CE00B32F89 /* meridian-bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5A4EA94205F14CD00B32F89 /* meridian-bootstrap.tar */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
+		B5B9E03B2060280500FEA273 /* build_time in Resources */ = {isa = PBXBuildFile; fileRef = B5B9E03A2060280400FEA273 /* build_time */; };
 		B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD42052E67600F82D43 /* JailbreakController.m */; };
 		B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD72052E67700F82D43 /* MeridianController.m */; };
 		B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD92052E67700F82D43 /* SettingsController.m */; };
@@ -127,6 +128,7 @@
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
+		B5B9E03A2060280400FEA273 /* build_time */ = {isa = PBXFileReference; lastKnownFileType = text; name = build_time; path = Meridian/build_time; sourceTree = "<group>"; };
 		B5C4FBD42052E67600F82D43 /* JailbreakController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JailbreakController.m; sourceTree = "<group>"; };
 		B5C4FBD52052E67700F82D43 /* JailbreakController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailbreakController.h; sourceTree = "<group>"; };
 		B5C4FBD62052E67700F82D43 /* MeridianController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeridianController.h; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				B5F7CCCF204A29320051F4A7 /* LICENSE.md */,
 				B59532711FFE2B5000022CEE /* README.md */,
 				B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */,
+				B5B9E03A2060280400FEA273 /* build_time */,
 				B589517E201D07DB002E0EAD /* amfid */,
 				B57CBF65205DB35F00EEDA20 /* fishhook */,
 				B589518C201D4018002E0EAD /* jailbreakd */,
@@ -425,6 +428,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5B9E03B2060280500FEA273 /* build_time in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
