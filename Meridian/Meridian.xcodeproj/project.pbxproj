@@ -34,7 +34,6 @@
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
-		B5A4EA92205F0D7800B32F89 /* build_time in Resources */ = {isa = PBXBuildFile; fileRef = B5A4EA91205F0D7800B32F89 /* build_time */; };
 		B5A4EA95205F14CE00B32F89 /* meridian-bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5A4EA94205F14CD00B32F89 /* meridian-bootstrap.tar */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
@@ -123,7 +122,6 @@
 		B5895186201D15E7002E0EAD /* pspawn_hook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pspawn_hook; sourceTree = "<group>"; };
 		B589518C201D4018002E0EAD /* jailbreakd */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jailbreakd; sourceTree = "<group>"; };
 		B59532711FFE2B5000022CEE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		B5A4EA91205F0D7800B32F89 /* build_time */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = build_time; sourceTree = "<group>"; };
 		B5A4EA94205F14CD00B32F89 /* meridian-bootstrap.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-bootstrap.tar"; sourceTree = "<group>"; };
 		B5B7C29F1FF2BA100087619A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B5B7C2AA1FF2C7860087619A /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
@@ -223,7 +221,6 @@
 				B50F79461FF2248B000D6015 /* root-rw.m */,
 				B5B7C2B61FF353980087619A /* v0rtex.h */,
 				B5B7C2B51FF353970087619A /* v0rtex.m */,
-				B5A4EA91205F0D7800B32F89 /* build_time */,
 			);
 			path = Meridian;
 			sourceTree = "<group>";
@@ -428,7 +425,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5A4EA92205F0D7800B32F89 /* build_time in Resources */,
 				B514CC831FECD788005F4E6B /* Assets.xcassets in Resources */,
 				B514CC811FECD788005F4E6B /* Main.storyboard in Resources */,
 				B514CC861FECD788005F4E6B /* LaunchScreen.storyboard in Resources */,
