@@ -97,23 +97,7 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
-    struct stat file;
-    stat("/Library/MobileSubstrate/DynamicLibraries", &file);
-    if (file_exists("/usr/lib/tweaks") != 0 || !S_ISLNK(file.st_mode)) {
-        if (S_ISLNK(file.st_mode)) {
-            unlink("/Library/MobileSubstrate/DynamicLibraries");
-        }
-        
-        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
-            [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/tweaks" error:nil];
-        }
-        
-        if (file_exists("/usr/lib/tweaks") != 0) {
-            mkdir("/usr/lib/tweaks", 0755);
-        }
-        
-        symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
-    }
+    setUpSymLinks();
     
     // remove Substrate's SafeMode (MobileSafety) if it's installed
     // removing from dpkg will be handled by Cydia conflicts later
@@ -261,6 +245,43 @@ int remountRootFs() {
 
 int extractMeridianData() {
     return extract_bundle_tar("meridian-bootstrap.tar");
+}
+
+void setUpSymLinks() {
+    struct stat file;
+    stat("/Library/MobileSubstrate/DynamicLibraries", &file);
+    
+    if (file_exists("/usr/lib/tweaks") == 0 &&
+        S_ISLNK(file.st_mode) == 0) {
+        return;
+    }
+    
+    // By the end of this check, /usr/lib/tweaks should exist containing any
+    // tweaks (if applicable), and /Lib/MobSub/DynLib should NOT exist
+    if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0 &&
+        file_exists("/usr/lib/tweaks") != 0) {
+        // Move existing tweaks folder to /usr/lib/tweaks
+        [fileMgr moveItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" toPath:@"/usr/lib/tweaks" error:nil];
+    } else if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0 &&
+               file_exists("/usr/lib/tweaks") == 0) {
+        // Move existing tweaks to /usr/lib/tweaks and delete the MobSub folder
+        NSArray *fileList = [fileMgr contentsOfDirectoryAtPath:@"/Library/MobileSubstrate/DynamicLibraries" error:nil];
+        for (NSString *item in fileList) {
+            NSString *fullPath = [NSString stringWithFormat:@"/Library/MobileSubstrate/DynamicLibraries/%@", item];
+            [fileMgr moveItemAtPath:fullPath toPath:@"/usr/lib/tweaks" error:nil];
+        }
+        [fileMgr removeItemAtPath:@"/Library/MobileSubstrate/DynamicLibraries" error:nil];
+    } else if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0 &&
+               file_exists("/usr/lib/tweaks") != 0) {
+        // Just create /usr/lib/tweaks - /Lib/MobSub/DynLibs doesn't exist
+        mkdir("/usr/lib/tweaks", 0755);
+    } else if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0 &&
+               file_exists("/usr/lib/tweaks") == 0) {
+        // We should be fine in this case
+    }
+    
+    // Symlink it!
+    symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
 }
 
 int extractBootstrap() {
