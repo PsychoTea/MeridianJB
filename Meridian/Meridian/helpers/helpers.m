@@ -263,7 +263,7 @@ int extract_bundle(const char* bundle_name, const char* directory) {
     
     ret = cp(bundled_file(bundle_name), tarFile);
     if (ret != 0) {
-        return -10;
+        return ret * 100;
     }
     
     chdir(directory);
