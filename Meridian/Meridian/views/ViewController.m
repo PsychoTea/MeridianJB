@@ -265,26 +265,17 @@ bool jailbreak_has_run = false;
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)writeText:(NSString *)format, ... {
-    // for the last space or newline appended
-    format = [format stringByAppendingString:@"%@"];
-    
-    va_list args;
-    va_start(args, format);
-    
+- (void)writeText:(NSString *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (![format isEqual: @"done!"] && ![format isEqual:@"failed!"]) {
-            NSLog(format, args, "");
-            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:format, args, " "]];
+        if (![message  isEqual: @"done!"] && ![message isEqual:@"failed!"]) {
+            NSLog(@"%@", message);
+            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@ ", message]];
         } else {
-            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:format, args, "\n"]];
+            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
         }
-        
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
     });
-    
-    va_end(args);
 }
 
 - (void)writeTextPlain:(NSString *)message, ... {
