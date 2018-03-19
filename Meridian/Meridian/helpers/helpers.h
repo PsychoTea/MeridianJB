@@ -36,6 +36,7 @@ char *itoa(long n);
 int file_exists(const char *path);
 void read_file(const char* path);
 int cp(const char *from, const char *to);
+int num_files(const char *path);
 char* bundled_file(const char *filename);
 char* bundle_path(void);
 int extract_bundle(const char* bundle_name, const char* directory);

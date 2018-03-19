@@ -234,6 +234,27 @@ out_error:
     return -1;
 }
 
+// https://stackoverflow.com/questions/1121383/counting-the-number-of-files-in-a-directory-using-c
+int num_files(const char *path) {
+    if (file_exists(path) != 0) {
+        return -1;
+    }
+    
+    int file_count = 0;
+    DIR * dirp;
+    struct dirent * entry;
+
+    dirp = opendir(path);
+    while ((entry = readdir(dirp)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            file_count++;
+        }
+    }
+    closedir(dirp);
+    
+    return file_count;
+}
+
 char* bundled_file(const char *filename) {
     return concat(bundle_path(), filename);
 }
