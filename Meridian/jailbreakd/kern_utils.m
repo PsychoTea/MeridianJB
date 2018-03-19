@@ -291,7 +291,7 @@ int setcsflagsandplatformize(int pid) {
     
     set_csflags(proc);
     set_amfi_entitlements(proc);
-    set_sandbox_extensions(proc);
-    set_csblob(proc);
+    // set_sandbox_extensions(proc);
+    // set_csblob(proc);
     return 0;
 }
