@@ -73,9 +73,6 @@ uint64_t extension_create_file(const char* path, uint64_t nextptr) {
         ext.next = nextptr;
         ext.desc = 0xffffffffffffffff;
         
-        // ext.type = 0;
-        // ext.subtype = 0;
-        
         ext.data = ks;
         ext.data_len = slen;
         
@@ -86,7 +83,6 @@ uint64_t extension_create_file(const char* path, uint64_t nextptr) {
     
     return ext_p;
 }
-
 
 // get 64 higher bits of 64bit int multiplication
 // https://stackoverflow.com/a/28904636
