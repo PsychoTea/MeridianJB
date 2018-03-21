@@ -257,7 +257,7 @@ void set_amfi_entitlements(uint64_t proc) {
         
         uint64_t itemBuffer = OSArray_ItemBuffer(present);
         
-        for (int i = 0; i < itemCount; i++){
+        for (int i = 0; i < itemCount; i++) {
             uint64_t item = rk64(itemBuffer + (i * sizeof(void *)));
             char *entitlementString = OSString_CopyString(item);
             if (strcmp(entitlementString, "/meridian/") == 0){
@@ -291,7 +291,7 @@ int setcsflagsandplatformize(int pid) {
     
     set_csflags(proc);
     set_amfi_entitlements(proc);
-    // set_sandbox_extensions(proc);
-    // set_csblob(proc);
+    set_sandbox_extensions(proc);
+    set_csblob(proc);
     return 0;
 }
