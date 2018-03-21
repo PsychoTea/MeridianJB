@@ -46,64 +46,64 @@ int handle_command(uint8_t command, uint32_t pid) {
         return 1;
     }
     
-    // char *name = proc_name(pid);
+    char *name = proc_name(pid);
     
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
-        //NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
         setcsflagsandplatformize(pid);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-        //NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
         setcsflagsandplatformize(pid);
         kill(pid, SIGCONT);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-        //NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
-        __block int PID = pid;
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
+        __block int blk_pid = pid;
         
         dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
         dispatch_async(queue, ^{
             char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
             bzero(pathbuf, sizeof(pathbuf));
             
-            int ret = proc_pidpath(PID, pathbuf, sizeof(pathbuf));
-            while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0){
-                proc_pidpath(PID, pathbuf, sizeof(pathbuf));
+            int ret = proc_pidpath(blk_pid, pathbuf, sizeof(pathbuf));
+            while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
+                proc_pidpath(blk_pid, pathbuf, sizeof(pathbuf));
                 usleep(100);
             }
             
-            setcsflagsandplatformize(PID);
-            kill(PID, SIGCONT);
+            setcsflagsandplatformize(blk_pid);
+            kill(blk_pid, SIGCONT);
         });
         dispatch_release(queue);
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-        //NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", pid, name);
         fixupsetuid(pid);
     }
     
-    // free(name);
+    free(name);
     
     return 0;
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
-    NSLog(@"[Mach] New call from %x: command %x, pid %d", server_port, command, pid);
     return (handle_command(command, pid) == 0) ? KERN_SUCCESS : KERN_FAILURE;
 }
 
 int main(int argc, char **argv, char **envp) {
     kern_return_t err;
     
-    NSLog(@"[jailbreakd] Start");
+    NSLog(@"start");
     unlink("/var/tmp/jailbreakd.pid");
     
     kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
     kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
     offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
+    kernel_slide = kernel_base - 0xFFFFFFF007004000;
     
     remove_memory_limit();
     
@@ -114,7 +114,7 @@ int main(int argc, char **argv, char **envp) {
     }
     
     init_kernel(kernel_base, NULL);
-    kernel_slide = kernel_base - 0xFFFFFFF007004000;
+    init_kexecute();
     NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
     NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
@@ -135,12 +135,13 @@ int main(int argc, char **argv, char **envp) {
     dispatch_resume(server);
     
     // Now ready for connections!
-    NSLog(@"Mach server now running!");
+    NSLog(@"mach server now running!");
     FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
     fprintf(f, "%d\n", getpid());
     fclose(f);
     
     dispatch_main();
     
+    term_kexecute();
     return 0;
 }
