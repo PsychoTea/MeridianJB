@@ -434,6 +434,8 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     
     INFO(@"magic was performed [%08x]: %@", ntohl(*(uint64_t *)cd_hash), file);
     
+    // let's check entitlements, add platform-application if necessary
+    
     return 0;
 }
 
@@ -460,6 +462,9 @@ void *hook_funcs(void *arg) {
 __attribute__ ((constructor))
 static void ctor(void) {
     INFO("preparing to fuck up amfid :)");
+    
+    init_kexecute();
+    
     pthread_t thread;
     pthread_create(&thread, NULL, hook_funcs, NULL);
 }

@@ -9,7 +9,7 @@ all: $(OUTDIR)/$(TARGET)
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
-$(OUTDIR)/$(TARGET): amfid_payload.m fishhook.c | $(OUTDIR)
+$(OUTDIR)/$(TARGET): *.m *.c | $(OUTDIR)
 	$(CC) -dynamiclib -framework Foundation -o $@ $^
 	$(LDID) -S $@
 
