@@ -21,6 +21,8 @@
 #include <CommonCrypto/CommonDigest.h>
 #include "cs_blobs.h"
 #include "fishhook.h"
+#include "kern_utils.h"
+#include "kexecute.h"
 
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
@@ -44,8 +46,6 @@ kern_return_t mach_vm_region(vm_map_t target_task,
 #define LOG(str, args...) do { NSLog(@"[amfid_payload] " str, ##args); } while(0)
 #define ERROR(str, args...) LOG("ERROR: [%s] " str, __func__, ##args)
 #define INFO(str, args...)  LOG("INFO: " str, ##args)
-
-mach_port_t tfp0;
 
 size_t kread(uint64_t where, void *p, size_t size) {
 	int rv;
@@ -462,6 +462,9 @@ void *hook_funcs(void *arg) {
 __attribute__ ((constructor))
 static void ctor(void) {
     INFO("preparing to fuck up amfid :)");
+    
+    FILE *fd = fopen("/meridian/zonemap_bollucks", "r");
+    
     
     init_kexecute();
     

@@ -1,5 +1,12 @@
 #include "kexecute.h"
 #include "ubc_headers.h"
+#include "patchfinder64.h"
+#include "kmem.h"
+#include "osobject.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "cs_blobs.h"
+#include <Foundation/Foundation.h>
 
 uint64_t get_vfs_context() {
     // vfs_context_t vfs_context_current(void)
@@ -12,7 +19,7 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     uint64_t vnode = kalloc(sizeof(vnode_t *));
     
     // int vnode_getfromfd(vfs_context_t cfx, int fd, vnode_t vpp)
-    int ret = kexecute(find_vnode_getfromfd(), vfs_context, int, vnode);
+    int ret = kexecute(find_vnode_getfromfd(), vfs_context, fd, vnode, NULL, NULL, NULL, NULL);
     if (ret != 0) {
         return -1;
     }
@@ -60,7 +67,39 @@ void csblob_ent_dict_set(uint64_t cs_blobs, uint64_t dict) {
     kexecute(find_csblob_ent_dict_set(), cs_blobs, dict, NULL, NULL, NULL, NULL, NULL);
 }
 
-int fixup_platform_application(const string *path) {
+int csblob_get_ents(uint64_t cs_blob, CS_GenericBlob *ent_blob) {
+    uint64_t out_start_ptr = kalloc(sizeof(void **));
+    uint64_t out_length_ptr = kalloc(sizeof(size_t));
+    int ret = kexecute(find_csblob_get_ents(), cs_blob, out_start_ptr, out_length_ptr, NULL, NULL, NULL, NULL);
+    if (ret != 0) {
+        return -1;
+    }
+    
+    int out_length = rk64(out_length_ptr);
+    if (out_length == 0) {
+        return out_length;
+    }
+    
+    uint64_t out_start = rk64(out_start_ptr);
+    
+    // read CS_GenericBlob (there may be a better way to do this,
+    // but `kread` can get hung up on null bytes - eg in `length`
+    uint32_t magic = rk32(out_start);
+    uint32_t length = rk32(out_start + 4);
+    char *dict_str = malloc(length);
+    kread(out_start + 8, dict_str, length);
+    
+    *ent_blob = (CS_GenericBlob) {
+        magic,
+        length
+    };
+    
+    strncpy(ent_blob->data, dict_str, length);
+    
+    return out_length;
+}
+
+int fixup_platform_application(const char *path) {
     int ret;
     
     uint64_t vfs_context = get_vfs_context();
@@ -74,12 +113,12 @@ int fixup_platform_application(const string *path) {
     }
     
     uint64_t *vpp = malloc(sizeof(vnode_t *));
-    ret = get_vnode_fromfd(vfs_context, fd, &vpp);
+    ret = get_vnode_fromfd(vfs_context, fd, vpp);
     if (ret != 0) {
         return -3;
     }
     
-    uint64_t vnode = rk64(vpp);
+    uint64_t vnode = rk64(*vpp);
     if (vnode == 0) {
         return -4;
     }
@@ -104,38 +143,30 @@ int fixup_platform_application(const string *path) {
         return -8;
     }
     
-    uint64_t out_start_ptr = kalloc(sizeof(void **));
-    uint64_t out_length_ptr = kalloc(sizeof(size_t));
-    ret = kexecute(find_csblob_get_ents(), cs_blobs, out_start_ptr, out_length_ptr, NULL, NULL, NULL, NULL);
-    
-    int out_length = rk64(out_length_ptr);
+    CS_GenericBlob *generic_blob = malloc(sizeof(CS_GenericBlob));
+    ret = csblob_get_ents(cs_blobs, generic_blob);
+    if (ret == -1) {
+        return -9;
+    }
     
     // no entitlements at all, let's add some (or.. one)
-    if (out_length == 0) {
+    if (ret == 0) {
         uint64_t dict = OSUnserializeXML("<dict></dict>"); // empty dict
         
         // add platform application & set it to true
         ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
         if (ret != 0) {
-            return -9;
+            return -10;
         }
         
         csblob_ent_dict_set(cs_blobs, dict);
         return 0;
     }
     
-    // has some entitlements, let's grab them
-    // out_start_ptr points to a raw string of the ents
-    const char *dict_str = malloc(out_length);
-    uint64_t out_start = rk64(out_start_ptr);
-    // for some reason the first 8 bytes contain a couple of null bytes and seem to be random data
-    // whatever... we'll skip over them. need to find out why though.
-    kread(out_start + 8, dict_str, out_length - 8);
-    
-    // construct our OSDict with OSUnser. & the local cstring
-    uint64_t dict = OSUnserializeXML(dict_str);
+    // construct an OSDict with OSUnser. & the parsed blob
+    uint64_t dict = OSUnserializeXML(generic_blob->data);
     if (dict == 0) {
-        return -10;
+        return -11;
     }
     
     // look for platform application
