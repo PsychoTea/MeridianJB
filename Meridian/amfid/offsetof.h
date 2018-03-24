@@ -10,6 +10,7 @@ extern unsigned offsetof_itk_self;
 extern unsigned offsetof_itk_sself;
 extern unsigned offsetof_itk_bootstrap;
 extern unsigned offsetof_itk_space;
+extern unsigned offsetof_bsd_info;
 extern unsigned offsetof_ip_mscount;
 extern unsigned offsetof_ip_srights;
 extern unsigned offsetof_ip_kobject;

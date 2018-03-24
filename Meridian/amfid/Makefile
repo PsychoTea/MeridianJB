@@ -10,7 +10,7 @@ $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
 $(OUTDIR)/$(TARGET): *.m *.c | $(OUTDIR)
-	$(CC) -dynamiclib -framework Foundation -o $@ $^
+	$(CC) -dynamiclib -framework Foundation -framework IOKit -o $@ $^
 	$(LDID) -S $@
 
 clean:

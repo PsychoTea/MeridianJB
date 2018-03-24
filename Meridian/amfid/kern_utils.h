@@ -72,6 +72,5 @@ kern_return_t mach_vm_deallocate(vm_map_t target, mach_vm_address_t address, mac
 uint64_t find_port(mach_port_name_t port);
 
 mach_port_t tfp0;
-uint64_t kernel_side;
-
-uint64_t offset_zonemap;
+uint64_t kernel_base;
+uint64_t kernel_slide;

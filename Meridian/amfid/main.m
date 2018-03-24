@@ -20,9 +20,12 @@
 #include <Foundation/Foundation.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "cs_blobs.h"
+#include "ent_patching.h"
 #include "fishhook.h"
 #include "kern_utils.h"
 #include "kexecute.h"
+#include "kmem.h"
+#include "patchfinder64.h"
 
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
@@ -46,24 +49,6 @@ kern_return_t mach_vm_region(vm_map_t target_task,
 #define LOG(str, args...) do { NSLog(@"[amfid_payload] " str, ##args); } while(0)
 #define ERROR(str, args...) LOG("ERROR: [%s] " str, __func__, ##args)
 #define INFO(str, args...)  LOG("INFO: " str, ##args)
-
-size_t kread(uint64_t where, void *p, size_t size) {
-	int rv;
-	size_t offset = 0;
-	while (offset < size) {
-		mach_vm_size_t sz, chunk = 2048;
-		if (chunk > size - offset) {
-			chunk = size - offset;
-		}
-		rv = mach_vm_read_overwrite(mach_task_self(), where + offset, chunk, (mach_vm_address_t)p + offset, &sz);
-		if (rv || sz == 0) {
-			ERROR("error on kread(0x%016llx)", offset + where);
-			break;
-		}
-		offset += sz;
-	}
-	return offset;
-}
 
 uint64_t kread64(uint64_t where) {
 	uint64_t out;
@@ -121,7 +106,7 @@ uint64_t binary_load_address() {
     return target_first_addr;
 }
 
-static unsigned int hash_rank(const CodeDirectory *cd) {
+static unsigned int hash_rank(const CS_CodeDirectory *cd) {
     uint32_t type = cd->hashType;
     
     int arrLength = sizeof(hashPriorities) / sizeof(hashPriorities[0]);
@@ -134,7 +119,7 @@ static unsigned int hash_rank(const CodeDirectory *cd) {
     return 0;
 }
 
-int hash_code_directory(const CodeDirectory *directory, uint8_t hash[CS_CDHASH_LEN]) {
+int hash_code_directory(const CS_CodeDirectory *directory, uint8_t hash[CS_CDHASH_LEN]) {
     uint32_t realsize = ntohl(directory->length);
     
     if (ntohl(directory->magic) != CSMAGIC_CODEDIRECTORY) {
@@ -178,7 +163,7 @@ int hash_code_signature(const void *csblob, uint32_t csblob_size, uint8_t dst[CS
         return 1;
     }
     
-    const CodeDirectory *chosen_cd = NULL;
+    const CS_CodeDirectory *chosen_cd = NULL;
     
     if (ntohl(gen_blob->magic) == CSMAGIC_EMBEDDED_SIGNATURE) {
         uint8_t highest_cd_hash_rank = 0;
@@ -205,7 +190,7 @@ int hash_code_signature(const void *csblob, uint32_t csblob_size, uint8_t dst[CS
             if (type == CSSLOT_CODEDIRECTORY ||
                 (type >= CSSLOT_ALTERNATE_CODEDIRECTORIES &&
                  type < CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT)) {
-                const CodeDirectory *sub_cd = (const CodeDirectory *)((uintptr_t)csblob + offset);
+                const CS_CodeDirectory *sub_cd = (const CS_CodeDirectory *)((uintptr_t)csblob + offset);
                 
                 if (!BLOB_FITS(sub_cd, sblength - offset)) {
                     ERROR("subblob codedirectory doesnt fit in superblob");
@@ -221,7 +206,7 @@ int hash_code_signature(const void *csblob, uint32_t csblob_size, uint8_t dst[CS
             }
         }
     } else if (ntohl(gen_blob->magic) == CSMAGIC_CODEDIRECTORY) {
-        const CodeDirectory *code_dir = (const CodeDirectory *)csblob;
+        const CS_CodeDirectory *code_dir = (const CS_CodeDirectory *)csblob;
         if (!BLOB_FITS(code_dir, csblob_size)) {
             ERROR("csblob too small for codedirectory");
             return 1;
@@ -431,11 +416,14 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     
     NSData *ns_cdhash = [[NSData alloc] initWithBytes:cd_hash length:sizeof(cd_hash)];
     [*info setValue: ns_cdhash forKey:@"CdHash"];
-    
+
     INFO(@"magic was performed [%08x]: %@", ntohl(*(uint64_t *)cd_hash), file);
     
     // let's check entitlements, add platform-application if necessary
+    int ret = fixup_platform_application(file.UTF8String);
+    INFO(@"FIXUP_PLAT_APPL: %d", ret);
     
+    close_img(&img);
     return 0;
 }
 
@@ -463,8 +451,33 @@ __attribute__ ((constructor))
 static void ctor(void) {
     INFO("preparing to fuck up amfid :)");
     
-    FILE *fd = fopen("/meridian/zonemap_bollucks", "r");
+    kern_return_t ret = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
+    if (ret != KERN_SUCCESS || tfp0 == MACH_PORT_NULL) {
+        INFO("failed to get tfp0");
+        return;
+    }
+    INFO("got tfp0: %x", tfp0);
     
+    // get kslide
+    int fd = open("/meridian/kernel_slide", O_RDONLY, 0600);
+    if (fd < 0) {
+        NSLog(@"failed to open kernel_slide file");
+        return;
+    }
+    char slide[16] = {0};
+    read(fd, slide, 16);
+    kernel_slide = strtol(slide, NULL, 16);
+    close(fd);
+    INFO(@"got kslide: %llx", kernel_slide);
+    kernel_base = 0xFFFFFFF007004000 + kernel_slide;
+    
+    int ret2 = init_kernel(kernel_base, NULL);
+    NSLog(@"init_kernel = %d", ret2);
+    
+    NSLog(@"SYMBOL: %llx", find_kernel_task());
+    NSLog(@"PROC: %llx", find_kern_proc());
+    
+    return;
     
     init_kexecute();
     

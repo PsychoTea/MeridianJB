@@ -9,6 +9,8 @@ enum vtype    {
     VSOCK, VFIFO, VBAD, VSTR, VCPLX
 };
 
+
+
 struct qm_trace {
     char * lastfile;
     int lastline;
@@ -67,12 +69,12 @@ struct ubc_info {
     long long       ui_size;            /* file size for the vnode */
     uint32_t        ui_flags;            /* flags */
     uint32_t        cs_add_gen;            /* generation count when csblob was validated */
-    
+
     struct    cl_readahead   *cl_rahead;    /* cluster read ahead context */
     struct    cl_writebehind *cl_wbehind;    /* cluster write behind context */
-    
+
     struct timespec cs_mtime;            /* modify time of file when first cs_blob was loaded */
-    
+
     struct    cs_blob *cs_blobs;             /* for CODE SIGNING */
     /* rest removed */
 };
@@ -100,3 +102,4 @@ struct cs_blob {
     unsigned int    csb_platform_binary:1;
     unsigned int    csb_platform_path:1;
 };
+

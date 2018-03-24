@@ -150,9 +150,12 @@ int makeShitHappen(ViewController *view) {
     
     // patch amfid
     [view writeText:@"patching amfid..."];
-    ret = defecate_amfi();
+    ret = defecateAmfi();
     if (ret != 0) {
         [view writeText:@"failed!"];
+        if (ret > 0) {
+            [view writeTextPlain:[NSString stringWithFormat:@"failed to patch - %d tries", ret]];
+        }
         return 1;
     }
     [view writeText:@"done!"];
@@ -325,6 +328,40 @@ int extractBootstrap() {
     inject_trust("/bin/uicache");
     rv = uicache();
     if (rv != 0) return 6;
+    
+    return 0;
+}
+
+int defecateAmfi() {
+    // write kslide to file
+    unlink("/meridian/kernel_slide");
+    FILE *fd = fopen("/meridian/kernel_slide", "w");
+    fprintf(fd, "%016llx", kslide);
+    fclose(fd);
+    
+    // trust our payload
+    inject_trust("/meridian/amfid_payload.dylib");
+    
+    unlink("/var/tmp/amfid_payload.alive");
+    
+    pid_t pid = get_pid_for_name("amfid");
+    if (pid == 0) {
+        return -1;
+    }
+    
+    inject_library(pid, "/meridian/amfid_payload.dylib");
+    
+    int tries = 0;
+    while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
+        if (tries >= 100) {
+            NSLog(@"failed to patch amfid (%d tries)", tries);
+            return tries;
+        }
+        
+        NSLog(@"waiting for amfid patch...");
+        usleep(100000); // 0.1 sec
+        tries++;
+    }
     
     return 0;
 }

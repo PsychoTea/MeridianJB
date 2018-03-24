@@ -288,7 +288,7 @@ bool jailbreak_has_run = false;
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
         
-        NSLog(@"%@", message);
+        NSLog(message, args);
     });
     
     va_end(args);

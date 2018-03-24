@@ -12,6 +12,8 @@
 #include <mach-o/nlist.h>
 #include "patchfinder64.h"
 #include "kmem.h"
+#include "offsetof.h"
+#include "kern_utils.h"
 
 #define CACHED_FIND_UINT64(name) CACHED_FIND(uint64_t, name)
 
@@ -686,7 +688,7 @@ find_strref(const char *string, int n, int prelink)
     }
     return find_reference(str - kernel + kerndumpbase, n, prelink);
 }
-
+#import <Foundation/Foundation.h>
 addr_t
 find_symbol(const char *symbol)
 {
@@ -698,12 +700,13 @@ find_symbol(const char *symbol)
     if (IS64(hdr)) {
         is64 = 4;
     }
-    
+    NSLog(@"patch1");
     /* XXX will only work on a decrypted kernel */
     if (!kernel_delta) {
         return 0;
     }
     
+    NSLog(@"patch2");
     /* XXX I should cache these.  ohwell... */
     q = (uint8_t *)(hdr + 1) + is64;
     for (i = 0; i < hdr->ncmds; i++) {
@@ -712,6 +715,7 @@ find_symbol(const char *symbol)
             const struct symtab_command *sym = (struct symtab_command *)q;
             const char *stroff = (const char *)kernel + sym->stroff + kernel_delta;
             if (is64) {
+                NSLog(@"patch3");
                 uint32_t k;
                 const struct nlist_64 *s = (struct nlist_64 *)(kernel + sym->symoff + kernel_delta);
                 for (k = 0; k < sym->nsyms; k++) {
@@ -721,7 +725,8 @@ find_symbol(const char *symbol)
                     if (s[k].n_value && (s[k].n_type & N_TYPE) != N_INDR) {
                         if (!strcmp(symbol, stroff + s[k].n_un.n_strx)) {
                             /* XXX this is an unslid address */
-                            return s[k].n_value + kerndumpbase;
+                            NSLog(@"patch5 %llx", s[k].n_value);
+                            return s[k].n_value;
                         }
                     }
                 }
@@ -733,6 +738,44 @@ find_symbol(const char *symbol)
 }
 
 /****** fun *******/
+
+CACHED_FIND_UINT64(find_kernel_task) {
+    return find_symbol("_kernel_task") + kernel_slide;
+}
+
+CACHED_FIND_UINT64(find_kern_proc) {
+    uint64_t kernel_task = rk64(find_kernel_task());
+    
+    uint64_t kern_proc_addr = rk64(kernel_task + offsetof_bsd_info);
+    
+    return kern_proc_addr;
+}
+
+CACHED_FIND_UINT64(find_zone_map) {
+    addr_t ref = find_strref("kext_alloc_init", 0, 0);
+    if (!ref) {
+        return 0;
+    }
+    
+    ref -= kerndumpbase;
+    
+    uint64_t call = step64(kernel, ref, 64, INSN_CALL);
+    if (!call) {
+        return 0;
+    }
+    
+    call = step64(kernel, call + 4, 64, INSN_CALL);
+    if (!call) {
+        return 0;
+    }
+    
+    call = calc64(kernel, call, call + 16, 5);
+    if (!call) {
+        return 0;
+    }
+    
+    return call + kerndumpbase;
+}
 
 CACHED_FIND_UINT64(find_add_x0_x0_0x40_ret) {
     addr_t off;
@@ -792,17 +835,17 @@ CACHED_FIND_UINT64(find_osunserializexml) {
 }
 
 CACHED_FIND_UINT64(find_vfs_context_current) {
-    return find_symbol("_vfs_context_current");
+    return find_symbol("_vfs_context_current") + kernel_slide;
 }
 
 CACHED_FIND_UINT64(find_vnode_getfromfd) {
-    return find_symbol("_vnode_getfromfd");
+    return find_symbol("_vnode_getfromfd") + kernel_slide;
 }
 
 CACHED_FIND_UINT64(find_csblob_ent_dict_set) {
-    return find_symbol("_csblob_entitlements_dictionary_set");
+    return find_symbol("_csblob_entitlements_dictionary_set") + kernel_slide;
 }
 
 CACHED_FIND_UINT64(find_csblob_get_ents) {
-    return find_symbol("_csblob_get_entitlements");
+    return find_symbol("_csblob_get_entitlements") + kernel_slide;
 }

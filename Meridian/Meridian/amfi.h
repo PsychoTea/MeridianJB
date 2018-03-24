@@ -7,7 +7,6 @@
 //
 
 void init_amfi(void);
-int defecate_amfi(void);
 int patch_amfi(mach_port_t amfi_port);
 int get_kqueue_for_pid(pid_t pid);
 void inject_trust(const char *path);

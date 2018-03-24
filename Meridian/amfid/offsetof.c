@@ -11,6 +11,7 @@ unsigned offsetof_itk_self = 0xD8;            // task_t::itk_self (convert_task_
 unsigned offsetof_itk_sself = 0xE8;           // task_t::itk_sself (task_get_special_port)
 unsigned offsetof_itk_bootstrap = 0x2b8;      // task_t::itk_bootstrap (task_get_special_port)
 unsigned offsetof_itk_space = 0x300;          // task_t::itk_space
+unsigned offsetof_bsd_info = 0x360;           // task_t::bsd_info
 unsigned offsetof_ip_mscount = 0x9C;          // ipc_port_t::ip_mscount (ipc_port_make_send)
 unsigned offsetof_ip_srights = 0xA0;          // ipc_port_t::ip_srights (ipc_port_make_send)
 unsigned offsetof_ip_kobject = 0x68;          // ipc_port_t::ip_kobject

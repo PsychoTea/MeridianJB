@@ -1,6 +1,6 @@
 #import "kern_utils.h"
-#import "patchfinder64.h"
 #import "kmem.h"
+#import "patchfinder64.h"
 
 #define MAX_CHUNK_SIZE 0xFFF
 
@@ -83,9 +83,9 @@ uint64_t zm_fix_addr(uint64_t addr) {
   if (zm_hdr.start == 0) {
     // xxx rk64(0) ?!
       // uint64_t zone_map_ref = find_zone_map_ref();
-      fprintf(stderr, "offset_zonemap = %llx \n", offset_zonemap);
-      fprintf(stderr, "zone_map_ref: %llx \n", offset_zonemap + kernel_slide);
-    uint64_t zone_map = rk64(offset_zonemap + kernel_slide);
+      fprintf(stderr, "offset_zonemap = %llx \n", find_zone_map());
+      fprintf(stderr, "zone_map_ref: %llx \n", find_zone_map() + kernel_slide);
+    uint64_t zone_map = rk64(find_zone_map() + kernel_slide);
       fprintf(stderr, "zone_map: %llx \n", zone_map);
     // hdr is at offset 0x10, mutexes at start
     size_t r = kread(zone_map + 0x10, &zm_hdr, sizeof(zm_hdr));

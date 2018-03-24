@@ -1,16 +1,16 @@
-#include "kexecute.h"
-#include "ubc_headers.h"
-#include "patchfinder64.h"
-#include "kmem.h"
-#include "osobject.h"
 #include <stdlib.h>
 #include <stddef.h>
-#include "cs_blobs.h"
 #include <Foundation/Foundation.h>
+#include "cs_blobs.h"
+#include "kexecute.h"
+#include "kmem.h"
+#include "osobject.h"
+#include "patchfinder64.h"
+#include "ubc_headers.h"
 
 uint64_t get_vfs_context() {
     // vfs_context_t vfs_context_current(void)
-    uint64_t vfs_context = kexecute(find_vfs_context_current(), 1, NULL, NULL, NULL, NULL, NULL, NULL);
+    uint64_t vfs_context = kexecute(find_vfs_context_current(), 1, 0, 0, 0, 0, 0, 0);
     vfs_context = zm_fix_addr(vfs_context);
     return vfs_context;
 }
@@ -19,7 +19,7 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     uint64_t vnode = kalloc(sizeof(vnode_t *));
     
     // int vnode_getfromfd(vfs_context_t cfx, int fd, vnode_t vpp)
-    int ret = kexecute(find_vnode_getfromfd(), vfs_context, fd, vnode, NULL, NULL, NULL, NULL);
+    int ret = kexecute(find_vnode_getfromfd(), vfs_context, fd, vnode, 0, 0, 0, 0);
     if (ret != 0) {
         return -1;
     }
@@ -64,13 +64,13 @@ uint64_t get_csb_entitlements(uint64_t cs_blobs) {
 
 void csblob_ent_dict_set(uint64_t cs_blobs, uint64_t dict) {
     // void csblob_entitlements_dictionary_set(struct cs_blob *csblob, void *entitlements)
-    kexecute(find_csblob_ent_dict_set(), cs_blobs, dict, NULL, NULL, NULL, NULL, NULL);
+    kexecute(find_csblob_ent_dict_set(), cs_blobs, dict, 0, 0, 0, 0, 0);
 }
 
 int csblob_get_ents(uint64_t cs_blob, CS_GenericBlob *ent_blob) {
     uint64_t out_start_ptr = kalloc(sizeof(void **));
     uint64_t out_length_ptr = kalloc(sizeof(size_t));
-    int ret = kexecute(find_csblob_get_ents(), cs_blob, out_start_ptr, out_length_ptr, NULL, NULL, NULL, NULL);
+    int ret = kexecute(find_csblob_get_ents(), cs_blob, out_start_ptr, out_length_ptr, 0, 0, 0, 0);
     if (ret != 0) {
         return -1;
     }
@@ -100,89 +100,126 @@ int csblob_get_ents(uint64_t cs_blob, CS_GenericBlob *ent_blob) {
 }
 
 int fixup_platform_application(const char *path) {
+    NSLog(@"fixup_platform_appl called for %s", path);
+    
     int ret;
     
     uint64_t vfs_context = get_vfs_context();
     if (vfs_context == 0) {
-        return -1;
+        ret = -1;
+        goto out;
     }
+    NSLog(@"got vfs_context: %llx", vfs_context);
     
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        return -2;
+        ret = -2;
+        goto out;
     }
+    NSLog(@"got fd: %d", fd);
     
     uint64_t *vpp = malloc(sizeof(vnode_t *));
     ret = get_vnode_fromfd(vfs_context, fd, vpp);
     if (ret != 0) {
-        return -3;
+        ret = -3;
+        goto out;
     }
+    NSLog(@"got vpp: %llx", *vpp);
     
     uint64_t vnode = rk64(*vpp);
     if (vnode == 0) {
-        return -4;
+        ret = -4;
+        goto out;
     }
+    NSLog(@"got vnode: %llx", vnode);
     
     ret = check_vtype(vnode);
     if (ret != 0) {
-        return -5;
+        ret = -5;
+        goto out;
     }
     
     uint64_t vu_ubcinfo = get_vu_ubcinfo(vnode);
     if (vu_ubcinfo == 0) {
-        return -6;
+        ret = -6;
+        goto out;
     }
+    NSLog(@"got vu_ubcinfo: %llx", vu_ubcinfo);
     
     uint64_t cs_blobs = get_csblobs(vu_ubcinfo);
     if (cs_blobs == 0) {
-        return -7;
+        ret = -7;
+        goto out;
     }
+    NSLog(@"got cs_blobs: %llx", cs_blobs);
     
     uint64_t csb_entitlements = get_csb_entitlements(cs_blobs);
     if (csb_entitlements != 0) {
-        return -8;
+        ret = -8;
+        goto out;
     }
+    NSLog(@"got csb_entitlements: %llx", csb_entitlements);
     
     CS_GenericBlob *generic_blob = malloc(sizeof(CS_GenericBlob));
     ret = csblob_get_ents(cs_blobs, generic_blob);
     if (ret == -1) {
-        return -9;
+        ret = -9;
+        goto out;
     }
+    NSLog(@"got generic_blob: %ux, len: %d", generic_blob->magic, generic_blob->length);
+    
+    ret = 0;
+    goto out;
     
     // no entitlements at all, let's add some (or.. one)
     if (ret == 0) {
         uint64_t dict = OSUnserializeXML("<dict></dict>"); // empty dict
+        NSLog(@"dict: %llx", dict);
         
         // add platform application & set it to true
         ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
         if (ret != 0) {
-            return -10;
+            ret = -10;
+            goto out;
         }
         
         csblob_ent_dict_set(cs_blobs, dict);
-        return 0;
+        NSLog(@"csblob_ent_dict_set (1)");
+        ret = 0;
+        goto out;
     }
     
     // construct an OSDict with OSUnser. & the parsed blob
     uint64_t dict = OSUnserializeXML(generic_blob->data);
+    NSLog(@"dict (2): %llx", dict);
     if (dict == 0) {
-        return -11;
+        ret = -11;
+        goto out;
     }
     
     // look for platform application
     uint64_t plat_appl = OSDictionary_GetItem(dict, "platform-application");
+    NSLog(@"plat_appl: %llx", plat_appl);
     if (plat_appl == 0) {
         // already has platform application - nothing to do here
-        return 0;
+        ret = 0;
+        goto out;
     }
     
     // add it in
     ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
     if (ret != 0) {
-        return -11;
+        ret = -11;
+        goto out;
     }
     
     csblob_ent_dict_set(cs_blobs, dict);
+    NSLog(@"done (2)");
     
-    return 0;
+    ret = 0;
+    
+out:
+    if (fd >= 0)
+        close(fd);
+    return ret;
 }
