@@ -1,16 +1,17 @@
 TARGET  = amfid_payload.dylib
 OUTDIR ?= bin
 
-CC      = xcrun -sdk iphoneos gcc -arch arm64
+CXX     = xcrun -sdk iphoneos clang -arch arm64
 LDID    = ldid
+CFLAGS  = -dynamiclib -framework Foundation -framework IOKit -lc++
 
 all: $(OUTDIR)/$(TARGET)
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
-$(OUTDIR)/$(TARGET): *.m *.c | $(OUTDIR)
-	$(CC) -dynamiclib -framework Foundation -framework IOKit -o $@ $^
+$(OUTDIR)/$(TARGET): *.c *.m *.mm *.a | $(OUTDIR)
+	$(CXX) $(CFLAGS) -o $@ $^
 	$(LDID) -S $@
 
 clean:
