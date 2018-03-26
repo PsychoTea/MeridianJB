@@ -160,7 +160,7 @@ unsigned int OSString_GetLength(uint64_t osstring){
 
 char *OSString_CopyString(uint64_t osstring){
     unsigned int length = OSString_GetLength(osstring);
-    char *str = malloc(length + 1);
+    char *str = (char *)malloc(length + 1);
     str[length] = 0;
     
     kread(OSString_CStringPtr(osstring), str, length);

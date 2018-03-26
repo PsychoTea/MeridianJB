@@ -7,10 +7,11 @@
 #include "osobject.h"
 #include "patchfinder64.h"
 #include "ubc_headers.h"
+#include "offsetfinder.h"
 
 uint64_t get_vfs_context() {
     // vfs_context_t vfs_context_current(void)
-    uint64_t vfs_context = kexecute(find_vfs_context_current(), 1, 0, 0, 0, 0, 0, 0);
+    uint64_t vfs_context = kexecute(off.vfs_context_current, 1, 0, 0, 0, 0, 0, 0);
     vfs_context = zm_fix_addr(vfs_context);
     return vfs_context;
 }
@@ -19,7 +20,7 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     uint64_t vnode = kalloc(sizeof(vnode_t *));
     
     // int vnode_getfromfd(vfs_context_t cfx, int fd, vnode_t vpp)
-    int ret = kexecute(find_vnode_getfromfd(), vfs_context, fd, vnode, 0, 0, 0, 0);
+    int ret = kexecute(off.vnode_getfromfd, vfs_context, fd, vnode, 0, 0, 0, 0);
     if (ret != 0) {
         return -1;
     }
@@ -35,7 +36,7 @@ int check_vtype(uint64_t vnode) {
             uint16_t `v_type`;
      */
     uint16_t v_type = rk64(vnode + offsetof(struct vnode, v_type));
-    return (v_type == VREG) ? 1 : 0;
+    return (v_type == VREG) ? 0 : 1;
 }
 
 uint64_t get_vu_ubcinfo(uint64_t vnode) {
@@ -55,6 +56,7 @@ uint64_t get_csblobs(uint64_t vu_ubcinfo) {
             ....
             struct cs_blob *cs_blobs;
      */
+    NSLog(@"cs_blobs offset: %llx", offsetof(struct ubc_info, cs_blobs));
     return rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs));
 }
 
@@ -64,13 +66,13 @@ uint64_t get_csb_entitlements(uint64_t cs_blobs) {
 
 void csblob_ent_dict_set(uint64_t cs_blobs, uint64_t dict) {
     // void csblob_entitlements_dictionary_set(struct cs_blob *csblob, void *entitlements)
-    kexecute(find_csblob_ent_dict_set(), cs_blobs, dict, 0, 0, 0, 0, 0);
+    kexecute(off.csblob_ent_dict_set, cs_blobs, dict, 0, 0, 0, 0, 0);
 }
 
 int csblob_get_ents(uint64_t cs_blob, CS_GenericBlob *ent_blob) {
     uint64_t out_start_ptr = kalloc(sizeof(void **));
     uint64_t out_length_ptr = kalloc(sizeof(size_t));
-    int ret = kexecute(find_csblob_get_ents(), cs_blob, out_start_ptr, out_length_ptr, 0, 0, 0, 0);
+    int ret = kexecute(off.csblob_get_ents, cs_blob, out_start_ptr, out_length_ptr, 0, 0, 0, 0);
     if (ret != 0) {
         return -1;
     }

@@ -1,6 +1,6 @@
 #import "kern_utils.h"
 #import "kmem.h"
-#import "patchfinder64.h"
+#import "offsetfinder.h"
 
 #define MAX_CHUNK_SIZE 0xFFF
 
@@ -82,10 +82,7 @@ uint64_t zm_fix_addr(uint64_t addr) {
   static kmap_hdr_t zm_hdr = {0, 0, 0, 0};
   if (zm_hdr.start == 0) {
     // xxx rk64(0) ?!
-      // uint64_t zone_map_ref = find_zone_map_ref();
-      fprintf(stderr, "offset_zonemap = %llx \n", find_zone_map());
-      fprintf(stderr, "zone_map_ref: %llx \n", find_zone_map() + kernel_slide);
-    uint64_t zone_map = rk64(find_zone_map() + kernel_slide);
+    uint64_t zone_map = rk64(off.zone_map);
       fprintf(stderr, "zone_map: %llx \n", zone_map);
     // hdr is at offset 0x10, mutexes at start
     size_t r = kread(zone_map + 0x10, &zm_hdr, sizeof(zm_hdr));
@@ -111,7 +108,7 @@ int kstrcmp(uint64_t kstr, const char* str) {
 	// XXX be safer, dont just assume you wont cause any
 	// page faults by this
 	size_t len = strlen(str) + 1;
-	char *local = malloc(len + 1);
+	char *local = (char *)malloc(len + 1);
 	local[len] = '\0';
 
 	int ret = 1;

