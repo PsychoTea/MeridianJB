@@ -145,8 +145,6 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
-    unlink("/meridian/tar");
-    
     // touch .cydia_no_stash
     touch_file("/.cydia_no_stash");
     
