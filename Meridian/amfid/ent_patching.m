@@ -262,9 +262,20 @@ int fixup_platform_application(const char *path,
         // generate some new entitlements
         // this is all we're here to do, really :-)
         // we could add others (skip-lib-val? get-task-allow?)
-        const char *cstring = "<dict><key>platform-application</key><true/></dict>";
+        const char *cstring = "<dict>"
+                                  "<key>platform-application</key>"                         // escape container restriction
+                                  "<true/>"
+                                  "<key>com.apple.private.security.no-container</key>"      // no container
+                                  "<true/>"
+                                  "<key>get-task-allow</key>"                               // task_for_pid
+                                  "<true/>"
+                                  "<key>com.apple.private.skip-library-validation</key>"    // allow invalid libs
+                                  "<true/>"
+                              "</dict>";
+        
         uint64_t dict = OSUnserializeXML(cstring);
         csblob_ent_dict_set(cs_blobs, dict);
+        csblob_update_csflags(dict, CS_GET_TASK_ALLOW);
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
@@ -277,12 +288,10 @@ int fixup_platform_application(const char *path,
             csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
         }
         
-        ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
-        if (ret != 1) {
-            NSLog(@"osdict_setitem ret: %d", ret);
-            ret = -8;
-            goto out;
-        }
+        OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "com.apple.private.security.no-container", find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "get-task-allow", find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
         csblob_ent_dict_set(cs_blobs, dict);
 
