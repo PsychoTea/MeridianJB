@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-#define MOUNT_MNT_FLAG    0x71
+#define MOUNT_MNT_FLAG    0x70
 #define VNODE_V_UN        0xd8
 #define VNODE_V_UN_OTHER  0xd0
 
@@ -130,8 +130,11 @@ int remount_root(uint64_t kslide, uint64_t root_vnode) {
     uint64_t v_mount = rk64(rootfs_vnode + off);
     uint32_t v_flag = rk32(v_mount + MOUNT_MNT_FLAG);
     
+    v_flag = v_flag & ~MNT_NOSUID;
+    v_flag = v_flag & ~MNT_RDONLY;
+    
     // unset rootfs flag
-    wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~(MNT_ROOTFS >> 8));
+    wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~MNT_ROOTFS);
     
     // remount
     char *nmz = strdup("/dev/disk0s1s1");
