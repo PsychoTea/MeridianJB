@@ -143,7 +143,6 @@ uint64_t construct_cs_blob(const void *cs,
     wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
     
     kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
-    // wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), 0xfffffff0070ad9d0 + kernel_slide); // 0xfffffff0070ad9d0
     wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), generate_csb_hashtype());
     
     wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
