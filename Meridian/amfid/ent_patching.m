@@ -261,7 +261,6 @@ int fixup_platform_application(const char *path,
     if (entitlements == NULL) {
         // generate some new entitlements
         // this is all we're here to do, really :-)
-        // we could add others (skip-lib-val? get-task-allow?)
         const char *cstring = "<dict>"
                                   "<key>platform-application</key>"                         // escape container restriction
                                   "<true/>"
