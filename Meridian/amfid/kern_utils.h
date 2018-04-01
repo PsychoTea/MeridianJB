@@ -99,4 +99,6 @@ uint64_t offset_kernel_task;
 uint64_t offset_vfs_context_current;
 uint64_t offset_vnode_getfromfd;
 uint64_t offset_csblob_ent_dict_set;
-uint64_t offset_csblob_get_ents;
+uint64_t offset_sha1_init;
+uint64_t offset_sha1_update;
+uint64_t offset_sha1_final;

@@ -38,6 +38,11 @@ void init_kexecute(void) {
     
     // From v0rtex - get the IOSurfaceRootUserClient port, and then the address of the actual client, and vtable
     IOSurfaceRootUserClient_port = find_port(user_client); // UserClients are just mach_ports, so we find its address
+    if (IOSurfaceRootUserClient_port <= 0) {
+        NSLog(@"error calling find_port whilst initializing kexecute!");
+        return;
+    }
+    
     IOSurfaceRootUserClient_addr = rk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject); // The UserClient itself (the C++ object) is at the kobject field
     
     uint64_t IOSurfaceRootUserClient_vtab = rk64(IOSurfaceRootUserClient_addr); // vtables in C++ are at *object

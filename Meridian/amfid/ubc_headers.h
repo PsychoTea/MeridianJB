@@ -118,6 +118,15 @@ struct cs_blob {
     unsigned int    csb_platform_path;
 };
 
+struct cs_hash {
+    uint8_t         cs_type;            /* type code as per code signing */
+    size_t          cs_size;            /* size of effective hash (may be truncated) */
+    size_t          cs_digest_size;     /* size of native hash */
+    uint64_t        cs_init;
+    uint64_t        cs_update;
+    uint64_t        cs_final;
+};
+
 struct vnode_attr {
     /* bitfields */
     uint64_t    va_supported;

@@ -56,8 +56,9 @@ void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel
     off_file[@"VfsContextCurrent"]              = [NSString stringWithFormat:@"0x%016llx", offsets->vfs_context_current];
     off_file[@"VnodeGetFromFD"]                 = [NSString stringWithFormat:@"0x%016llx", offsets->vnode_getfromfd];
     off_file[@"CSBlobEntDictSet"]               = [NSString stringWithFormat:@"0x%016llx", offsets->csblob_ent_dict_set];
-    off_file[@"CSBlobGetEnts"]                  = [NSString stringWithFormat:@"0x%016llx", offsets->csblob_get_ents];
-    off_file[@"OSAddAtomic"]                    = [NSString stringWithFormat:@"0x%016llx", offsets->osaddatomic];
+    off_file[@"SHA1Init"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_init];
+    off_file[@"SHA1Update"]                     = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_update];
+    off_file[@"SHA1Final"]                      = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_final];
     
     [off_file writeToFile:@"/meridian/offsets.plist" atomically:YES];
 }

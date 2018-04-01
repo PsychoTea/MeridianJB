@@ -59,49 +59,58 @@ uint64_t get_csblobs(uint64_t vu_ubcinfo) {
     return rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs));
 }
 
-uint64_t get_csb_entitlements(uint64_t cs_blobs) {
-    return rk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements));
-}
-
 void csblob_ent_dict_set(uint64_t cs_blobs, uint64_t dict) {
     // void csblob_entitlements_dictionary_set(struct cs_blob *csblob, void *entitlements)
     kexecute(offset_csblob_ent_dict_set, cs_blobs, dict, 0, 0, 0, 0, 0);
 }
 
-int csblob_get_ents(uint64_t cs_blob, CS_GenericBlob *ent_blob) {
-    ent_blob = NULL;
-    
-    uint64_t out_start_ptr = kalloc(sizeof(void **));
-    uint64_t out_length_ptr = kalloc(sizeof(size_t));
-    int ret = kexecute(offset_csblob_get_ents, cs_blob, out_start_ptr, out_length_ptr, 0, 0, 0, 0);
-    if (ret != 0) {
-        return -1;
+void csblob_update_csflags(uint64_t cs_blobs, uint64_t flags_to_add) {
+    uint64_t csflags = rk64(cs_blobs + offsetof(struct cs_blob, csb_flags));
+    csflags |= flags_to_add;
+    wk64(cs_blobs + offsetof(struct cs_blob, csb_flags), csflags);
+}
+
+int set_memory_object_code_signed(uint64_t vu_ubcinfo) {
+    uint64_t ui_control = rk64(vu_ubcinfo + offsetof(struct ubc_info, ui_control));
+    if (ui_control == 0) {
+        NSLog(@"failed to get ui_control");
+        return 1;
     }
     
-    int out_length = rk64(out_length_ptr);
-    if (out_length == 0) {
-        return 0;
+    uint64_t moc_object = rk64(ui_control + 0x8); // offsetof(struct memory_object_control, moc_object)
+    if (moc_object == 0) {
+        NSLog(@"failed to get moc_object");
+        return 1;
     }
     
-    uint64_t out_start = rk64(out_start_ptr);
+    uint64_t code_signed_addr = moc_object + 0xb8;
     
-    // read CS_GenericBlob (there may be a better way to do this,
-    // but `kread` can get hung up on null bytes - eg in `length`
+    uint32_t curr_code_signed = rk32(code_signed_addr);
     
-    NSLog(@"out_start of blob: %llx", out_start);
-    uint32_t magic = rk32(out_start);
-    uint32_t length = rk32(out_start + 4);
-    char *dict_str = malloc(length);
-    kread(out_start + 8, dict_str, length);
+    // `code_signed` is only 1 bit
+    curr_code_signed |= 0x100;
+    wk32(code_signed_addr, curr_code_signed);
     
-    *ent_blob = (CS_GenericBlob) {
-        magic,
-        length
-    };
+    return 0;
+}
+
+uint64_t cs_hash_ptr = 0;
+uint64_t generate_csb_hashtype() {
+    // we can only support SHA1 because that's all the symbols we
+    // really get.. finding SHA256* would be a bitch :(
+    if (cs_hash_ptr == 0) {
+        const struct cs_hash hash = {
+            .cs_type = CS_HASHTYPE_SHA1,
+            .cs_size = CS_SHA1_LEN,
+            .cs_init = offset_sha1_init,
+            .cs_update = offset_sha1_update,
+            .cs_final = offset_sha1_final
+        };
+        cs_hash_ptr = kalloc(sizeof(hash));
+        kwrite(cs_hash_ptr, &hash, sizeof(hash));
+    }
     
-    strncpy(ent_blob->data, dict_str, length);
-    
-    return out_length;
+    return cs_hash_ptr;
 }
 
 uint64_t construct_cs_blob(const void *cs,
@@ -109,7 +118,6 @@ uint64_t construct_cs_blob(const void *cs,
                            uint8_t cd_hash[20],
                            uint32_t chosen_off,
                            uint64_t macho_offset) {
-    NSLog(@"cslength = %d", cs_length);
     uint64_t entire_csdir = kalloc(cs_length);
     kwrite(entire_csdir, cs, cs_length);
     
@@ -118,7 +126,7 @@ uint64_t construct_cs_blob(const void *cs,
     uint64_t cs_blob = kalloc(sizeof(struct cs_blob));
     wk64(cs_blob + offsetof(struct cs_blob, csb_next), 0);
     wk32(cs_blob + offsetof(struct cs_blob, csb_cpu_type), -1); // kern will update this for us :-)
-    wk32(cs_blob + offsetof(struct cs_blob, csb_flags), (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED); // 536870913
+    wk32(cs_blob + offsetof(struct cs_blob, csb_flags), (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED);
 
     wk64(cs_blob + offsetof(struct cs_blob, csb_base_offset), macho_offset);
     wk64(cs_blob + offsetof(struct cs_blob, csb_start_offset), 0);
@@ -130,51 +138,27 @@ uint64_t construct_cs_blob(const void *cs,
                                                               ((1U << blob->pageSize) - 1) &
                                                                 ~((vm_offset_t)((1U << blob->pageSize) - 1))));
     
-    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length); // hopefully 0x1c0 or so
+    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length);
     wk64(cs_blob + offsetof(struct cs_blob, csb_mem_offset), 0);
     wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
     
     kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), 0xfffffff0070ad9d0 + kernel_slide); // cs_hash_sha1
+    // wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), 0xfffffff0070ad9d0 + kernel_slide); // 0xfffffff0070ad9d0
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), generate_csb_hashtype());
     
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize)); // 0x1000
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1); // 0xfff
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pageshift), blob->pageSize); // 0xc
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1);
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pageshift), blob->pageSize);
     wk64(cs_blob + offsetof(struct cs_blob, csb_hash_firstlevel_pagesize), 0);
     wk64(cs_blob + offsetof(struct cs_blob, csb_cd), entire_csdir + chosen_off);
     
     wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), 0);
     wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements_blob), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements), 0);
+    wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements), 0); /* we'll update this later */
     wk32(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 0);
     wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), 0);
     
-    NSLog(@"cs_blob struct size: %ld", sizeof(struct cs_blob));
-    
     return cs_blob;
-}
-
-void dump_csblob(uint64_t cs_blobs) {
-    NSLog(@"csb_next: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_next)));
-    NSLog(@"csb_cpu_type: %d \n", rk32(cs_blobs + offsetof(struct cs_blob, csb_cpu_type)));
-    NSLog(@"csb_flags: %d \n", (int)rk64(cs_blobs + offsetof(struct cs_blob, csb_flags)));
-    NSLog(@"csb_base_offset: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_base_offset)));
-    NSLog(@"csb_start_offset: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_start_offset)));
-    NSLog(@"csb_mem_size: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_mem_size)));
-    NSLog(@"csb_mem_offset: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_mem_offset)));
-    NSLog(@"csb_mem_kaddr: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_mem_kaddr)));
-    NSLog(@"csb_cdhash: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_cdhash)));
-    NSLog(@"csb_hashtype: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_hashtype)));
-    NSLog(@"csb_hash_pagesize: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_hash_pagesize)));
-    NSLog(@"csb_hash_pagemask: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_hash_pagemask)));
-    NSLog(@"csb_hash_pageshift: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_hash_pageshift)));
-    NSLog(@"csb_hash_firstlevel_pagesize: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_hash_firstlevel_pagesize)));
-    NSLog(@"csb_cd: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_cd)));
-    NSLog(@"csb_teamid: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_teamid)));
-    NSLog(@"csb_entitlements_blob: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob)));
-    NSLog(@"csb_entitlements: %llx \n", rk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements)));
-    NSLog(@"csb_platform_binary: %d \n", rk32(cs_blobs + offsetof(struct cs_blob, csb_platform_binary)));
-    NSLog(@"csb_platform_path: %d \n", rk32(cs_blobs + offsetof(struct cs_blob, csb_platform_path)));
 }
 
 int fixup_platform_application(const char *path,
@@ -184,8 +168,6 @@ int fixup_platform_application(const char *path,
                                uint8_t cd_hash[20],
                                uint32_t csdir_offset,
                                const CS_GenericBlob *entitlements) {
-    NSLog(@"fixup_platform_appl called for %s", path);
-    
     int ret;
     
     uint64_t vfs_context = get_vfs_context();
@@ -193,14 +175,12 @@ int fixup_platform_application(const char *path,
         ret = -1;
         goto out;
     }
-    NSLog(@"got vfs_context: %llx", vfs_context);
     
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
         ret = -2;
         goto out;
     }
-    NSLog(@"got fd: %d", fd);
     
     uint64_t *vpp = malloc(sizeof(vnode_t *));
     ret = get_vnode_fromfd(vfs_context, fd, vpp);
@@ -208,14 +188,12 @@ int fixup_platform_application(const char *path,
         ret = -3;
         goto out;
     }
-    NSLog(@"got vpp: %llx", *vpp);
     
     uint64_t vnode = rk64(*vpp);
     if (vnode == 0) {
         ret = -4;
         goto out;
     }
-    NSLog(@"got vnode: %llx", vnode);
     
     ret = check_vtype(vnode);
     if (ret != 0) {
@@ -228,11 +206,9 @@ int fixup_platform_application(const char *path,
         ret = -6;
         goto out;
     }
-    NSLog(@"got vu_ubcinfo: %llx", vu_ubcinfo);
     
     uint64_t cs_blobs = get_csblobs(vu_ubcinfo);
     if (cs_blobs == 0) {
-        NSLog(@"generating new csblobs");
         uint64_t new_cs_blob = construct_cs_blob(blob,
                                                  cs_length,
                                                  cd_hash,
@@ -243,41 +219,25 @@ int fixup_platform_application(const char *path,
             ret = -7;
             goto out;
         }
-        NSLog(@"new_cs_blob = %llx", new_cs_blob);
         
         wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs), new_cs_blob);
         cs_blobs = rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs));
-        NSLog(@"cs_blobs = %llx", cs_blobs);
         
         // we now need to update a few other bits and bobs
         
         // memory_object_signed
         // uip->ui_control->moc_object->code_signed = 1
-        uint64_t ui_control = rk64(vu_ubcinfo + offsetof(struct ubc_info, ui_control));
-        NSLog(@"uicontrol = %llx", ui_control);
-        if (ui_control == 0) {
-            NSLog(@"failed to get ui_control");
-        } else {
-            uint64_t moc_object = rk64(ui_control + 0x8); // offsetof(struct memory_object_control, moc_object)
-            NSLog(@"moc_object = %llx", moc_object);
-            if (moc_object == 0) {
-                NSLog(@"failed to get moc_object");
-            } else {
-                uint64_t code_signed_addr = moc_object + 0xb8;
-
-                uint32_t curr_code_signed = rk32(code_signed_addr);
-                NSLog(@"curr_code_signed = %x", curr_code_signed);
-
-                // `code_signed` is only 1 bit
-                curr_code_signed |= 0x100;
-                wk32(code_signed_addr, curr_code_signed);
-                NSLog(@"new code signed = %x", rk32(code_signed_addr));
-            }
+        ret = set_memory_object_code_signed(vu_ubcinfo);
+        if (ret != 0) {
+            ret = -8;
+            goto out;
         }
-
+        
+        // disabled for now... causes panics on 2nd run of the binary
+        // something to do with a mutex lock.. i don't care to figure out what
         // set generation count
-        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen), 1);
-        NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
+//        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen), 1);
+//        NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
 
         // record_mtime
 //        uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
@@ -311,27 +271,24 @@ int fixup_platform_application(const char *path,
         // platform-application (true), and write them into kern
         uint64_t dict = OSUnserializeXML(entitlements->data);
 
+        // gotta check for get-task-allow as it sets another csflag
+        // remember: csflags have to be *perfect* otherwise the trick won't work
         ret = OSDictionary_GetItem(dict, "get-task-allow");
-        NSLog(@"get-task-allow check returned: %llx", ret);
         if (ret != 0) {
-            NSLog(@"detected get-task-allow - updating csflags accordingly");
-            // TODO: move this to a struct
-            uint64_t csflags = rk64(cs_blobs + offsetof(struct cs_blob, csb_flags));
-            csflags |= CS_GET_TASK_ALLOW;
-            wk64(cs_blobs + offsetof(struct cs_blob, csb_flags), csflags);
+            csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
         }
         
         ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
         if (ret != 1) {
             NSLog(@"osdict_setitem ret: %d", ret);
-            ret = -10;
+            ret = -8;
             goto out;
         }
 
         csblob_ent_dict_set(cs_blobs, dict);
 
         // map the genblob up to csb_entitlements_blob
-        // idk if we need to do this but w/e
+        // idk if we necessarily need to do this but w/e
         int size = ntohl(entitlements->length);
         uint64_t entptr = kalloc(size);
         kwrite(entptr, entitlements, size);

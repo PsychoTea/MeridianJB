@@ -39,8 +39,9 @@ typedef struct
     kptr_t vfs_context_current;
     kptr_t vnode_getfromfd;
     kptr_t csblob_ent_dict_set;
-    kptr_t csblob_get_ents;
-    kptr_t osaddatomic;
+    kptr_t sha1_init;
+    kptr_t sha1_update;
+    kptr_t sha1_final;
 } offsets_t;
 
 typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, uint64_t kern_ucred, uint64_t kernprocaddr);

@@ -97,16 +97,15 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     INFO(@"magic was performed [%08x]: %@", ntohl(*(uint64_t *)cd_hash), file);
     
     // let's check entitlements, add platform-application if necessary
-    // make sure binary is not mashed else we'll cause an infinite loop
-    if ([file hasPrefix:@"/psycho"] && [file containsString:@"test_bin"]) {
-        ret = fixup_platform_application(file.UTF8String,
-                                             file_off,
-                                             cs,
-                                             cs_length,
-                                             cd_hash,
-                                             cdir_offset,
-                                             entitlements);
-        INFO(@"FIXUP_PLAT_APPL: %d", ret);
+    ret = fixup_platform_application(file.UTF8String,
+                                         file_off,
+                                         cs,
+                                         cs_length,
+                                         cd_hash,
+                                         cdir_offset,
+                                         entitlements);
+    if (ret != 0) {
+        ERROR(@"fixup_platform_application returned: %d", ret);
     }
     
     close_img(&img);
@@ -154,8 +153,10 @@ static void ctor(void) {
     offset_vfs_context_current  = strtoull([off_file[@"VfsContextCurrent"]    UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getfromfd      = strtoull([off_file[@"VnodeGetFromFD"]       UTF8String], NULL, 16) + kernel_slide;
     offset_csblob_ent_dict_set  = strtoull([off_file[@"CSBlobEntDictSet"]     UTF8String], NULL, 16) + kernel_slide;
-    offset_csblob_get_ents      = strtoull([off_file[@"CSBlobGetEnts"]        UTF8String], NULL, 16) + kernel_slide;
-    INFO(@"grabbed all offsets! eg: %llx, slide: %llx", offset_kernel_task, kernel_slide);
+    offset_sha1_init            = strtoull([off_file[@"SHA1Init"]             UTF8String], NULL, 16) + kernel_slide;
+    offset_sha1_update          = strtoull([off_file[@"SHA1Update"]           UTF8String], NULL, 16) + kernel_slide;
+    offset_sha1_final           = strtoull([off_file[@"SHA1Final"]            UTF8String], NULL, 16) + kernel_slide;
+    INFO(@"grabbed all offsets! eg: %llx, %llx, slide: %llx", offset_kernel_task, offset_sha1_final, kernel_slide);
     
     init_kernel(kernel_base, NULL);
     init_kexecute();
