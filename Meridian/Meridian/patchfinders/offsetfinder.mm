@@ -13,8 +13,6 @@
 
 static bool DidInit = false;
 static offsets_t off;
-static uint64_t offset_rootvnode;
-static uint64_t offset_zonemap;
 
 extern "C" offsets_t *get_offsets() {
     if (DidInit) {
@@ -53,14 +51,21 @@ extern "C" offsets_t *get_offsets() {
         off.osserializer_serialize              = (kptr_t)fi.find_osserializer_serialize();
         off.rop_ldr_x0_x0_0x10                  = (kptr_t)fi.find_rop_ldr_x0_x0_0x10();
 
-        offset_rootvnode                        = (kptr_t)fi.find_rootvnode();
-        offset_zonemap                          = off.zone_map;
+        off.root_vnode                          = (kptr_t)fi.find_rootvnode();
+        
+        off.vfs_context_current                 = (kptr_t)fi.find_sym("_vfs_context_current");
+        off.vnode_getfromfd                     = (kptr_t)fi.find_sym("_vnode_getfromfd");
+        off.csblob_ent_dict_set                 = (kptr_t)fi.find_sym("_csblob_entitlements_dictionary_set");
+        off.sha1_init                           = (kptr_t)fi.find_sym("_SHA1Init");
+        off.sha1_update                         = (kptr_t)fi.find_sym("_SHA1Update");
+        off.sha1_final                          = (kptr_t)fi.find_sym("_SHA1Final");
         
         NSLog(@"[OFFSET] sizeof_task = 0x%llx", off.sizeof_task);
         NSLog(@"[OFFSET] task_itk_self = 0x%llx", off.task_itk_self);
         NSLog(@"[OFFSET] task_itk_registered = 0x%llx", off.task_itk_registered);
         NSLog(@"[OFFSET] kernel_task = 0x%llx", off.kernel_task);
-        NSLog(@"[OFFSET] rootvnode = 0x%llx", offset_rootvnode);
+        NSLog(@"[OFFSET] rootvnode = 0x%llx", off.root_vnode);
+        NSLog(@"[OFFSET] sha1_init = 0x%llx", off.sha1_init);
     } catch (tihmstar::exception &e) {
         NSLog(@"offsetfinder failure! %d (%s)", e.code(), e.what());
         return NULL;
@@ -72,13 +77,4 @@ extern "C" offsets_t *get_offsets() {
     DidInit = true;
 
     return &off;
-}
-
-// i'm super lazy
-extern "C" uint64_t get_offset_rootvnode() {
-    return offset_rootvnode;
-}
-
-extern "C" uint64_t get_offset_zonemap() {
-    return offset_zonemap;
 }

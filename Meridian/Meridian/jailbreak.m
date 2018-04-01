@@ -15,6 +15,7 @@
 #include "jailbreak.h"
 #include "ViewController.h"
 #include "patchfinder64.h"
+#include "patchfinders/offsetdump.h"
 #include <mach/mach_types.h>
 #include <sys/stat.h>
 #import <Foundation/Foundation.h>
@@ -26,6 +27,7 @@ uint64_t kslide;
 uint64_t kernel_base;
 uint64_t kern_ucred;
 uint64_t kernprocaddr;
+offsets_t offsets;
 
 int makeShitHappen(ViewController *view) {
     int ret;
@@ -148,11 +150,17 @@ int makeShitHappen(ViewController *view) {
     // touch .cydia_no_stash
     touch_file("/.cydia_no_stash");
     
+    // dump offsets to file for later use (/meridian/offsets.plist)
+    dumpOffsetsToFile(&offsets, kernel_base, kslide);
+    
     // patch amfid
     [view writeText:@"patching amfid..."];
-    ret = defecate_amfi();
+    ret = defecateAmfi();
     if (ret != 0) {
         [view writeText:@"failed!"];
+        if (ret > 0) {
+            [view writeTextPlain:[NSString stringWithFormat:@"failed to patch - %d tries", ret]];
+        }
         return 1;
     }
     [view writeText:@"done!"];
@@ -201,13 +209,9 @@ kern_return_t callback(task_t kern_task, kptr_t kbase, uint64_t kernucred, uint6
 }
 
 int runV0rtex() {
-    offsets_t *offsets = get_offsets();
+    offsets = *get_offsets();
     
-    if (offsets == NULL) {
-        return -1;
-    }
-    
-    int ret = v0rtex(offsets, &callback);
+    int ret = v0rtex(&offsets, &callback);
     
     if (ret == 0) {
         NSLog(@"tfp0: 0x%x", tfp0);
@@ -235,7 +239,7 @@ int remountRootFs() {
     NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
     
-    int rv = mount_root(kslide, pre130);
+    int rv = mount_root(kslide, offsets.root_vnode, pre130);
     if (rv != 0) {
         return 1;
     }
@@ -329,6 +333,40 @@ int extractBootstrap() {
     return 0;
 }
 
+int defecateAmfi() {
+    // write kslide to file
+    unlink("/meridian/kernel_slide");
+    FILE *fd = fopen("/meridian/kernel_slide", "w");
+    fprintf(fd, "%016llx", kslide);
+    fclose(fd);
+    
+    // trust our payload
+    inject_trust("/meridian/amfid_payload.dylib");
+    
+    unlink("/var/tmp/amfid_payload.alive");
+    
+    pid_t pid = get_pid_for_name("amfid");
+    if (pid == 0) {
+        return -1;
+    }
+    
+    inject_library(pid, "/meridian/amfid_payload.dylib");
+    
+    int tries = 0;
+    while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
+        if (tries >= 100) {
+            NSLog(@"failed to patch amfid (%d tries)", tries);
+            return tries;
+        }
+        
+        NSLog(@"waiting for amfid patch...");
+        usleep(100000); // 0.1 sec
+        tries++;
+    }
+    
+    return 0;
+}
+
 int launchDropbear() {
     inject_trust("/bin/launchctl");
     
@@ -359,7 +397,7 @@ int startJailbreakd() {
     
     job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
     job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
-    job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", get_offset_zonemap()];
+    job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
     [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
     chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
     chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);

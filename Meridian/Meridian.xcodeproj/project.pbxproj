@@ -44,6 +44,7 @@
 		B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */; };
 		B5DF1AC22059C0E20090B4B5 /* libmerged.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC12059C0E20090B4B5 /* libmerged.a */; };
 		B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */; };
+		B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FDF8EA206EF1260074A075 /* offsetdump.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +140,8 @@
 		B5DF1AC12059C0E20090B4B5 /* libmerged.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmerged.a; sourceTree = "<group>"; };
 		B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
+		B5FDF8EA206EF1260074A075 /* offsetdump.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsetdump.m; sourceTree = "<group>"; };
+		B5FDF8EC206EF4880074A075 /* offsetdump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetdump.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +239,8 @@
 				B585F4172051993E0049C703 /* offsetfinder.mm */,
 				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
+				B5FDF8EA206EF1260074A075 /* offsetdump.m */,
+				B5FDF8EC206EF4880074A075 /* offsetdump.h */,
 			);
 			path = patchfinders;
 			sourceTree = "<group>";
@@ -487,6 +492,7 @@
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
 				B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
+				B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */,
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B52F29282051F10800F4EB57 /* fucksigningservices.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,

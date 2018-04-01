@@ -34,53 +34,6 @@ void init_amfi() {
     NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
 }
 
-int defecate_amfi() {
-    NSLog(@"[amfi] amfid defecation has been reached");
-    
-    {
-        // trust our payload
-//        inject_trust("/meridian/amfid/amfid_fucker");
-        inject_trust("/meridian/amfid/amfid_payload.dylib");
-    }
-    
-    unlink("/var/tmp/amfid_payload.alive");
-
-    pid_t pid = get_pid_for_name("amfid");
-    if (pid == 0) {
-        return -1;
-    }
-    
-    inject_library(pid, "/meridian/amfid/amfid_payload.dylib");
-    
-//    NSString *kernprocstring = [NSString stringWithFormat:@"%llu", kernprocaddr];
-//    NSLog(@"[amfi] sent kernprocaddr 0x%llx", kernprocaddr);
-//
-//    char* prog_args[] =  {
-//        "/meridian/amfid/amfid_fucker",
-//        (char *)[kernprocstring UTF8String],
-//        NULL
-//    };
-//
-//    pid_t pd;
-//    int rv = posix_spawn(&pd, "/meridian/amfid/amfid_fucker", NULL, NULL, prog_args, NULL);
-//    if (rv != 0) {
-//        NSLog(@"[amfi] there was an issue spawning amfid_fucker: ret code %d (%s)", rv, strerror(rv));
-//        return rv;
-//    }
-//
-//    // i'm not sure if this is needed but i cba to test it without so w/e
-//    grant_csflags(pd);
-//
-//    NSLog(@"[amfi] amfid_fucker spawned with pid %d", pd);
-    
-    while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
-        NSLog(@"waiting for amfid patch...");
-        usleep(100000); // 0.1 sec
-    }
-    
-    return 0;
-}
-
 // creds to stek29(?)
 void inject_trust(const char *path) {
     if (file_exists(path) != 0) {

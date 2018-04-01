@@ -12,10 +12,6 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-
 offsets_t *get_offsets(void);
-
-uint64_t get_offset_rootvnode(void);
-uint64_t get_offset_zonemap(void);
 
 #endif /* offsetfinder_h */
