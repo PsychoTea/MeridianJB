@@ -280,50 +280,62 @@ int fixup_platform_application(const char *path,
         NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
 
         // record_mtime
-        uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_supported), 0);
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
-        // vnode_getattr
-        ret = kexecute(0xfffffff00721849c + kernel_slide, vnode, vnode_attr, vfs_context, NULL, NULL, NULL, NULL);
-        if (ret != 0) {
-            NSLog(@"vnode_attr failed - ret value: %d", ret);
-        } else {
-            uint64_t mtime = rk64(vnode_attr + offsetof(struct vnode_attr, va_modify_time));
-            if (mtime == 0) {
-                NSLog(@"mtime is 0!");
-            } else {
-                NSLog(@"got mtime: %llx", mtime);
-                wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_mtime), mtime);
-            }
-        }
+//        uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
+//        wk64(vnode_attr + offsetof(struct vnode_attr, va_supported), 0);
+//        wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
+//        wk64(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
+//        // vnode_getattr
+//        ret = kexecute(0xfffffff00721849c + kernel_slide, vnode, vnode_attr, vfs_context, NULL, NULL, NULL, NULL);
+//        if (ret != 0) {
+//            NSLog(@"vnode_attr failed - ret value: %d", ret);
+//        } else {
+//            uint64_t mtime = rk64(vnode_attr + offsetof(struct vnode_attr, va_modify_time));
+//            if (mtime == 0) {
+//                NSLog(@"mtime is 0!");
+//            } else {
+//                NSLog(@"got mtime: %llx", mtime);
+//                wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_mtime), mtime);
+//            }
+//        }
     }
     
     if (entitlements == NULL) {
-        // generate a new CS_GenericBlob
-        // TODO: move to new func
+        // generate some new entitlements
         // this is all we're here to do, really :-)
-        NSLog(@"entitlements is null, created new ones");
+        // we could add others (skip-lib-val? get-task-allow?)
         const char *cstring = "<dict><key>platform-application</key><true/></dict>";
         uint64_t dict = OSUnserializeXML(cstring);
         csblob_ent_dict_set(cs_blobs, dict);
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
-        NSLog(@"entitlements magic: %llx", ntohl(entitlements->magic));
-        NSLog(@"entitlements length: %d", ntohl(entitlements->length));
-        NSLog(@"entitlements data: %s", entitlements->data);
         uint64_t dict = OSUnserializeXML(entitlements->data);
+
+        ret = OSDictionary_GetItem(dict, "get-task-allow");
+        NSLog(@"get-task-allow check returned: %llx", ret);
+        if (ret != 0) {
+            NSLog(@"detected get-task-allow - updating csflags accordingly");
+            // TODO: move this to a struct
+            uint64_t csflags = rk64(cs_blobs + offsetof(struct cs_blob, csb_flags));
+            csflags |= CS_GET_TASK_ALLOW;
+            wk64(cs_blobs + offsetof(struct cs_blob, csb_flags), csflags);
+        }
         
         ret = OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
-        NSLog(@"osdict_setitem ret: %d", ret);
         if (ret != 1) {
+            NSLog(@"osdict_setitem ret: %d", ret);
             ret = -10;
             goto out;
         }
 
         csblob_ent_dict_set(cs_blobs, dict);
-        NSLog(@"csblob_ent_dict_set");
+
+        // map the genblob up to csb_entitlements_blob
+        // idk if we need to do this but w/e
+        int size = ntohl(entitlements->length);
+        uint64_t entptr = kalloc(size);
+        kwrite(entptr, entitlements, size);
+        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
     
     ret = 0;
