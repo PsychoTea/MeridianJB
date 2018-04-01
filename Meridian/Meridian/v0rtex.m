@@ -603,6 +603,8 @@ kern_return_t readback_fakeport(io_connect_t client, uint32_t pageId, uint64_t o
 
 kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback)
 {
+    NSLog(@"example offset: %llx", off->chgproccnt);
+    
     kern_return_t retval = KERN_FAILURE,
     ret = 0;
     task_t self = mach_task_self();

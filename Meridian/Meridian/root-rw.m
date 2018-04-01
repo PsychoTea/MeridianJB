@@ -110,8 +110,8 @@ bool fake_rootedramdisk(void) {
 }
 
 // props to xerub for the original '/' r/w remount code
-int remount_root(uint64_t kslide) {
-    uint64_t _rootnode = get_offset_rootvnode() + kslide;
+int remount_root(uint64_t kslide, uint64_t root_vnode) {
+    uint64_t _rootnode = root_vnode + kslide;
     
     NSLog(@"_rootnode = %llx", _rootnode);
     
@@ -145,7 +145,7 @@ int remount_root(uint64_t kslide) {
     return rv;
 }
 
-int mount_root(uint64_t kslide, int pre130) {
+int mount_root(uint64_t kslide, uint64_t root_vnode, int pre130) {
     if (pre130 == 1) {
         // further patches are requried on <10.3
         NSLog(@"pre-10.3 detected: patching lwvm...");
@@ -159,5 +159,5 @@ int mount_root(uint64_t kslide, int pre130) {
         }
     }
     
-    return remount_root(kslide);
+    return remount_root(kslide, root_vnode);
 }

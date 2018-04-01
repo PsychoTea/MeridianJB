@@ -33,6 +33,14 @@ typedef struct
     kptr_t ipc_port_make_send;
     kptr_t osserializer_serialize;
     kptr_t rop_ldr_x0_x0_0x10;
+    // Remount 
+    kptr_t root_vnode;
+    // AMFID stuff
+    kptr_t vfs_context_current;
+    kptr_t vnode_getfromfd;
+    kptr_t csblob_ent_dict_set;
+    kptr_t csblob_get_ents;
+    kptr_t osaddatomic;
 } offsets_t;
 
 typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, uint64_t kern_ucred, uint64_t kernprocaddr);

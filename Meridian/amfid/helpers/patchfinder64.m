@@ -13,7 +13,7 @@
 #include "patchfinder64.h"
 #include "kmem.h"
 #include "offsetof.h"
-#include "kern_utils.h"
+#include "../kern_utils.h"
 
 #define CACHED_FIND_UINT64(name) CACHED_FIND(uint64_t, name)
 
@@ -25,7 +25,7 @@ typedef uint64_t addr_t;
 
 /* generic stuff *************************************************************/
 
-#define UCHAR_MAX 255
+// #define UCHAR_MAX 255
 
 static unsigned char *
 boyermoore_horspool_memmem(const unsigned char* haystack, size_t hlen,

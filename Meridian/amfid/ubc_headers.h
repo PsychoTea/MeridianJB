@@ -1,3 +1,4 @@
+#include <sys/sysctl.h>
 
 /* vnode types (vnode->v_type) */
 enum vtype    {
@@ -8,8 +9,6 @@ enum vtype    {
     /* 6 - 10 */
     VSOCK, VFIFO, VBAD, VSTR, VCPLX
 };
-
-
 
 struct qm_trace {
     char * lastfile;
@@ -58,6 +57,22 @@ struct vnode {
         struct fifoinfo    *vu_fifoinfo;        /* fifo (VFIFO) */
         struct ubc_info *vu_ubcinfo;        /* valid for (VREG) */
     } v_un;
+    void * v_cleanblkhd;
+    void * v_dirtyblkhd;
+    struct klist v_knotes;
+    kauth_cred_t v_cred;
+    int v_authorized_actions;
+    int v_cred_timestamp;
+    int v_nc_generation;
+    int32_t v_numoutput;
+    int32_t v_writecount;
+    const char *v_name;
+    vnode_t v_parent;
+    struct lockf *v_lockf;
+    int (**v_op)(void *);
+    void *v_mount;
+    void *v_data;
+    struct label *v_label;
     /* rest removed */
 };
 
@@ -99,7 +114,41 @@ struct cs_blob {
     const char *    csb_teamid;
     const           CS_GenericBlob *csb_entitlements_blob;    /* raw blob, subrange of csb_mem_kaddr */
     void *          csb_entitlements;                        /* The entitlements as an OSDictionary */
-    unsigned int    csb_platform_binary:1;
-    unsigned int    csb_platform_path:1;
+    unsigned int    csb_platform_binary;
+    unsigned int    csb_platform_path;
 };
 
+struct vnode_attr {
+    /* bitfields */
+    uint64_t    va_supported;
+    uint64_t    va_active;
+    
+    /*
+     * Control flags.  The low 16 bits are reserved for the
+     * ioflags being passed for truncation operations.
+     */
+    int        va_vaflags;
+    
+    /* traditional stat(2) parameter fields */
+    dev_t        va_rdev;    /* device id (device nodes only) */
+    uint64_t    va_nlink;    /* number of references to this file */
+    uint64_t    va_total_size;    /* size in bytes of all forks */
+    uint64_t    va_total_alloc;    /* disk space used by all forks */
+    uint64_t    va_data_size;    /* size in bytes of the fork managed by current vnode */
+    uint64_t    va_data_alloc;    /* disk space used by the fork managed by current vnode */
+    uint32_t    va_iosize;    /* optimal I/O blocksize */
+    
+    /* file security information */
+    uid_t        va_uid;        /* owner UID */
+    gid_t        va_gid;        /* owner GID */
+    mode_t        va_mode;    /* posix permissions */
+    uint32_t    va_flags;    /* file flags */
+    struct kauth_acl *va_acl;    /* access control list */
+    
+    /* timestamps */
+    struct timespec    va_create_time;    /* time of creation */
+    struct timespec    va_access_time;    /* time of last access */
+    struct timespec    va_modify_time;    /* time of last data modification */
+    struct timespec    va_change_time;    /* time of last metadata change */
+    struct timespec    va_backup_time;    /* time of last backup */
+};

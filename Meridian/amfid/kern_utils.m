@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Foundation/Foundation.h>
-#include "kmem.h"
-#include "offsetof.h"
-#include "patchfinder64.h"
-#include "offsetfinder.h"
+#include "helpers/kmem.h"
+#include "helpers/offsetof.h"
+#include "helpers/patchfinder64.h"
+#include "kern_utils.h"
 
 uint64_t proc_find(int pd, int tries) {
     while (tries-- > 0) {
-        uint64_t ktask = rk64(off.kernel_task);
+        uint64_t ktask = rk64(offset_kernel_task);
         uint64_t kern_proc = rk64(ktask + offsetof_bsd_info);
         uint64_t proc = rk64(kern_proc + 0x08);
         
@@ -26,12 +26,33 @@ uint64_t proc_find(int pd, int tries) {
     return 0;
 }
 
+uint64_t proc_find_by_name(const char *name) {
+    uint64_t ktask = rk64(offset_kernel_task);
+    uint64_t kern_proc = rk64(ktask + offsetof_bsd_info);
+    uint64_t proc = rk64(kern_proc + 0x08);
+    
+    while (proc) {
+        uint32_t pid = rk32(proc + 0x10);
+        
+        char proc_name[40] = { 0 };
+        kread(proc + 0x26c, proc_name, 40);
+        
+        if (!strcmp(name, proc_name)) {
+            return proc;
+        }
+        
+        proc = rk64(proc + 0x08);
+    }
+    
+    return 0;
+}
+
 CACHED_FIND(uint64_t, our_task_addr) {
     uint64_t our_proc = proc_find(getpid(), 3);
 
     if (our_proc == 0) {
-        fprintf(stderr, "failed to find our_task_addr!\n");
-        exit(EXIT_FAILURE);
+        NSLog(@"failed to find our_task_addr!");
+        return -1;
     }
 
     return rk64(our_proc + offsetof_task);
@@ -39,6 +60,9 @@ CACHED_FIND(uint64_t, our_task_addr) {
 
 uint64_t find_port(mach_port_name_t port) {
     uint64_t task_addr = our_task_addr();
+    if (task_addr == -1) {
+        return -1;
+    }
 
     uint64_t itk_space = rk64(task_addr + offsetof_itk_space);
 
