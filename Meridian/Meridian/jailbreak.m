@@ -41,6 +41,9 @@ int makeShitHappen(ViewController *view) {
     resume_all_threads();
     if (ret != 0) {
         [view writeText:@"failed!"];
+        if (ret == -420) {
+            [view writeTextPlain:@"failed to load offsets!"];
+        }
         return 1;
     }
     [view writeTextPlain:@"succeeded! praize siguza!"];
@@ -207,7 +210,13 @@ kern_return_t callback(task_t kern_task, kptr_t kbase, uint64_t kernucred, uint6
 }
 
 int runV0rtex() {
-    offsets = *get_offsets();
+    offsets_t *offs = get_offsets();
+    
+    if (offs == NULL) {
+        return -420;
+    }
+    
+    offsets = *offs;
     
     int ret = v0rtex(&offsets, &callback);
     
