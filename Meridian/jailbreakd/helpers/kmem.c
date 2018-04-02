@@ -1,4 +1,4 @@
-#import "kern_utils.h"
+#import "../kern_utils.h"
 #import "patchfinder64.h"
 #import "kmem.h"
 

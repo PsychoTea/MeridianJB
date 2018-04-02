@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include "kmem.h"
 #include "kexecute.h"
-#include "kern_utils.h"
+#include "../kern_utils.h"
 #include "patchfinder64.h"
 #include "offsetof.h"
 
