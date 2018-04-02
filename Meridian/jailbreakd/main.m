@@ -4,10 +4,10 @@
 #include <mach/error.h>
 #include <string.h>
 #include <unistd.h>
-#include "patchfinder64.h"
+#include "helpers/patchfinder64.h"
 #include "kern_utils.h"
-#include "kmem.h"
-#include "kexecute.h"
+#include "helpers/kmem.h"
+#include "helpers/kexecute.h"
 #include "mach/jailbreak_daemonServer.h"
 
 #define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
@@ -81,8 +81,7 @@ int handle_command(uint8_t command, uint32_t pid) {
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s", pid, name);
-        fixupsetuid(pid);
+        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s (ignored)", pid, name);
     }
     
     free(name);

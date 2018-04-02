@@ -1,11 +1,11 @@
 #import <Foundation/Foundation.h>
 #import <sys/stat.h>
 #import "kern_utils.h"
-#import "kmem.h"
-#import "patchfinder64.h"
-#import "kexecute.h"
-#import "offsetof.h"
-#import "osobject.h"
+#import "helpers/kmem.h"
+#import "helpers/patchfinder64.h"
+#import "helpers/kexecute.h"
+#import "helpers/offsetof.h"
+#import "helpers/osobject.h"
 #import "sandbox.h"
 
 #define PROC_PIDPATHINFO_MAXSIZE  (4*MAXPATHLEN)
@@ -94,52 +94,6 @@ uint64_t find_port(mach_port_name_t port) {
   
     uint64_t port_addr = rk64(is_table + (port_index * sizeof_ipc_entry_t));
     return port_addr;
-}
-
-void fixupsetuid(int pid) {
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-    bzero(pathbuf, sizeof(pathbuf));
-    
-    int ret = proc_pidpath(pid, pathbuf, sizeof(pathbuf));
-    if (ret < 0) {
-        fprintf(stderr, "Unable to get path for PID %d \n", pid);
-        return;
-    }
-    
-    struct stat file_st;
-    if (lstat(pathbuf, &file_st) == -1) {
-        fprintf(stderr, "Unable to get stat for file %s \n", pathbuf);
-        return;
-    }
-    
-    if (!(file_st.st_mode & S_ISUID)) {
-        fprintf(stderr, "File is not setuid: %s \n", pathbuf);
-        NSLog(@"Not granting setuid - file is not setuid: %s", pathbuf);
-        return;
-    }
-    
-    uint64_t proc = proc_find(pid, 3);
-    if (proc == 0) {
-        fprintf(stderr, "Unable to find proc for pid %d \n", pid);
-        return;
-    }
-    
-    fprintf(stderr, "Found proc %llx for pid %d \n", proc, pid);
-    
-    uid_t fileUid = file_st.st_uid;
-    
-    NSLog(@"Applying UID %d to process %d", fileUid, pid);
-    
-    wk32(proc + offsetof_p_uid, fileUid);
-    wk32(proc + offsetof_p_ruid, fileUid);
-    // leaving the gid stuff incase i need to change that too
-    // wk32(proc + offsetof_p_gid, fileUid);
-    // wk32(proc + offsetof_p_rgid, fileUid);
-    
-    uint64_t ucred = rk64(proc + offsetof_p_ucred);
-    
-    wk32(ucred + offsetof_ucred_cr_uid, fileUid);
-    wk32(ucred + offsetof_ucred_cr_svuid, fileUid);
 }
 
 void set_csflags(uint64_t proc) {
