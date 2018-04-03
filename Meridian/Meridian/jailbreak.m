@@ -101,6 +101,24 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    // dump offsets to file for later use (/meridian/offsets.plist)
+    dumpOffsetsToFile(&offsets, kernel_base, kslide);
+    
+    // patch amfid
+    [view writeText:@"patching amfid..."];
+    ret = defecateAmfi();
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        if (ret > 0) {
+            [view writeTextPlain:[NSString stringWithFormat:@"failed to patch - %d tries", ret]];
+        }
+        return 1;
+    }
+    [view writeText:@"done!"];
+    
+    // touch .cydia_no_stash
+    touch_file("/.cydia_no_stash");
+    
     // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
     setUpSymLinks();
     
@@ -148,24 +166,6 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
-    // touch .cydia_no_stash
-    touch_file("/.cydia_no_stash");
-    
-    // dump offsets to file for later use (/meridian/offsets.plist)
-    dumpOffsetsToFile(&offsets, kernel_base, kslide);
-    
-    // patch amfid
-    [view writeText:@"patching amfid..."];
-    ret = defecateAmfi();
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        if (ret > 0) {
-            [view writeTextPlain:[NSString stringWithFormat:@"failed to patch - %d tries", ret]];
-        }
-        return 1;
-    }
-    [view writeText:@"done!"];
-    
     // launch dropbear
     [view writeText:@"launching dropbear..."];
     ret = launchDropbear();
@@ -183,6 +183,9 @@ int makeShitHappen(ViewController *view) {
     ret = startJailbreakd();
     if (ret != 0) {
         [view writeText:@"failed"];
+        if (ret > 0) {
+            [view writeTextPlain:@"failed to patch - %d tries", ret];
+        }
         return 1;
     }
     [view writeText:@"done!"];
@@ -327,13 +330,11 @@ int extractBootstrap() {
     rv = extract_bundle_tar("optional-base.tar");
     if (rv != 0) return 5;
     
-    inject_trust("/usr/bin/killall");
     enableHiddenApps();
     
     touch_file("/meridian/.bootstrap");
     unlink("/meridian/tar");
     
-    inject_trust("/bin/uicache");
     rv = uicache();
     if (rv != 0) return 6;
     
@@ -375,8 +376,6 @@ int defecateAmfi() {
 }
 
 int launchDropbear() {
-    inject_trust("/bin/launchctl");
-    
     return start_launchdaemon("/meridian/dropbear/dropbear.plist");
 }
 
@@ -412,9 +411,16 @@ int startJailbreakd() {
     int rv = start_launchdaemon("/meridian/jailbreakd/jailbreakd.plist");
     if (rv != 0) return 1;
     
+    int tries = 0;
     while (file_exists("/var/tmp/jailbreakd.pid") != 0) {
         printf("Waiting for jailbreakd \n");
+        tries++;
         usleep(300000); // 300ms
+        
+        if (tries >= 100) {
+            NSLog(@"too many tries for jbd - %d", tries);
+            return tries;
+        }
     }
     
     // tell jailbreakd to platformize launchd
