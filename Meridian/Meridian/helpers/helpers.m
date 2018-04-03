@@ -78,6 +78,7 @@ int uicache() {
 }
 
 int start_launchdaemon(const char *path) {
+    inject_trust("/bin/launchctl");
     chmod(path, 0755);
     chown(path, 0, 0);
     return execprog("/bin/launchctl", (const char **)&(const char*[]) {
