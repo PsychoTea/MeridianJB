@@ -87,19 +87,25 @@ bool is_blacklisted(const char* proc) {
     return false;
 }
 
-typedef int (*pspawn_t)(pid_t *pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[]);
+typedef int (*pspawn_t)(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[]);
 
 pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn_common(pid_t *pid, const char* path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
+int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
     DEBUGLOG("fake_posix_spawn_common: %s", path);
+    
+    if (strcmp(path, "/usr/bin/xz") == 0 ||
+        strcmp(path, "/Applications/Cydia.app/Cydia") == 0) {
+        return old(pid, path, file_actions, attrp, argv, envp);
+    }
     
     const char *inject_me = NULL;
     
     // is the process that's being called xpcproxy?
     // cus we wanna inject into that bitch
-    if (current_process == PROCESS_LAUNCHD && strcmp(path, "/usr/libexec/xpcproxy") == 0) {
-        inject_me = PSPAWN_HOOK_DYLIB;
+    if (current_process == PROCESS_LAUNCHD &&
+        strcmp(path, "/usr/libexec/xpcproxy") == 0) {
+        inject_me = PSPAWN_HOOK_DYLIB;                  /* inject pspawn into xpcproxy              */
         
         // let's check the blacklist, we don't wanna be
         // injecting into certain procs, yano
@@ -208,24 +214,72 @@ int fake_posix_spawn_common(pid_t *pid, const char* path, const posix_spawn_file
     return origret;
 }
 
-int fake_posix_spawn(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+int fake_posix_spawn(pid_t * pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
 }
 
-int fake_posix_spawnp(pid_t * pid, const char* file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char* argv[], const char* envp[]) {
+int fake_posix_spawnp(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
+}
+
+typedef int (*execl_t)(const char *name, const char *arg, ...);
+execl_t old_execl;
+int fake_execl(const char *name, const char *arg, ...) {
+    DEBUGLOG("fake_execl has been called: %s", name);
+    return old_execl(name, arg);
+}
+
+typedef int (*execle_t)(const char *name, const char *arg, ...);
+execle_t old_execle;
+int fake_execle(const char *name, const char *arg, ...) {
+    DEBUGLOG("fake_execle has been called: %s", name);
+    return old_execle(name, arg);
+}
+
+typedef int (*execlp_t)(const char *name, const char *arg);
+execlp_t old_execlp;
+int fake_execlp(const char *name, const char *arg) {
+    DEBUGLOG("fake_execlp has been called: %s", name);
+    return old_execlp(name, arg);
+}
+
+typedef int (*execv_t)(const char *name, char *const argv[]);
+execv_t old_execv;
+int fake_execv(const char *name, char *const argv[]) {
+    DEBUGLOG("fake_execv has been called: %s", name);
+    return old_execv(name, argv);
+}
+
+typedef int (*execvp_t)(const char *name, char *const argv[]);
+execvp_t old_execvp;
+int fake_execvp(const char *name, char *const argv[]) {
+    DEBUGLOG("fake_execvp has been called: %s", name);
+    return old_execvp(name, argv);
+}
+
+typedef int (*execvP_t)(const char *name, const char *path, char *const argv[]);
+execvP_t old_execvP;
+int fake_execvP(const char *name, const char *path, char *const argv[]) {
+    DEBUGLOG("fake_execvP has been called: %s", name);
+    return old_execvP(name, path, argv);
 }
 
 void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
         { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
         { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp },
+//        { "execl", (void *)fake_execl, (void **)&old_execl },
+//        { "execle", (void *)fake_execle, (void **)&old_execle },
+//        { "execlp", (void *)fake_execlp, (void **)&old_execlp },
+//        { "execv", (void *)fake_execv, (void **)&old_execv },
+//        { "execvp", (void *)fake_execvp, (void **)&old_execvp },
+//        { "execvP", (void *)fake_execvP, (void **)&old_execvP }
     };
     
     rebind_symbols(rebindings, 2);
 }
 
-void* thd_func(void* arg) {
+void *thd_func(void *arg) {
     DEBUGLOG("in a new thread!");
     
     rebind_pspawns();
