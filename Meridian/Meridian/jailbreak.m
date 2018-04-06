@@ -423,10 +423,12 @@ int startJailbreakd() {
         }
     }
     
+    usleep(100000);
+    
     // tell jailbreakd to platformize launchd
     // this adds skip-lib-val to MACF slot and allows us
     // to inject pspawn without it being in trust cache
-    // (FAT/multiarch in trust cache is a pain to code, i'm lazy)
+    // (plus FAT/multiarch in trust cache is a pain to code, i'm lazy)
     rv = call_jailbreakd(JAILBREAKD_COMMAND_ENTITLE, 1);
     if (rv != 0) return 2;
     

@@ -139,6 +139,7 @@ int main(int argc, char **argv, char **envp) {
     fprintf(f, "%d\n", getpid());
     fclose(f);
     
+    // Start accepting connections
     dispatch_main();
     
     term_kexecute();
