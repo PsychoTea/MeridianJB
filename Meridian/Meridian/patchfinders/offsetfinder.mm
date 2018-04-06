@@ -21,6 +21,7 @@ extern "C" offsets_t *get_offsets() {
 
     try {
         tihmstar::offsetfinder64 fi("/System/Library/Caches/com.apple.kernelcaches/kernelcache");
+        NSLog(@"[OFFSET] initialized offsetfinder");
 
         off.base = 0xfffffff007004000;
 
@@ -35,12 +36,14 @@ extern "C" offsets_t *get_offsets() {
         off.iouserclient_ipc                    = (kptr_t)fi.find_iouserclient_ipc();
         off.vtab_get_retain_count               = (kptr_t)fi.find_vtab_get_retain_count();
         off.vtab_get_external_trap_for_index    = (kptr_t)fi.find_vtab_get_external_trap_for_index();
+        NSLog(@"[OFFSET] grabbed struct offsets");
 
         off.zone_map                            = (kptr_t)fi.find_zone_map();
         off.kernel_map                          = (kptr_t)fi.find_kernel_map();
         off.kernel_task                         = (kptr_t)fi.find_kernel_task();
         off.realhost                            = (kptr_t)fi.find_realhost();
-
+        NSLog(@"[OFFSET] grabbed map offsets");
+        
         off.copyin                              = (kptr_t)fi.find_copyin();
         off.copyout                             = (kptr_t)fi.find_copyout();
         off.chgproccnt                          = (kptr_t)fi.find_chgproccnt();
@@ -50,7 +53,8 @@ extern "C" offsets_t *get_offsets() {
         off.ipc_port_make_send                  = (kptr_t)fi.find_ipc_port_make_send();
         off.osserializer_serialize              = (kptr_t)fi.find_osserializer_serialize();
         off.rop_ldr_x0_x0_0x10                  = (kptr_t)fi.find_rop_ldr_x0_x0_0x10();
-
+        NSLog(@"[OFFSET] grabbed code offsets");
+        
         off.root_vnode                          = (kptr_t)fi.find_rootvnode();
         
         off.vfs_context_current                 = (kptr_t)fi.find_sym("_vfs_context_current");
@@ -59,6 +63,7 @@ extern "C" offsets_t *get_offsets() {
         off.sha1_init                           = (kptr_t)fi.find_sym("_SHA1Init");
         off.sha1_update                         = (kptr_t)fi.find_sym("_SHA1Update");
         off.sha1_final                          = (kptr_t)fi.find_sym("_SHA1Final");
+        NSLog(@"[OFFSET] grabbed amfi offsets");
         
         NSLog(@"[OFFSET] sizeof_task = 0x%llx", off.sizeof_task);
         NSLog(@"[OFFSET] task_itk_self = 0x%llx", off.task_itk_self);
