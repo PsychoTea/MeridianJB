@@ -58,6 +58,8 @@ kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port
 
 mach_port_t jbd_port;
 
+char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
 #define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
@@ -93,7 +95,8 @@ pspawn_t old_pspawn, old_pspawnp;
 
 int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
     DEBUGLOG("fake_posix_spawn_common: %s", path);
-    
+
+    // TEMPORARY
     if (strcmp(path, "/usr/bin/xz") == 0 ||
         strcmp(path, "/Applications/Cydia.app/Cydia") == 0) {
         return old(pid, path, file_actions, attrp, argv, envp);
@@ -105,7 +108,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     // cus we wanna inject into that bitch
     if (current_process == PROCESS_LAUNCHD &&
         strcmp(path, "/usr/libexec/xpcproxy") == 0) {
-        inject_me = PSPAWN_HOOK_DYLIB;                  /* inject pspawn into xpcproxy              */
+        inject_me = PSPAWN_HOOK_DYLIB;                          /* inject pspawn into xpcproxy              */
         
         // let's check the blacklist, we don't wanna be
         // injecting into certain procs, yano
@@ -114,20 +117,18 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
             inject_me = NULL;
             DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
         }
-    } else if (current_process == PROCESS_XPCPROXY &&
-               strcmp(path, "/usr/libexec/amfid") == 0) {
-        inject_me = AMFID_PAYLOAD_DYLIB;                /* patch amfid                              */
-    } else if (current_process == PROCESS_XPCPROXY ||
-               current_process == PROCESS_OTHER) {
-        if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {     /* if twkldr is installed, load it + pspawn */
+    } else if (current_process == PROCESS_XPCPROXY) {
+        if (strcmp(path, "/usr/libexec/amfid") == 0) {          /* patch amfid                              */
+            inject_me = AMFID_PAYLOAD_DYLIB;
+        } else if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {      /* if twkldr is installed, load it + pspawn */
             inject_me = PSPAWN_HOOK_DYLIB ":" TWEAKLOADER_DYLIB;
-        } else {                                        /* just load pspawn                         */
+        } else {                                                /* just load pspawn                         */
             inject_me = PSPAWN_HOOK_DYLIB;
         }
+    } else if (current_process == PROCESS_OTHER) {              /* load pspawn for child entitlement        */
+        inject_me = PSPAWN_HOOK_DYLIB;
     }
     
-    // check we have something to ineject, and that the file exists
-    // can have some race conditions during (un)installation of TweakLoader
     if (inject_me == NULL) {
         DEBUGLOG("Nothing to inject.");
         return old(pid, path, file_actions, attrp, argv, envp);
@@ -268,15 +269,15 @@ void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
         { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
         { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp },
-//        { "execl", (void *)fake_execl, (void **)&old_execl },
-//        { "execle", (void *)fake_execle, (void **)&old_execle },
-//        { "execlp", (void *)fake_execlp, (void **)&old_execlp },
-//        { "execv", (void *)fake_execv, (void **)&old_execv },
-//        { "execvp", (void *)fake_execvp, (void **)&old_execvp },
-//        { "execvP", (void *)fake_execvP, (void **)&old_execvP }
+        { "execl", (void *)fake_execl, (void **)&old_execl },
+        { "execle", (void *)fake_execle, (void **)&old_execle },
+        { "execlp", (void *)fake_execlp, (void **)&old_execlp },
+        { "execv", (void *)fake_execv, (void **)&old_execv },
+        { "execvp", (void *)fake_execvp, (void **)&old_execvp },
+        { "execvP", (void *)fake_execvP, (void **)&old_execvP }
     };
     
-    rebind_symbols(rebindings, 2);
+    rebind_symbols(rebindings, 8);
 }
 
 void *thd_func(void *arg) {
@@ -289,7 +290,6 @@ void *thd_func(void *arg) {
 __attribute__ ((constructor))
 static void ctor(void) {
     // we have to set current_process before we can do any logging etc
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
     bzero(pathbuf, sizeof(pathbuf));
     proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
     
@@ -297,7 +297,9 @@ static void ctor(void) {
         current_process = PROCESS_LAUNCHD;
     } else if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
         current_process = PROCESS_XPCPROXY;
-    } /* else: current_process is PROCESS_OTHER by default */
+    } else {
+        current_process = PROCESS_OTHER;
+    }
     
     DEBUGLOG("========================");
     DEBUGLOG("hello from pid %d", getpid());
