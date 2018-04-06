@@ -140,7 +140,7 @@ namespace tihmstar {
         patchfinder64::patch find_amfi_patch_offsets();
         patchfinder64::patch find_cs_enforcement_disable_amfi();
         patchfinder64::patch find_amfi_substrate_patch();
-        patchfinder64::patch find_sandbox_patch();
+//        patchfinder64::patch find_sandbox_patch();
         patchfinder64::loc_t find_sbops();
         patchfinder64::patch find_nonceEnabler_patch();
 

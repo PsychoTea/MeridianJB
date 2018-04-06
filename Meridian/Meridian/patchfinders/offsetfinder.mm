@@ -20,11 +20,13 @@ extern "C" offsets_t *get_offsets() {
     }
 
     try {
+        NSLog(@"[OFFSET] initializing offsetfinder...");
         tihmstar::offsetfinder64 fi("/System/Library/Caches/com.apple.kernelcaches/kernelcache");
         NSLog(@"[OFFSET] initialized offsetfinder");
 
         off.base = 0xfffffff007004000;
 
+        NSLog(@"[OFFSET] begginning offset finding...");
         off.sizeof_task                         = (kptr_t)fi.find_sizeof_task();
         off.task_itk_self                       = (kptr_t)fi.find_task_itk_self();
         off.task_itk_registered                 = (kptr_t)fi.find_task_itk_registered();
