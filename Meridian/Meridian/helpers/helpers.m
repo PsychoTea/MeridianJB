@@ -414,8 +414,7 @@ int execprog(const char *prog, const char* args[]) {
     
     close(fd);
     remove(logfile);
-    
-    return 0;
+    return WEXITSTATUS(status);
 }
 
 // too lazy to find & add IOKit headers so here we are
