@@ -134,7 +134,8 @@ int makeShitHappen(ViewController *view) {
     // extract bootstrap (if not already extracted)
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
-        ret = extractBootstrap();
+        int exitCode = 0;
+        ret = extractBootstrap(&exitCode);
         
         if (ret != 0) {
             [view writeText:@"failed!"];
@@ -159,6 +160,7 @@ int makeShitHappen(ViewController *view) {
                     [view writeTextPlain:@"failed to run uicache!"];
                     break;
             }
+            [view writeTextPlain:@"exit code: %d", exitCode];
             
             return 1;
         }
@@ -166,11 +168,15 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
+    // TEMPORARY
+    unlink("/meridian/MeridianSafeMode.dylib");
+    
     // launch dropbear
     [view writeText:@"launching dropbear..."];
     ret = launchDropbear();
     if (ret != 0) {
         [view writeText:@"failed!"];
+        [view writeTextPlain:@"exit code: %d", ret];
         return 1;
     }
     [view writeText:@"done!"];
@@ -183,8 +189,8 @@ int makeShitHappen(ViewController *view) {
     ret = startJailbreakd();
     if (ret != 0) {
         [view writeText:@"failed"];
-        if (ret > 0) {
-            [view writeTextPlain:@"failed to patch - %d tries", ret];
+        if (ret > 1) {
+            [view writeTextPlain:@"failed to launch - %d tries", ret];
         }
         return 1;
     }
@@ -298,16 +304,22 @@ void setUpSymLinks() {
     symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
 }
 
-int extractBootstrap() {
+int extractBootstrap(int *exitCode) {
     int rv;
     
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");
-    if (rv != 0) return 1;
+    if (rv != 0) {
+        *exitCode = rv;
+        return 1;
+    }
     
     // extract installer-base.tar
     rv = extract_bundle_tar("installer-base.tar");
-    if (rv != 0) return 2;
+    if (rv != 0) {
+        *exitCode = rv;
+        return 2;
+    }
     
     // set up dpkg database
     // if dpkg is already installed (previously jailbroken), we want to move the database
@@ -317,26 +329,37 @@ int extractBootstrap() {
         [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
     } else if (file_exists("/Library/dpkg/status") != 0) { // doubly ensure Meridian db doesn't exist before overwriting
         rv = extract_bundle_tar("dpkgdb-base.tar"); // extract new db to /Library
-        if (rv != 0) return 3;
+        if (rv != 0) {
+            *exitCode = rv;
+            return 3;
+        }
     }
     [fileMgr removeItemAtPath:@"/private/var/lib/dpkg" error:nil]; // remove old /var folder if exists for any reason
     symlink("/Library/dpkg", "/private/var/lib/dpkg"); // symlink vanilla folder to new /Library install
     
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
-    if (rv != 0) return 4;
+    if (rv != 0) {
+        *exitCode = rv;
+        return 4;
+    }
     
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");
-    if (rv != 0) return 5;
+    if (rv != 0) {
+        *exitCode = rv;
+        return 5;
+    }
     
     enableHiddenApps();
     
     touch_file("/meridian/.bootstrap");
-    unlink("/meridian/tar");
     
     rv = uicache();
-    if (rv != 0) return 6;
+    if (rv != 0) {
+        *exitCode = rv;
+        return 6;
+    }
     
     return 0;
 }

@@ -15,7 +15,7 @@ int patchContainermanagerd(void);
 int remountRootFs(void);
 int extractMeridianData(void);
 void setUpSymLinks(void);
-int extractBootstrap(void);
+int extractBootstrap(int *exitCode);
 int defecateAmfi(void);
 int launchDropbear(void);
 void setUpSubstitute(void);
