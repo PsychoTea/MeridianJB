@@ -272,7 +272,7 @@ void setUpSymLinks() {
     stat("/Library/MobileSubstrate/DynamicLibraries", &file);
     
     if (file_exists("/usr/lib/tweaks") == 0 &&
-        S_ISLNK(file.st_mode) == 0) {
+        S_ISLNK(file.st_mode)) {
         return;
     }
     
