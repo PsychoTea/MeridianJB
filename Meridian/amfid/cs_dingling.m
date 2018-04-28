@@ -69,6 +69,7 @@ const uint8_t *find_code_signature(img_info_t *info, uint32_t *cs_size) {
 
 #define BLOB_FITS(blob, size) ((size >= sizeof(*blob)) && (size >= ntohl(blob->length)))
 
+// xnu-3789.70.16/bsd/kern/ubc_subr.c#470
 int find_best_codedir(const void *csblob,
                       uint32_t csblob_size,
                       const CS_CodeDirectory **chosen_cd,
@@ -105,6 +106,9 @@ int find_best_codedir(const void *csblob,
                 ERROR("offset of blob #%d overflows superblob length", i);
                 return 1;
             }
+            
+            // TODO fix this up
+            // http://xr.anadoxin.org/source/xref/macos-10.12.6-sierra/xnu-3789.70.16/bsd/kern/ubc_subr.c#517
             
             if (type == CSSLOT_CODEDIRECTORY ||
                 (type >= CSSLOT_ALTERNATE_CODEDIRECTORIES &&
@@ -146,13 +150,13 @@ int find_best_codedir(const void *csblob,
     return 0;
 }
 
+// xnu-3789.70.16/bsd/kern/ubc_subr.c#231
 static unsigned int hash_rank(const CS_CodeDirectory *cd) {
     uint32_t type = cd->hashType;
     
-    int arrLength = sizeof(hashPriorities) / sizeof(hashPriorities[0]);
-    for (int i = 0; i < arrLength; i++) {
-        if (hashPriorities[i] == type) {
-            return i + 1;
+    for (int n = 0; n < sizeof(hashPriorities) / sizeof(hashPriorities[0]); ++n)
+        if (hashPriorities[n] == type) {
+            return n + 1;
         }
     }
     
@@ -191,6 +195,25 @@ int hash_code_directory(const CS_CodeDirectory *directory, uint8_t hash[CS_CDHAS
     
     memcpy(hash, out, CS_CDHASH_LEN);
     return 0;
+}
+
+const char *get_hash_name(uint8_t hash_type) {
+    switch (hash_type) {
+        case CS_HASHTYPE_SHA1:
+            return "SHA1";
+        
+        case CS_HASHTYPE_SHA256:
+        case CS_HASHTYPE_SHA256_TRUNCATED:
+            return "SHA256";
+            
+        case CS_HASHTYPE_SHA384:
+            return "SHA384";
+            
+        default:
+            return "UNKNWON";
+    }
+    
+    return "";
 }
 
 int open_img(img_info_t* info) {

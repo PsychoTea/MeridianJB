@@ -25,5 +25,7 @@ int hash_code_directory(const CS_CodeDirectory *directory, uint8_t hash[CS_CDHAS
 
 static unsigned int hash_rank(const CS_CodeDirectory *cd);
 
+const char *get_hash_name(uint8_t hash_type);
+
 int open_img(img_info_t* info);
 void close_img(img_info_t* info);

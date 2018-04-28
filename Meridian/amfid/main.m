@@ -94,7 +94,9 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     NSData *ns_cdhash = [[NSData alloc] initWithBytes:cd_hash length:sizeof(cd_hash)];
     [*info setValue: ns_cdhash forKey:@"CdHash"];
 
-    INFO(@"magic was performed [%08x]: %@", ntohl(*(uint64_t *)cd_hash), file);
+    const char *hash_name = get_hash_name(chosen_csdir->hashType);
+    
+    INFO(@"magic was performed [%08x (%s)]: %@", ntohl(*(uint64_t *)cd_hash), hash_name, file);
     
     // let's check entitlements, add platform-application if necessary
     ret = fixup_platform_application(file.UTF8String,
