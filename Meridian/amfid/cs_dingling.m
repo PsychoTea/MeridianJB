@@ -154,7 +154,7 @@ int find_best_codedir(const void *csblob,
 static unsigned int hash_rank(const CS_CodeDirectory *cd) {
     uint32_t type = cd->hashType;
     
-    for (int n = 0; n < sizeof(hashPriorities) / sizeof(hashPriorities[0]); ++n)
+    for (int n = 0; n < sizeof(hashPriorities) / sizeof(hashPriorities[0]); ++n) {
         if (hashPriorities[n] == type) {
             return n + 1;
         }
