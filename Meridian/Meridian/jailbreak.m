@@ -73,6 +73,8 @@ int makeShitHappen(ViewController *view) {
     
     mkdir("/meridian", 0755);
     mkdir("/meridian/logs", 0755);
+    unlink("/meridian/tar");
+    unlink("/meridian/tar.tar");
     ret = extract_bundle("tar.tar", "/meridian");
     if (ret != 0) {
         [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d", ret, errno];
@@ -168,8 +170,13 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
-    // TEMPORARY
-    unlink("/meridian/MeridianSafeMode.dylib");
+    // add the midnight repo 
+    if (file_exists("/etc/apt/sources.list.d/meridian.list") != 0) {
+        FILE *fd = fopen("/etc/apt/sources.list.d/meridian.list", "w+");
+        const char *text = "deb http://repo.midnight.team ./";
+        fwrite(text, strlen(text) + 1, 1, fd);
+        fclose(fd);
+    }
     
     // launch dropbear
     [view writeText:@"launching dropbear..."];
@@ -208,13 +215,11 @@ int makeShitHappen(ViewController *view) {
     return 0;
 }
 
-kern_return_t callback(task_t kern_task, kptr_t kbase, uint64_t kernucred, uint64_t kernproc_addr) {
+kern_return_t callback(task_t kern_task, kptr_t kbase, void *cb_data) {
     tfp0 = kern_task;
     kernel_base = kbase;
     kslide = kernel_base - 0xFFFFFFF007004000;
-    kern_ucred = kernucred;
-    kernprocaddr = kernproc_addr;
-
+    
     return KERN_SUCCESS;
 }
 
@@ -227,7 +232,11 @@ int runV0rtex() {
     
     offsets = *offs;
     
-    int ret = v0rtex(&offsets, &callback);
+    int ret = v0rtex(&offsets, &callback, NULL);
+    
+    uint64_t kernel_task_addr = rk64(offs->kernel_task + kslide);
+    kernprocaddr = rk64(kernel_task_addr + offs->task_bsd_info);
+    kern_ucred = rk64(kernprocaddr + offs->proc_ucred);
     
     if (ret == 0) {
         NSLog(@"tfp0: 0x%x", tfp0);
