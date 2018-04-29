@@ -71,74 +71,74 @@ const uint8_t *find_code_signature(img_info_t *info, uint32_t *cs_size) {
 
 // xnu-3789.70.16/bsd/kern/ubc_subr.c#470
 int find_best_codedir(const void *csblob,
-                      uint32_t csblob_size,
+                      uint32_t blob_size,
                       const CS_CodeDirectory **chosen_cd,
                       uint32_t *csb_offset,
                       const CS_GenericBlob **entitlements) {
     *chosen_cd = NULL;
     *entitlements = NULL;
     
-    const CS_GenericBlob *gen_blob = (const CS_GenericBlob *)csblob;
+    const CS_GenericBlob *blob = (const CS_GenericBlob *)csblob;
     
-    if (!BLOB_FITS(gen_blob, csblob_size)) {
+    if (!BLOB_FITS(blob, blob_size)) {
         ERROR("csblob too small even for generic blob");
         return 1;
     }
     
-    if (ntohl(gen_blob->magic) == CSMAGIC_EMBEDDED_SIGNATURE) {
-        uint8_t highest_cd_hash_rank = 0;
+    uint32_t length = ntohl(blob->length);
+    
+    if (ntohl(blob->magic) == CSMAGIC_EMBEDDED_SIGNATURE) {
+        const CS_CodeDirectory *best_cd = NULL;
+        int best_rank = 0;
         
-        const CS_SuperBlob *super_blob = (const CS_SuperBlob *)csblob;
-        if (!BLOB_FITS(super_blob, csblob_size)) {
+        const CS_SuperBlob *sb = (const CS_SuperBlob *)csblob;
+        uint32_t count = ntohl(sb->count);
+        
+        if (!BLOB_FITS(sb, blob_size)) {
             ERROR("csblob too small for superblob");
             return 1;
         }
         
-        uint32_t sblength = ntohl(super_blob->length);
-        
-        for (int i = 0; i != ntohl(super_blob->count); ++i){
-            const CS_BlobIndex *blobIndex = &super_blob->index[i];
+        for (int n = 0; n < count; n++){
+            const CS_BlobIndex *blobIndex = &sb->index[n];
             
             uint32_t type = ntohl(blobIndex->type);
             uint32_t offset = ntohl(blobIndex->offset);
             
-            if (offset > sblength) {
-                ERROR("offset of blob #%d overflows superblob length", i);
+            if (length < offset) {
+                ERROR("offset of blob #%d overflows superblob length", n);
                 return 1;
             }
             
-            // TODO fix this up
-            // http://xr.anadoxin.org/source/xref/macos-10.12.6-sierra/xnu-3789.70.16/bsd/kern/ubc_subr.c#517
+            const CS_GenericBlob *subBlob = (const CS_GenericBlob *)((uintptr_t)csblob + offset);
             
-            if (type == CSSLOT_CODEDIRECTORY ||
-                (type >= CSSLOT_ALTERNATE_CODEDIRECTORIES &&
-                 type < CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT)) {
-                    const CS_CodeDirectory *sub_cd = (const CS_CodeDirectory *)((uintptr_t)csblob + offset);
+            size_t subLength = ntohl(subBlob->length);
+            
+            if (type == CSSLOT_CODEDIRECTORY || (type >= CSSLOT_ALTERNATE_CODEDIRECTORIES && type < CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT)) {
+                const CS_CodeDirectory *candidate = (const CS_CodeDirectory *)subBlob;
+                
+                // TEMPORARY
+                // if (candidate->hashType != CS_HASHTYPE_SHA1) continue;
+                
+                unsigned int rank = hash_rank(candidate);
+                
+                if (best_cd == NULL || rank > best_rank) {
+                    NSLog(@"new best cd - type: %s %s", get_hash_name(candidate->hashType), get_hash_name(ntohl(candidate->hashType)));
+                    best_cd = candidate;
+                    best_rank = rank;
                     
-                    if (!BLOB_FITS(sub_cd, sblength - offset)) {
-                        ERROR("subblob codedirectory doesnt fit in superblob");
-                        return 1;
-                    }
-                    
-                    uint8_t rank = hash_rank(sub_cd);
-                    if (rank > highest_cd_hash_rank) {
-                        *chosen_cd = sub_cd;
-                        *csb_offset = offset;
-                        highest_cd_hash_rank = rank;
-                    }
-                } else if (type == CSSLOT_ENTITLEMENTS) {
-                    *entitlements = (const CS_GenericBlob *)((uintptr_t)csblob + offset);
+                    *chosen_cd = best_cd;
+                    *csb_offset = offset;
                 }
+            } else if (type == CSSLOT_ENTITLEMENTS) {
+                *entitlements = subBlob;
+            }
         }
-    } else if (ntohl(gen_blob->magic) == CSMAGIC_CODEDIRECTORY) {
-        const CS_CodeDirectory *code_dir = (const CS_CodeDirectory *)csblob;
-        if (!BLOB_FITS(code_dir, csblob_size)) {
-            ERROR("csblob too small for codedirectory");
-            return 1;
-        }
-        *chosen_cd = code_dir;
+    } else if (ntohl(blob->magic) == CSMAGIC_CODEDIRECTORY) {
+        *chosen_cd = (const CS_CodeDirectory *)blob;
+        *csb_offset = 0;
     } else {
-        ERROR("Unknown magic at csblob start: %08x", ntohl(gen_blob->magic));
+        ERROR("Unknown magic at csblob start: %08x", ntohl(blob->magic));
         return 1;
     }
     
@@ -154,7 +154,7 @@ int find_best_codedir(const void *csblob,
 static unsigned int hash_rank(const CS_CodeDirectory *cd) {
     uint32_t type = cd->hashType;
     
-    for (int n = 0; n < sizeof(hashPriorities) / sizeof(hashPriorities[0]); ++n) {
+    for (unsigned int n = 0; n < sizeof(hashPriorities) / sizeof(hashPriorities[0]); ++n) {
         if (hashPriorities[n] == type) {
             return n + 1;
         }
