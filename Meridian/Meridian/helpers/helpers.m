@@ -283,14 +283,28 @@ int extract_bundle(const char* bundle_name, const char* directory) {
     strcat(tarFile, "/");
     strcat(tarFile, bundle_name);
     
+    ret = file_exists(bundled_file(bundle_name));
+    if (ret != 0) {
+        NSLog(@"file does not exist: %s", bundled_file(bundle_name));
+        return -1;
+    }
+    
+    ret = file_exists(directory);
+    if (file_exists(directory) != 0) {
+        NSLog(@"directory does not exist: %s", directory);
+        return -2;
+    }
+    
     ret = cp(bundled_file(bundle_name), tarFile);
     if (ret != 0) {
-        return ret * 100;
+        NSLog(@"cp has failed: %d", ret);
+        return ret;
     }
     
     chdir(directory);
     
     ret = untar(fopen(tarFile, "r"), bundle_name);
+    NSLog(@"untar returned: %d", ret);
     
     unlink(tarFile);
     
