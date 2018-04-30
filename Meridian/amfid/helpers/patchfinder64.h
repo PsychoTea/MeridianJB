@@ -20,5 +20,6 @@ uint64_t find_add_x0_x0_0x40_ret(void);
 uint64_t find_OSBoolean_True(void);
 uint64_t find_OSBoolean_False(void);
 uint64_t find_osunserializexml(void);
+uint64_t find_cs_find_md(void);
 
 #endif

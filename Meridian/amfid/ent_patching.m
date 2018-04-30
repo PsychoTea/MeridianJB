@@ -95,9 +95,8 @@ int set_memory_object_code_signed(uint64_t vu_ubcinfo) {
 }
 
 uint64_t cs_hash_ptr = 0;
-uint64_t generate_csb_hashtype() {
-    // we can only support SHA1 because that's all the symbols we
-    // really get.. finding SHA256* would be a bitch :(
+uint64_t find_csb_hashtype(uint32_t hashType) {
+    // We're keeping hold of this just incase the patchfind for `cs_find_md` fails
     if (cs_hash_ptr == 0) {
         const struct cs_hash hash = {
             .cs_type = CS_HASHTYPE_SHA1,
@@ -110,7 +109,15 @@ uint64_t generate_csb_hashtype() {
         kwrite(cs_hash_ptr, &hash, sizeof(hash));
     }
     
-    return cs_hash_ptr;
+    uint64_t cs_find_md = find_cs_find_md();
+    if (cs_find_md == 0) {
+        // Dammit :( If the hash isn't SHA1 it now won't run,
+        // but if we return 0 it will just KP. I'd rather a Killed: 9
+        NSLog(@"FATAL ERROR! Unable to find 'cs_find_md'!!");
+        return cs_hash_ptr;
+    }
+    
+    return rk64(cs_find_md + ((hashType - 1) * 0x8));
 }
 
 uint64_t construct_cs_blob(const void *cs,
@@ -143,7 +150,7 @@ uint64_t construct_cs_blob(const void *cs,
     wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
     
     kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), generate_csb_hashtype());
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), find_csb_hashtype(blob->hashType));
     
     wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
     wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1);
