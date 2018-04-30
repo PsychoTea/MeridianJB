@@ -818,13 +818,11 @@ CACHED_FIND_UINT64(find_cs_find_md) {
     
     addr_t ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_const_base - kerndumpbase), data_const_size, (unsigned char*)match, sizeof(match));
     
-    if (ref != 0) return ref - (addr_t)kernel + kerndumpbase - 0x20;
-    
-    ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_base - kerndumpbase), data_size, (unsigned char*)match, sizeof(match));
+    if (ref == 0) ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_base - kerndumpbase), data_size, (unsigned char*)match, sizeof(match));
     
     if (ref == 0) return 0;
     
-    addr_t *testing = ref;
+    addr_t *testing = (addr_t *)ref;
     addr_t *result = malloc(32);
     ref = ref - (addr_t)kernel + kerndumpbase;
     
