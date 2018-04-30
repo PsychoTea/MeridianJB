@@ -18,7 +18,6 @@
 
 #define LAUNCHD_LOG_PATH    "/tmp/pspawn_hook_launchd.log"
 #define XPCPROXY_LOG_PATH   "/tmp/pspawn_hook_xpcproxy.log"
-#define OTHER_LOG_PATH      "/tmp/pspawn_hook_other.log"
 FILE *log_file;
 #define DEBUGLOG(fmt, args...)                                      \
 do {                                                                \
@@ -28,8 +27,6 @@ do {                                                                \
             log_path = LAUNCHD_LOG_PATH;                            \
         } else if (current_process == PROCESS_XPCPROXY) {           \
             log_path = XPCPROXY_LOG_PATH;                           \
-        } else {                                                    \
-            log_path = OTHER_LOG_PATH;                              \
         }                                                           \
         log_file = fopen(log_path, "a");                            \
         if (log_file == NULL) break;                                \
@@ -48,11 +45,10 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
 enum CurrentProcess {
     PROCESS_LAUNCHD,
-    PROCESS_XPCPROXY,
-    PROCESS_OTHER
+    PROCESS_XPCPROXY
 };
 
-int current_process = PROCESS_OTHER;
+int current_process;
 
 kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
 
@@ -95,12 +91,6 @@ pspawn_t old_pspawn, old_pspawnp;
 
 int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
     DEBUGLOG("fake_posix_spawn_common: %s", path);
-
-    // TEMPORARY
-    if (strcmp(path, "/usr/bin/xz") == 0 ||
-        strcmp(path, "/Applications/Cydia.app/Cydia") == 0) {
-        return old(pid, path, file_actions, attrp, argv, envp);
-    }
     
     const char *inject_me = NULL;
     
@@ -108,7 +98,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     // cus we wanna inject into that bitch
     if (current_process == PROCESS_LAUNCHD &&
         strcmp(path, "/usr/libexec/xpcproxy") == 0) {
-        inject_me = PSPAWN_HOOK_DYLIB;                          /* inject pspawn into xpcproxy              */
+        inject_me = PSPAWN_HOOK_DYLIB;                          /* inject pspawn into xpcproxy     */
         
         // let's check the blacklist, we don't wanna be
         // injecting into certain procs, yano
@@ -118,15 +108,11 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
             DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
         }
     } else if (current_process == PROCESS_XPCPROXY) {
-        if (strcmp(path, "/usr/libexec/amfid") == 0) {          /* patch amfid                              */
+        if (strcmp(path, "/usr/libexec/amfid") == 0) {          /* patch amfid                     */
             inject_me = AMFID_PAYLOAD_DYLIB;
-        } else if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {      /* if twkldr is installed, load it + pspawn */
-            inject_me = PSPAWN_HOOK_DYLIB ":" TWEAKLOADER_DYLIB;
-        } else {                                                /* just load pspawn                         */
-            inject_me = PSPAWN_HOOK_DYLIB;
+        } else if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {      /* if twkldr is installed, load it */
+            inject_me = TWEAKLOADER_DYLIB;
         }
-    } else if (current_process == PROCESS_OTHER) {              /* load pspawn for child entitlement        */
-        inject_me = PSPAWN_HOOK_DYLIB;
     }
     
     if (inject_me == NULL) {
@@ -202,12 +188,17 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
+            
+            kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
+            if (ret != KERN_SUCCESS) {
+                DEBUGLOG("err: got %x from jbd_call(sigcont, %d)", ret, gotpid);
+            }
         }
-    } else {
-        pid_t pidToCall = (current_process == PROCESS_OTHER) ? *pid : getpid();
-        DEBUGLOG("calling with pid: %d", pidToCall);
-        jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, pidToCall);
+    } else if (current_process == PROCESS_XPCPROXY) {
+        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
+        if (ret != KERN_SUCCESS) {
+            DEBUGLOG("err: got %x from jbd_call(xpproxy, %d)", ret, getpid());
+        }
         
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     }
@@ -215,7 +206,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     return origret;
 }
 
-int fake_posix_spawn(pid_t * pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
+int fake_posix_spawn(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
 }
 
@@ -223,61 +214,13 @@ int fake_posix_spawnp(pid_t *pid, const char *file, const posix_spawn_file_actio
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
 }
 
-typedef int (*execl_t)(const char *name, const char *arg, ...);
-execl_t old_execl;
-int fake_execl(const char *name, const char *arg, ...) {
-    DEBUGLOG("fake_execl has been called: %s", name);
-    return old_execl(name, arg);
-}
-
-typedef int (*execle_t)(const char *name, const char *arg, ...);
-execle_t old_execle;
-int fake_execle(const char *name, const char *arg, ...) {
-    DEBUGLOG("fake_execle has been called: %s", name);
-    return old_execle(name, arg);
-}
-
-typedef int (*execlp_t)(const char *name, const char *arg);
-execlp_t old_execlp;
-int fake_execlp(const char *name, const char *arg) {
-    DEBUGLOG("fake_execlp has been called: %s", name);
-    return old_execlp(name, arg);
-}
-
-typedef int (*execv_t)(const char *name, char *const argv[]);
-execv_t old_execv;
-int fake_execv(const char *name, char *const argv[]) {
-    DEBUGLOG("fake_execv has been called: %s", name);
-    return old_execv(name, argv);
-}
-
-typedef int (*execvp_t)(const char *name, char *const argv[]);
-execvp_t old_execvp;
-int fake_execvp(const char *name, char *const argv[]) {
-    DEBUGLOG("fake_execvp has been called: %s", name);
-    return old_execvp(name, argv);
-}
-
-typedef int (*execvP_t)(const char *name, const char *path, char *const argv[]);
-execvP_t old_execvP;
-int fake_execvP(const char *name, const char *path, char *const argv[]) {
-    DEBUGLOG("fake_execvP has been called: %s", name);
-    return old_execvP(name, path, argv);
-}
-
 void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
         { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
-        { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp },
-        { "execl", (void *)fake_execl, (void **)&old_execl },
-        { "execle", (void *)fake_execle, (void **)&old_execle },
-        { "execlp", (void *)fake_execlp, (void **)&old_execlp },
-        { "execv", (void *)fake_execv, (void **)&old_execv },
-        { "execvp", (void *)fake_execvp, (void **)&old_execvp },
-        { "execvP", (void *)fake_execvP, (void **)&old_execvP }
+        { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp }
     };
     
-    rebind_symbols(rebindings, 8);
+    rebind_symbols(rebindings, 2);
 }
 
 void *thd_func(void *arg) {
@@ -297,8 +240,6 @@ static void ctor(void) {
         current_process = PROCESS_LAUNCHD;
     } else if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
         current_process = PROCESS_XPCPROXY;
-    } else {
-        current_process = PROCESS_OTHER;
     }
     
     DEBUGLOG("========================");
