@@ -100,12 +100,12 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     
     // let's check entitlements, add platform-application if necessary
     ret = fixup_platform_application(file.UTF8String,
-                                         file_off,
-                                         cs,
-                                         cs_length,
-                                         cd_hash,
-                                         cdir_offset,
-                                         entitlements);
+                                     file_off,
+                                     cs,
+                                     cs_length,
+                                     cd_hash,
+                                     cdir_offset,
+                                     entitlements);
     if (ret != 0) {
         ERROR(@"fixup_platform_application returned: %d", ret);
     }
