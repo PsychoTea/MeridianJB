@@ -18,5 +18,5 @@ find $baseDir -name '.DS_Store' -delete
 
 # create tar archive
 cd $baseDir
-tar -cf meridian-bootstrap.tar ./*
+COPYFILE_DISABLE=1 tar -cf meridian-bootstrap.tar ./*
 mv meridian-bootstrap.tar $currDir
