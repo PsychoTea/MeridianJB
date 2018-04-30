@@ -117,13 +117,9 @@ int find_best_codedir(const void *csblob,
             if (type == CSSLOT_CODEDIRECTORY || (type >= CSSLOT_ALTERNATE_CODEDIRECTORIES && type < CSSLOT_ALTERNATE_CODEDIRECTORY_LIMIT)) {
                 const CS_CodeDirectory *candidate = (const CS_CodeDirectory *)subBlob;
                 
-                // TEMPORARY
-                // if (candidate->hashType != CS_HASHTYPE_SHA1) continue;
-                
                 unsigned int rank = hash_rank(candidate);
                 
-                if (best_cd == NULL || rank > best_rank) {
-                    NSLog(@"new best cd - type: %s %s", get_hash_name(candidate->hashType), get_hash_name(ntohl(candidate->hashType)));
+                if (best_cd == NULL || rank < best_rank) {
                     best_cd = candidate;
                     best_rank = rank;
                     
