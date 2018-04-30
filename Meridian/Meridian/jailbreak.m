@@ -273,6 +273,13 @@ int remountRootFs() {
 }
 
 int extractMeridianData() {
+    // In the case of Meridian PB's, /meridian exists,
+    // /meridian/.bootstrap doesn't
+    if (file_exists("/meridian") == 0 &&
+        file_exists("/meridian/.bootstrap") != 0) {
+        [fileMgr removeItemAtPath:@"/meridian" error:nil];
+    }
+    
     return extract_bundle_tar("meridian-bootstrap.tar");
 }
 
