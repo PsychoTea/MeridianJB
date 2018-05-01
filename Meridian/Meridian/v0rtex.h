@@ -44,6 +44,6 @@ typedef struct
     kptr_t sha1_final;
 } offsets_t;
 
-typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, uint64_t kern_ucred, uint64_t kernprocaddr);
+typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, void *cb_data);
 
-kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback);
+kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback, void *cb_data);

