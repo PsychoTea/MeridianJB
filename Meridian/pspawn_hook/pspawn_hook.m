@@ -16,8 +16,8 @@
 #include "fishhook.h"
 #include "mach/jailbreak_daemonUser.h"
 
-#define LAUNCHD_LOG_PATH    "/tmp/pspawn_hook_launchd.log"
-#define XPCPROXY_LOG_PATH   "/tmp/pspawn_hook_xpcproxy.log"
+#define LAUNCHD_LOG_PATH    "/var/log/pspawn_hook_launchd.log"
+#define XPCPROXY_LOG_PATH   "/var/log/pspawn_hook_xpcproxy.log"
 FILE *log_file;
 #define DEBUGLOG(fmt, args...)                                      \
 do {                                                                \
@@ -31,6 +31,9 @@ do {                                                                \
         log_file = fopen(log_path, "a");                            \
         if (log_file == NULL) break;                                \
     }                                                               \
+    time_t seconds = time(NULL);                                    \
+    char *time = ctime(&seconds);                                   \
+    fprintf(log_file, "[%.*s] ", strlen(time) - 1, time);           \
     fprintf(log_file, fmt "\n", ##args);                            \
     fflush(log_file);                                               \
 } while(0);
