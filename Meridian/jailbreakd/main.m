@@ -99,10 +99,10 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"start");
     unlink("/var/tmp/jailbreakd.pid");
     
-    kernel_base = strtoull(getenv("KernelBase"), NULL, 16);
-    kernprocaddr = strtoull(getenv("KernProcAddr"), NULL, 16);
-    offset_zonemap = strtoull(getenv("ZoneMapOffset"), NULL, 16);
-    kernel_slide = kernel_base - 0xFFFFFFF007004000;
+    kernel_base     = strtoull(getenv("KernelBase"), NULL, 16);
+    kernprocaddr    = strtoull(getenv("KernProcAddr"), NULL, 16);
+    offset_zonemap  = strtoull(getenv("ZoneMapOffset"), NULL, 16);
+    kernel_slide    = kernel_base - 0xFFFFFFF007004000;
     
     remove_memory_limit();
     
