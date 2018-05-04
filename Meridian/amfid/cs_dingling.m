@@ -119,6 +119,9 @@ int find_best_codedir(const void *csblob,
                 
                 unsigned int rank = hash_rank(candidate);
                 
+                // Apple's code: `rank > best_rank` (kind of obvious, right?)
+                // So why is it I have to switch it to get it to work?
+                // macos-10.12.6-sierra/xnu-3789.70.16/bsd/kern/ubc_subr.c#534
                 if (best_cd == NULL || rank < best_rank) {
                     best_cd = candidate;
                     best_rank = rank;
