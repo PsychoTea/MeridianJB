@@ -133,7 +133,9 @@ uint64_t construct_cs_blob(const void *cs,
     uint64_t cs_blob = kalloc(sizeof(struct cs_blob));
     wk64(cs_blob + offsetof(struct cs_blob, csb_next), 0);
     wk32(cs_blob + offsetof(struct cs_blob, csb_cpu_type), -1); // kern will update this for us :-)
-    wk32(cs_blob + offsetof(struct cs_blob, csb_flags), (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED);
+    
+    uint32_t csb_flags = (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED;
+    wk32(cs_blob + offsetof(struct cs_blob, csb_flags), csb_flags);
 
     wk64(cs_blob + offsetof(struct cs_blob, csb_base_offset), macho_offset);
     wk64(cs_blob + offsetof(struct cs_blob, csb_start_offset), 0);
@@ -163,6 +165,18 @@ uint64_t construct_cs_blob(const void *cs,
     wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements), 0); /* we'll update this later */
     wk32(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 0);
     wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), 0);
+    
+    if (csb_flags & CS_PLATFORM_BINARY) {
+        wk64(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 1);
+        wk64(cs_blob + offsetof(struct cs_blob, csb_platform_path), !!(csb_flags & CS_PLATFORM_PATH));
+    } else if ((ntohl(blob->version) >= CS_SUPPORTSTEAMID) &&
+               (blob->teamOffset > 0)) {
+            const char *name = ((const char *)blob) + ntohl(blob->teamOffset);
+            uint64_t teamid_addr = kalloc(strlen(name));
+            kwrite(teamid_addr, name, strlen(name));
+            wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), teamid_addr);
+        }
+    }
     
     return cs_blob;
 }
@@ -268,7 +282,10 @@ int fixup_platform_application(const char *path,
     if (entitlements == NULL) {
         // generate some new entitlements
         // this is all we're here to do, really :-)
-        const char *cstring = "<dict>"
+        const char *cstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                              "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+                              "<plist version=\"1.0\">"
+                              "<dict>"
                                   "<key>platform-application</key>"                         // escape container restriction
                                   "<true/>"
                                   "<key>com.apple.private.security.no-container</key>"      // no container
@@ -277,7 +294,8 @@ int fixup_platform_application(const char *path,
                                   "<true/>"
                                   "<key>com.apple.private.skip-library-validation</key>"    // allow invalid libs
                                   "<true/>"
-                              "</dict>";
+                              "</dict>"
+                              "</plist>";
         
         uint64_t dict = OSUnserializeXML(cstring);
         csblob_ent_dict_set(cs_blobs, dict);
@@ -289,6 +307,9 @@ int fixup_platform_application(const char *path,
 
         // gotta check for get-task-allow as it sets another csflag
         // remember: csflags have to be *perfect* otherwise the trick won't work
+        // the reason this is *before* we add it manually is because the kernel won't
+        // know about the manually added entitlement, and therefore this flag won't be set
+        // (assuming it wasn't already in the existing entitlements)
         ret = OSDictionary_GetItem(dict, "get-task-allow");
         if (ret != 0) {
             csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
@@ -300,13 +321,14 @@ int fixup_platform_application(const char *path,
         OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", find_OSBoolean_True());
 
         csblob_ent_dict_set(cs_blobs, dict);
-
+        
         // map the genblob up to csb_entitlements_blob
         // idk if we necessarily need to do this but w/e
-        int size = ntohl(entitlements->length);
-        uint64_t entptr = kalloc(size);
-        kwrite(entptr, entitlements, size);
-        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
+        // TODO: fix this so it uses the *new* entitlements, not the original ones (duh)
+//        int size = ntohl(entitlements->length);
+//        uint64_t entptr = kalloc(size);
+//        kwrite(entptr, entitlements, size);
+//        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
     
     ret = 0;
