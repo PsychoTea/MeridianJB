@@ -388,16 +388,18 @@ int defecateAmfi() {
     fclose(fd);
     
     // trust our payload
-    inject_trust("/meridian/amfid_payload.dylib");
+    int ret = inject_trust("/meridian/amfid_payload.dylib");
+    if (ret != 0) return -1;
     
     unlink("/var/tmp/amfid_payload.alive");
     
     pid_t pid = get_pid_for_name("amfid");
     if (pid == 0) {
-        return -1;
+        return -2;
     }
     
-    inject_library(pid, "/meridian/amfid_payload.dylib");
+    ret = inject_library(pid, "/meridian/amfid_payload.dylib");
+    if (ret != 0) return -2;
     
     int tries = 0;
     while (file_exists("/var/tmp/amfid_payload.alive") != 0) {
