@@ -35,10 +35,10 @@ void init_amfi() {
 }
 
 // creds to stek29(?)
-void inject_trust(const char *path) {
+int inject_trust(const char *path) {
     if (file_exists(path) != 0) {
         NSLog(@"[amfi] you wanka, %s doesn't exist!", path);
-        return;
+        return -1;
     }
     
     typedef char hash_t[20];
@@ -60,7 +60,7 @@ void inject_trust(const char *path) {
     uint8_t *codeDir = get_code_directory(path, 0);
     if (codeDir == NULL) {
         NSLog(@"[amfi] was given null code dir for %s!", path);
-        return;
+        return -2;
     }
     
     uint8_t *hash = get_sha1(codeDir);
@@ -75,6 +75,7 @@ void inject_trust(const char *path) {
     wk64(trust_cache, kernel_trust);
     
     NSLog(@"[amfi] signed %s \n", path);
+    return 0;
 }
 
 uint8_t *get_code_directory(const char* file_path, uint64_t file_off) {
