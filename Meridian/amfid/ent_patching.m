@@ -171,11 +171,10 @@ uint64_t construct_cs_blob(const void *cs,
         wk64(cs_blob + offsetof(struct cs_blob, csb_platform_path), !!(csb_flags & CS_PLATFORM_PATH));
     } else if ((ntohl(blob->version) >= CS_SUPPORTSTEAMID) &&
                (blob->teamOffset > 0)) {
-            const char *name = ((const char *)blob) + ntohl(blob->teamOffset);
-            uint64_t teamid_addr = kalloc(strlen(name));
-            kwrite(teamid_addr, name, strlen(name));
-            wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), teamid_addr);
-        }
+        const char *name = ((const char *)blob) + ntohl(blob->teamOffset);
+        uint64_t teamid_addr = kalloc(strlen(name));
+        kwrite(teamid_addr, name, strlen(name));
+        wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), teamid_addr);
     }
     
     return cs_blob;
