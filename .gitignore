@@ -3,5 +3,8 @@ xcuserdata
 *.xcuserstate
 .theos
 obj
-bin
 build_time
+**/bin
+
+!**/meridian-bootstrap/**/*
+
