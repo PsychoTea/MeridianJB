@@ -71,6 +71,14 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    /*      Begin the filesystem fuckery      */
+    
+    // Remove /meridian in the case of PB's
+    if (file_exists("/meridian") == 0 &&
+        file_exists("/meridian/.bootstrap") != 0) {
+        [fileMgr removeItemAtPath:@"/meridian" error:nil];
+    }
+    
     mkdir("/meridian", 0755);
     mkdir("/meridian/logs", 0755);
     unlink("/meridian/tar");
@@ -83,15 +91,6 @@ int makeShitHappen(ViewController *view) {
     
     chmod("/meridian/tar", 0755);
     inject_trust("/meridian/tar");
-    
-    if (file_exists("/meridian") != 0) {
-        [view writeTextPlain:@"failed to create /meridian directory!"];
-        return 1;
-    }
-    if (file_exists("/meridian/tar") != 0) {
-        [view writeTextPlain:@"failed to extract tar binary (not found)!"];
-        return 1;
-    }
     
     // extract meridian-bootstrap
     [view writeText:@"extracting meridian files..."];
@@ -273,13 +272,6 @@ int remountRootFs() {
 }
 
 int extractMeridianData() {
-    // In the case of Meridian PB's, /meridian exists,
-    // /meridian/.bootstrap doesn't
-    if (file_exists("/meridian") == 0 &&
-        file_exists("/meridian/.bootstrap") != 0) {
-        [fileMgr removeItemAtPath:@"/meridian" error:nil];
-    }
-    
     return extract_bundle_tar("meridian-bootstrap.tar");
 }
 
