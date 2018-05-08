@@ -78,7 +78,12 @@ int uicache() {
 }
 
 int start_launchdaemon(const char *path) {
-    inject_trust("/bin/launchctl");
+    int ret = inject_trust("/bin/launchctl");
+    if (ret != 0) {
+        NSLog(@"Failed to inject trust to /bin/launchctl: %d", ret);
+        return -30;
+    }
+    
     chmod(path, 0755);
     chown(path, 0, 0);
     return execprog("/bin/launchctl", (const char **)&(const char*[]) {
