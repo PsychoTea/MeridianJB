@@ -324,10 +324,13 @@ int fixup_platform_application(const char *path,
         // map the genblob up to csb_entitlements_blob
         // idk if we necessarily need to do this but w/e
         // TODO: fix this so it uses the *new* entitlements, not the original ones (duh)
-//        int size = ntohl(entitlements->length);
-//        uint64_t entptr = kalloc(size);
-//        kwrite(entptr, entitlements, size);
-//        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
+        // Note to self: this field seems to be checked in the case of things like uicache, which requires
+        // the 'com.apple.lsapplicationworkspace.rebuildappdatabases' entitlement. I suspect this field is
+        // designed to be 'userland-viewable'
+        int size = ntohl(entitlements->length);
+        uint64_t entptr = kalloc(size);
+        kwrite(entptr, entitlements, size);
+        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
     
     ret = 0;
