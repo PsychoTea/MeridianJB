@@ -313,7 +313,6 @@ int fixup_platform_application(const char *path,
         wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
         
         free(entitlements_blob);
-        NSLog(@"Blob address: %llx", cs_blobs);
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
