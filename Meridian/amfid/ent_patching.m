@@ -299,6 +299,21 @@ int fixup_platform_application(const char *path,
         uint64_t dict = OSUnserializeXML(cstring);
         csblob_ent_dict_set(cs_blobs, dict);
         csblob_update_csflags(dict, CS_GET_TASK_ALLOW);
+        
+        // Update csb_entitlements_blob
+        int size = 8 + strlen(cstring);
+        CS_GenericBlob *entitlements_blob = (CS_GenericBlob *)malloc(size);
+        entitlements_blob->magic = CSMAGIC_EMBEDDED_ENTITLEMENTS;
+        entitlements_blob->length = 8 + strlen(cstring);
+        stpcpy(entitlements_blob->data, cstring);
+        
+        // Copy the data into kernel, and write to the csb_entitlements_blob field
+        uint64_t entptr = kalloc(size);
+        kwrite(entptr, entitlements_blob, size);
+        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
+        
+        free(entitlements_blob);
+        NSLog(@"Blob address: %llx", cs_blobs);
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
