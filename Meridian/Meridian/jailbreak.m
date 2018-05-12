@@ -16,17 +16,13 @@
 #include "ViewController.h"
 #include "patchfinder64.h"
 #include "patchfinders/offsetdump.h"
+#include "nvpatch.h"
 #include <mach/mach_types.h>
 #include <sys/stat.h>
 #import <Foundation/Foundation.h>
 
 NSFileManager *fileMgr;
 
-task_t tfp0;
-uint64_t kslide;
-uint64_t kernel_base;
-uint64_t kern_ucred;
-uint64_t kernprocaddr;
 offsets_t offsets;
 
 int makeShitHappen(ViewController *view) {
@@ -49,9 +45,13 @@ int makeShitHappen(ViewController *view) {
     [view writeTextPlain:@"succeeded! praize siguza!"];
     
     // set up stuff
-    init_kernel(tfp0);
-    init_patchfinder(tfp0, kernel_base, NULL);
-    init_amfi();
+    init_patchfinder(NULL);
+    ret = init_amfi();
+    
+    if (ret != 0) {
+        [view writeTextPlain:@"failed to initialize amfi class!"];
+        return 1;
+    }
     
     // patch containermanager
     [view writeText:@"patching containermanager..."];
@@ -203,6 +203,15 @@ int makeShitHappen(ViewController *view) {
         if (ret > 1) {
             [view writeTextPlain:@"failed to launch - %d tries", ret];
         }
+        return 1;
+    }
+    [view writeText:@"done!"];
+    
+    // patch com.apple.System.boot-nonce
+    [view writeText:@"patching boot-nonce..."];
+    ret = nvpatch("com.apple.System.boot-nonce");
+    if (ret != 0) {
+        [view writeText:@"failed!"];
         return 1;
     }
     [view writeText:@"done!"];
