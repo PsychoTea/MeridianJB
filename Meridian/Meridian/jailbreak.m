@@ -347,6 +347,7 @@ int extractBootstrap(int exitCode) {
     if (file_exists("/private/var/lib/dpkg/status") == 0) {
         // if pre-existing db, do nothing
     } else if (file_exists("/Library/dpkg/status") == 0) {
+        unlink("/private/var/lib/dpkg");
         [fileMgr moveItemAtPath:@"/Library/dpkg" toPath:@"/private/var/lib/dpkg" error:nil];
     } else if (file_exists("/private/var/lib/dpkg/status") != 0) {
         rv = extract_bundle_tar("dpkgdb-base.tar");
