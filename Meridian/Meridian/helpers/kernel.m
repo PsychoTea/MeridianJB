@@ -11,13 +11,7 @@
 #include "helpers.h"
 #include <mach/mach.h>
 
-task_t tfp0;
-
-void init_kernel(task_t task_for_port0) {
-    tfp0 = task_for_port0;
-}
-
-size_t tfp0_kread(uint64_t where, void *p, size_t size)
+size_t kread(uint64_t where, void *p, size_t size)
 {
     int rv;
     size_t offset = 0;
@@ -34,6 +28,30 @@ size_t tfp0_kread(uint64_t where, void *p, size_t size)
         
         offset += sz;
     }
+    return offset;
+}
+
+size_t kwrite(uint64_t where, const void *p, size_t size) {
+    int rv;
+    size_t offset = 0;
+    while (offset < size) {
+        size_t chunk = 2048;
+        if (chunk > size - offset) {
+            chunk = size - offset;
+        }
+        rv = mach_vm_write(tfp0,
+                           where + offset,
+                           (mach_vm_offset_t)p + offset,
+                           (mach_msg_type_number_t)chunk);
+        
+        if (rv) {
+            printf("[kernel] error copying buffer into region: @%p \n", (void *)(offset + where));
+            break;
+        }
+        
+        offset +=chunk;
+    }
+    
     return offset;
 }
 
@@ -91,34 +109,6 @@ void wk32(uint64_t kaddr, uint32_t val) {
     if (err != KERN_SUCCESS) {
         return;
     }
-}
-
-size_t kwrite(uint64_t where, const void *p, size_t size) {
-    int rv;
-    size_t offset = 0;
-    while (offset < size) {
-        size_t chunk = 2048;
-        if (chunk > size - offset) {
-            chunk = size - offset;
-        }
-        rv = mach_vm_write(tfp0,
-                           where + offset,
-                           (mach_vm_offset_t)p + offset,
-                           (mach_msg_type_number_t)chunk);
-        
-        if (rv) {
-            printf("[kernel] error copying buffer into region: @%p \n", (void *)(offset + where));
-            break;
-        }
-        
-        offset +=chunk;
-    }
-    
-    return offset;
-}
-
-size_t kwrite_uint64(uint64_t where, uint64_t value) {
-    return kwrite(where, &value, sizeof(value));
 }
 
 uint64_t remote_alloc(mach_port_t task_port, uint64_t size) {

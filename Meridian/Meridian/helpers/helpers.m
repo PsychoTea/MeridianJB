@@ -36,7 +36,7 @@ uint64_t find_proc_by_name(char* name) {
     while (proc) {
         char proc_name[40] = { 0 };
         
-        tfp0_kread(proc + 0x26c, proc_name, 40);
+        kread(proc + 0x26c, proc_name, 40);
         
         if (!strcmp(name, proc_name)) {
             return proc;
@@ -463,7 +463,7 @@ void restart_device() {
     // add notification port with same refcon multiple times
     mach_port_t port = 0;
     mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port);
-    uint32_t references;
+    uint64_t references;
     uint64_t input[3] = {0};
     input[1] = 1234;  // keep refcon the same value
     while (1) {

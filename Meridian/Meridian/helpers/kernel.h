@@ -26,6 +26,12 @@ typedef struct _arg_desc {
 #define REMOTE_BUFFER(ptr, size) &(arg_desc){ARG_BUFFER, (uint64_t)ptr, (uint64_t)size}
 #define REMOTE_CSTRING(str) &(arg_desc){ARG_BUFFER, (uint64_t)str, (uint64_t)(strlen(str)+1)}
 
+task_t tfp0;
+uint64_t kslide;
+uint64_t kernel_base;
+uint64_t kern_ucred;
+uint64_t kernprocaddr;
+
 kern_return_t mach_vm_write(vm_map_t target_task,
                             mach_vm_address_t address,
                             vm_offset_t data,
@@ -55,14 +61,12 @@ kern_return_t mach_vm_region(vm_map_t target_task,
 
 kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
 
-void init_kernel(task_t tfp0);
-size_t tfp0_kread(uint64_t where, void *p, size_t size);
+size_t kread(uint64_t where, void *p, size_t size);
+size_t kwrite(uint64_t where, const void *p, size_t size);
 uint64_t rk64(uint64_t kaddr);
 uint32_t rk32(uint64_t kaddr);
 void wk64(uint64_t kaddr, uint64_t val);
 void wk32(uint64_t kaddr, uint32_t val);
-size_t kwrite(uint64_t where, const void *p, size_t size);
-size_t kwrite_uint64(uint64_t where, uint64_t value);
 uint64_t remote_alloc(mach_port_t task_port, uint64_t size);
 uint64_t alloc_and_fill_remote_buffer(mach_port_t task_port,
                                       uint64_t local_address,

@@ -4,7 +4,7 @@
 #import "common.h"
 #import <mach/mach.h>
 
-int init_patchfinder(task_t tfp0, uint64_t base, const char *filename);
+int init_patchfinder(const char *filename);
 void term_kernel(void);
 
 enum { SearchInCore, SearchInPrelink };

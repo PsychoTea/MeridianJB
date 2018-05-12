@@ -30,7 +30,7 @@ const unsigned OFF_IPC_SPACE__IS_TABLE = 0x20;
 const unsigned SIZ_IPC_ENTRY_T = 0x18;
 const unsigned OFF_TASK__ITK_SPACE = 0x300;
 
-#define rkbuffer(w, p, s) tfp0_kread(w, p, s);
+#define rkbuffer(w, p, s) kread(w, p, s);
 #define wkbuffer(w, p, s) kwrite(w, p, s);
 
 typedef mach_port_t io_service_t;

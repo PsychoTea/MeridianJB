@@ -424,8 +424,6 @@ follow_cbz(const uint8_t *buf, addr_t cbz)
 size_t kread(uint64_t where, void *p, size_t size);
 #endif
 
-static task_t tfp0;
-
 static uint8_t *kernel = NULL;
 static size_t kernel_size = 0;
 
@@ -443,10 +441,8 @@ static void *kernel_mh = 0;
 static addr_t kernel_delta = 0;
 
 int
-init_patchfinder(task_t taskfp0, addr_t base, const char *filename)
+init_patchfinder(const char *filename)
 {
-    tfp0 = taskfp0;
-    
     size_t rv;
     uint8_t buf[0x4000];
     unsigned i, j;
@@ -458,7 +454,7 @@ init_patchfinder(task_t taskfp0, addr_t base, const char *filename)
     
 #ifdef __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__
 #define close(f)
-    rv = tfp0_kread(base, buf, sizeof(buf));
+    rv = kread(kernel_base, buf, sizeof(buf));
     if (rv != sizeof(buf)) {
         printf("failed kread, got size: %zu \n", rv);
         return -1;
@@ -560,7 +556,7 @@ init_patchfinder(task_t taskfp0, addr_t base, const char *filename)
         return -1;
     }
     
-    rv = tfp0_kread(kerndumpbase, kernel, kernel_size);
+    rv = kread(kerndumpbase, kernel, kernel_size);
     // rv = kread(kerndumpbase, kernel, kernel_size);
     if (rv != kernel_size) {
         free(kernel);
@@ -568,7 +564,7 @@ init_patchfinder(task_t taskfp0, addr_t base, const char *filename)
         return -1;
     }
 
-    kernel_mh = kernel + base - min;
+    kernel_mh = kernel + kernel_base - min;
 
     (void)filename;
 #undef close
