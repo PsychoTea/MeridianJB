@@ -6,7 +6,7 @@
 //  Copyright © 2017 Ben Sparkes. All rights reserved.
 //
 
-void init_amfi(void);
+int init_amfi(void);
 int patch_amfi(mach_port_t amfi_port);
 int get_kqueue_for_pid(pid_t pid);
 int inject_trust(const char *path);

@@ -26,12 +26,19 @@
 uint64_t trust_cache;
 uint64_t amficache;
 
-void init_amfi() {
+int init_amfi() {
     trust_cache = find_trustcache();
     amficache = find_amficache();
     
     NSLog(@"[amfi] trust_cache = 0x%llx \n", trust_cache);
     NSLog(@"[amfi] amficache = 0x%llx \n", amficache);
+    
+    if (trust_cache == 0 ||
+        amficache == 0) {
+        return -1;
+    }
+    
+    return 0;
 }
 
 // creds to stek29(?)
