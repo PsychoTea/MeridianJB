@@ -33,6 +33,7 @@
 		B57CBF66205DB35F00EEDA20 /* fishhook in Resources */ = {isa = PBXBuildFile; fileRef = B57CBF65205DB35F00EEDA20 /* fishhook */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
+		B585494B20A64F8F00107CF2 /* nvpatch.c in Sources */ = {isa = PBXBuildFile; fileRef = B585494A20A64F8F00107CF2 /* nvpatch.c */; };
 		B585F4182051993E0049C703 /* offsetfinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B585F4172051993E0049C703 /* offsetfinder.mm */; };
 		B5A4EA95205F14CE00B32F89 /* meridian-bootstrap.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5A4EA94205F14CD00B32F89 /* meridian-bootstrap.tar */; };
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
@@ -114,6 +115,8 @@
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B584C54920376BCA00BF4118 /* untar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = untar.m; sourceTree = "<group>"; };
 		B584C54B20376BD200BF4118 /* untar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = untar.h; sourceTree = "<group>"; };
+		B585494920A64F8F00107CF2 /* nvpatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nvpatch.h; sourceTree = "<group>"; };
+		B585494A20A64F8F00107CF2 /* nvpatch.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = nvpatch.c; sourceTree = "<group>"; };
 		B585F414205198DF0049C703 /* liboffsetfinder64.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = liboffsetfinder64.hpp; sourceTree = "<group>"; };
 		B585F4172051993E0049C703 /* offsetfinder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = offsetfinder.mm; sourceTree = "<group>"; };
 		B585F41920519B7E0049C703 /* offsetfinder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetfinder.h; sourceTree = "<group>"; };
@@ -306,6 +309,8 @@
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
+				B585494920A64F8F00107CF2 /* nvpatch.h */,
+				B585494A20A64F8F00107CF2 /* nvpatch.c */,
 			);
 			path = helpers;
 			sourceTree = "<group>";
@@ -504,6 +509,7 @@
 				B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
+				B585494B20A64F8F00107CF2 /* nvpatch.c in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
