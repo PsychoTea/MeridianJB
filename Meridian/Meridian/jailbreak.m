@@ -293,7 +293,8 @@ void setUpSymLinks() {
     struct stat file;
     stat("/Library/MobileSubstrate/DynamicLibraries", &file);
     
-    if (file_exists("/usr/lib/tweaks") == 0 &&
+    if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0 &&
+        file_exists("/usr/lib/tweaks") == 0 &&
         S_ISLNK(file.st_mode)) {
         return;
     }
@@ -316,10 +317,12 @@ void setUpSymLinks() {
     } else if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0 &&
                file_exists("/usr/lib/tweaks") != 0) {
         // Just create /usr/lib/tweaks - /Lib/MobSub/DynLibs doesn't exist
+        mkdir("/Library/MobileSubstrate", 0755);
         mkdir("/usr/lib/tweaks", 0755);
     } else if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0 &&
                file_exists("/usr/lib/tweaks") == 0) {
         // We should be fine in this case
+        mkdir("/Library/MobileSubstrate", 0755);
     }
     
     // Symlink it!
@@ -343,37 +346,13 @@ int extractBootstrap(int exitCode) {
         return 2;
     }
     
-    
-    if (file_exists("/private/var/lib/dpkg/status") == 0) {
-        // if pre-existing db, do nothing
-    } else if (file_exists("/Library/dpkg/status") == 0) {
-        unlink("/private/var/lib/dpkg");
-        [fileMgr moveItemAtPath:@"/Library/dpkg" toPath:@"/private/var/lib/dpkg" error:nil];
-    } else if (file_exists("/private/var/lib/dpkg/status") != 0) {
+    if (file_exists("/private/var/lib/dpkg/status") != 0) {
         rv = extract_bundle_tar("dpkgdb-base.tar");
         if (rv != 0) {
             exitCode = rv;
             return 3;
         }
     }
-    [fileMgr removeItemAtPath:@"/Library/dpkg" error:nil];
-    symlink("/private/var/lib/dpkg", "/Library/dpkg");
-    
-    // set up dpkg database
-    // if dpkg is already installed (previously jailbroken), we want to move the database
-    // over to the new location, rather than replacing it. this allows users to retain
-    // tweaks and installed package information
-//    if (file_exists("/private/var/lib/dpkg/status") == 0) { // if pre-existing db, move to /Library
-//        [fileMgr moveItemAtPath:@"/private/var/lib/dpkg" toPath:@"/Library/dpkg" error:nil];
-//    } else if (file_exists("/Library/dpkg/status") != 0) { // doubly ensure Meridian db doesn't exist before overwriting
-//        rv = extract_bundle_tar("dpkgdb-base.tar"); // extract new db to /Library
-//        if (rv != 0) {
-//            exitCode = rv;
-//            return 3;
-//        }
-//    }
-//    [fileMgr removeItemAtPath:@"/private/var/lib/dpkg" error:nil]; // remove old /var folder if exists for any reason
-//    symlink("/Library/dpkg", "/private/var/lib/dpkg"); // symlink vanilla folder to new /Library install
     
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
@@ -443,12 +422,6 @@ int launchDropbear() {
 }
 
 void setUpSubstitute() {
-    // create /Library/MobileSubstrate/DynamicLibraries
-    if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0) {
-        mkdir("/Library/MobileSubstrate", 0755);
-        mkdir("/Library/MobileSubstrate/DynamicLibraries", 0755);
-    }
-    
     // link CydiaSubstrate.framework -> /usr/lib/libsubstrate.dylib
     if (file_exists("/Library/Frameworks/CydiaSubstrate.framework") == 0) {
         [fileMgr removeItemAtPath:@"/Library/Frameworks/CydiaSubstrate.framework" error:nil];
