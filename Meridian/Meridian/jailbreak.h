@@ -9,6 +9,8 @@
 #ifndef jailbreak_h
 #define jailbreak_h
 
+BOOL great_success;
+
 int makeShitHappen(id view);
 int runV0rtex(void);
 int patchContainermanagerd(void);

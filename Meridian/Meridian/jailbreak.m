@@ -25,6 +25,8 @@ NSFileManager *fileMgr;
 
 offsets_t offsets;
 
+BOOL great_success = FALSE;
+
 int makeShitHappen(ViewController *view) {
     int ret;
     
@@ -224,6 +226,8 @@ int makeShitHappen(ViewController *view) {
         return 1;
     }
     [view writeText:@"done!"];
+    
+    great_success = TRUE;
     
     return 0;
 }

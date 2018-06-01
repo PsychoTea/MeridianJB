@@ -48,18 +48,18 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-//    if (cell == self.reinstallBootstrapCell) {
-//        [self showAlertWithTitle:@"Reinstall Bootstrap?" message:@"WARNING: Lorem ipsum dolor sit amet."];
-//
-//    } else if (cell == self.reinstallCydiaCell) {
-//        [self showAlertWithTitle:@"Reinstall Cydia?" message:@"WARNING: Lorem ipsum dolor sit amet."];
-//
-//    } else if (cell == self.deleteCydiaCell) {
-//        [self showAlertWithTitle:@"Delete Cydia?" message:@"WARNING: Lorem ipsum dolor sit amet."];
-//
-//    } else if (cell == self.extractDPKGCell) {
-//        [self showAlertWithTitle:@"Extract DPKG?" message:@"WARNING: Lorem ipsum dolor sit amet."];
-//    }
+    if (cell == self.reinstallBootstrapCell) {
+        [self showAlertWithTitle:@"Reinstall Bootstrap?" message:@"WARNING: Lorem ipsum dolor sit amet."];
+
+    } else if (cell == self.reinstallCydiaCell) {
+        [self showAlertWithTitle:@"Reinstall Cydia?" message:@"WARNING: Lorem ipsum dolor sit amet."];
+
+    } else if (cell == self.deleteCydiaCell) {
+        [self showAlertWithTitle:@"Delete Cydia?" message:@"WARNING: Lorem ipsum dolor sit amet."];
+
+    } else if (cell == self.extractDPKGCell) {
+        [self showAlertWithTitle:@"Extract DPKG?" message:@"WARNING: Lorem ipsum dolor sit amet."];
+    }
 }
 
 

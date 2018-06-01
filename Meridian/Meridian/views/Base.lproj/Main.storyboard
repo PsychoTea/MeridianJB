@@ -104,8 +104,8 @@
                                 <color key="textColor" red="0.69803921568627447" green="0.69803921568627447" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
-                                <rect key="frame" x="253" y="274" width="20" height="20"/>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="W17-Ed-P2p">
+                                <rect key="frame" x="150" y="274" width="20" height="20"/>
                             </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.12984204290000001" green="0.12984612579999999" blue="0.12984395030000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -123,10 +123,12 @@
                             <constraint firstItem="W17-Ed-P2p" firstAttribute="centerY" secondItem="LaC-2w-KjF" secondAttribute="centerY" id="WCy-sx-TWq"/>
                             <constraint firstItem="aNP-Zv-9Us" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="a3g-Yf-2Hc"/>
                             <constraint firstItem="46V-Bf-YC0" firstAttribute="top" secondItem="Vf5-dN-xQv" secondAttribute="bottom" id="cBS-gm-MMJ"/>
+                            <constraint firstItem="W17-Ed-P2p" firstAttribute="top" secondItem="46V-Bf-YC0" secondAttribute="bottom" constant="33" id="dJG-ky-oas"/>
+                            <constraint firstItem="W17-Ed-P2p" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="150" id="dXO-Ii-ceG"/>
                             <constraint firstItem="aNP-Zv-9Us" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="mY0-9r-6II"/>
                             <constraint firstItem="R6J-sX-rSy" firstAttribute="top" secondItem="eEN-LM-8Uz" secondAttribute="bottom" id="p0e-4m-sCI"/>
                             <constraint firstItem="46V-Bf-YC0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="rGG-FX-ymO"/>
-                            <constraint firstItem="W17-Ed-P2p" firstAttribute="trailing" secondItem="LaC-2w-KjF" secondAttribute="trailing" constant="-15" id="rH3-aH-Ouu"/>
+                            <constraint firstItem="W17-Ed-P2p" firstAttribute="trailing" secondItem="LaC-2w-KjF" secondAttribute="trailing" constant="-118" id="rH3-aH-Ouu"/>
                             <constraint firstItem="Vf5-dN-xQv" firstAttribute="top" secondItem="R6J-sX-rSy" secondAttribute="bottom" constant="22" id="rvx-Ug-l06"/>
                             <constraint firstItem="qVU-s8-Wog" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="tee-Rk-dBW"/>
                             <constraint firstItem="Vf5-dN-xQv" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="yOf-6V-2lI"/>
@@ -156,9 +158,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="850"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="A huge thank-you to everyone who helped make this possible. In no particular order: " textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ysi-8h-hYZ">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="A huge thank-you to everyone who helped make this possible. In no particular order: " textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ysi-8h-hYZ">
                                 <rect key="frame" x="16" y="103" width="343" height="56"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="56" id="rAt-UR-A1J"/>
+                                </constraints>
                                 <color key="textColor" red="0.99019607840000001" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -213,9 +217,18 @@
                                 <color key="textColor" red="0.99019607840000001" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="56K-YP-Axy">
+                                <rect key="frame" x="0.0" y="98" width="375" height="703"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="0.12984204290000001" green="0.12984612579999999" blue="0.12984395030000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="tintColor" red="0.81568627449999997" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="h1h-Pu-K94" firstAttribute="trailing" secondItem="ysi-8h-hYZ" secondAttribute="trailing" constant="16" id="hXP-Sa-j17"/>
+                            <constraint firstItem="ysi-8h-hYZ" firstAttribute="leading" secondItem="h1h-Pu-K94" secondAttribute="leading" constant="16" id="lYf-h7-lYL"/>
+                            <constraint firstItem="ysi-8h-hYZ" firstAttribute="top" secondItem="h1h-Pu-K94" secondAttribute="top" constant="5" id="wJS-vA-bTo"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="h1h-Pu-K94"/>
                     </view>
                     <navigationItem key="navigationItem" title="Credits" prompt=" " id="tYO-uE-VMb"/>
@@ -223,7 +236,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qAG-hS-AfD" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1806.5625" y="1260.2112676056338"/>
+            <point key="canvasLocation" x="1806.5625" y="1030.9859154929577"/>
         </scene>
         <!--Settings-->
         <scene sceneID="iTQ-5v-rjF">
