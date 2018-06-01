@@ -141,7 +141,7 @@ int makeShitHappen(ViewController *view) {
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
         int exitCode = 0;
-        ret = extractBootstrap(exitCode);
+        ret = extractBootstrap(&exitCode);
         
         if (ret != 0) {
             [view writeText:@"failed!"];
@@ -329,27 +329,27 @@ void setUpSymLinks() {
     symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
 }
 
-int extractBootstrap(int exitCode) {
+int extractBootstrap(int *exitCode) {
     int rv;
     
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 1;
     }
     
     // extract installer-base.tar
     rv = extract_bundle_tar("installer-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 2;
     }
     
     if (file_exists("/private/var/lib/dpkg/status") != 0) {
         rv = extract_bundle_tar("dpkgdb-base.tar");
         if (rv != 0) {
-            exitCode = rv;
+            *exitCode = rv;
             return 3;
         }
     }
@@ -357,14 +357,14 @@ int extractBootstrap(int exitCode) {
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 4;
     }
     
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 5;
     }
     
@@ -374,7 +374,7 @@ int extractBootstrap(int exitCode) {
     
     rv = uicache();
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 6;
     }
     
