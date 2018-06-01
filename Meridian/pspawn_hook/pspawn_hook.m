@@ -18,6 +18,7 @@
 
 #define LAUNCHD_LOG_PATH    "/var/log/pspawn_hook_launchd.log"
 #define XPCPROXY_LOG_PATH   "/var/log/pspawn_hook_xpcproxy.log"
+#define OTHER_LOG_PATH      "/var/log/pspawn_hook_other.log"
 FILE *log_file;
 #define DEBUGLOG(fmt, args...)                                      \
 do {                                                                \
@@ -27,13 +28,15 @@ do {                                                                \
             log_path = LAUNCHD_LOG_PATH;                            \
         } else if (current_process == PROCESS_XPCPROXY) {           \
             log_path = XPCPROXY_LOG_PATH;                           \
+        } else if (current_process == PROCESS_OTHER) {              \
+            log_path = OTHER_LOG_PATH;                              \
         }                                                           \
         log_file = fopen(log_path, "a");                            \
         if (log_file == NULL) break;                                \
     }                                                               \
     time_t seconds = time(NULL);                                    \
     char *time = ctime(&seconds);                                   \
-    fprintf(log_file, "[%.*s] ", strlen(time) - 1, time);           \
+    fprintf(log_file, "[%.*s] ", (int)strlen(time) - 1, time);      \
     fprintf(log_file, fmt "\n", ##args);                            \
     fflush(log_file);                                               \
 } while(0);
@@ -46,12 +49,16 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
 #define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
+#define FLAG_PLATFORMIZE (1 << 1)
+
 enum CurrentProcess {
     PROCESS_LAUNCHD,
-    PROCESS_XPCPROXY
+    PROCESS_XPCPROXY,
+    PROCESS_OTHER,
+    PROCESS_CYDIA
 };
 
-int current_process;
+int current_process = PROCESS_OTHER;
 
 kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
 
@@ -62,6 +69,7 @@ char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
 #define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
+#define LIBJAILBREAK_DYLIB      "/usr/lib/libjailbreak.dylib"
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
@@ -88,11 +96,11 @@ bool is_blacklisted(const char* proc) {
     return false;
 }
 
-typedef int (*pspawn_t)(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[]);
+typedef int (*pspawn_t)(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]);
 
 pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, char const *argv[], const char *envp[], pspawn_t old) {
+int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[], pspawn_t old) {
     DEBUGLOG("fake_posix_spawn_common: %s", path);
     
     const char *inject_me = NULL;
@@ -142,7 +150,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         }
     }
     
-    char const** newenvp = malloc((envcount + 2) * sizeof(char **));
+    char const** newenvp = (char const **)malloc((envcount + 2) * sizeof(char **));
     int j = 0;
     for (int i = 0; i < envcount; i++) {
         if (strstr(envp[j], "DYLD_INSERT_LIBRARIES") != NULL) {
@@ -152,7 +160,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         j++;
     }
     
-    char *envp_inject = malloc(strlen("DYLD_INSERT_LIBRARIES=") + strlen(inject_me) + 1);
+    char *envp_inject = (char *)malloc(strlen("DYLD_INSERT_LIBRARIES=") + strlen(inject_me) + 1);
     
     envp_inject[0] = '\0';
     
@@ -235,7 +243,6 @@ void *thd_func(void *arg) {
 
 __attribute__ ((constructor))
 static void ctor(void) {
-    // we have to set current_process before we can do any logging etc
     bzero(pathbuf, sizeof(pathbuf));
     proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
     
@@ -243,6 +250,8 @@ static void ctor(void) {
         current_process = PROCESS_LAUNCHD;
     } else if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
         current_process = PROCESS_XPCPROXY;
+    } else {
+        current_process = PROCESS_OTHER;
     }
     
     DEBUGLOG("========================");
@@ -266,6 +275,23 @@ static void ctor(void) {
         return;
     }
     DEBUGLOG("got jbd port: %x", jbd_port);
+    
+    // pspawn is usually only ever injected into either launchd,
+    // or xpcproxy. this is here in case you want to manually inject it into
+    // another process, in order to have it call to jbd. consider this
+    // testing-only, and should not be used in production code.
+    // example (in shell): "> DYLD_INSERT_LIBRARIES=/usr/lib/libjailbreak.dylib ./cydo"
+    // this will have cydo call to jbd in order to platformize, used in testing
+    if (current_process == PROCESS_OTHER) {
+        if (access(LIBJAILBREAK_DYLIB, F_OK) == 0) {
+            void *handle = dlopen(LIBJAILBREAK_DYLIB, RTLD_LAZY);
+            if (handle) {
+                typedef int (*fix_ent)(pid_t pid, uint32_t flags);
+                fix_ent fixentptr = (fix_ent)dlsym(handle, "jb_oneshot_entitle_now");
+                fixentptr(getpid(), FLAG_PLATFORMIZE);
+            }
+        }
+    }
     
     rebind_pspawns();
 }
