@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
 		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
-		B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79471FF2248B000D6015 /* CreditsController.m */; };
 		B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794A1FF2248B000D6015 /* AppDelegate.m */; };
 		B50F79631FF2248D000D6015 /* kernel.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794F1FF2248C000D6015 /* kernel.m */; };
 		B50F79641FF2248D000D6015 /* amfi.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79531FF2248D000D6015 /* amfi.m */; };
@@ -39,12 +38,11 @@
 		B5B7C2A01FF2BA100087619A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C29F1FF2BA100087619A /* main.m */; };
 		B5B7C2AB1FF2C7860087619A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B7C2AA1FF2C7860087619A /* IOKit.framework */; };
 		B5B9E03B2060280500FEA273 /* build_time in Resources */ = {isa = PBXBuildFile; fileRef = B5B9E03A2060280400FEA273 /* build_time */; };
-		B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD42052E67600F82D43 /* JailbreakController.m */; };
-		B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD72052E67700F82D43 /* MeridianController.m */; };
 		B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C4FBD92052E67700F82D43 /* SettingsController.m */; };
 		B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */; };
 		B5DF1AC22059C0E20090B4B5 /* libmerged.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC12059C0E20090B4B5 /* libmerged.a */; };
 		B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */; };
+		B5F8941C20C12B6D00F0AB04 /* ToolsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F8941A20C12B6C00F0AB04 /* ToolsController.m */; };
 		B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FDF8EA206EF1260074A075 /* offsetdump.m */; };
 /* End PBXBuildFile section */
 
@@ -73,11 +71,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B50F79391FF2248A000D6015 /* CreditsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		B50F79461FF2248B000D6015 /* root-rw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "root-rw.m"; sourceTree = "<group>"; };
-		B50F79471FF2248B000D6015 /* CreditsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
 		B50F79481FF2248B000D6015 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B50F794A1FF2248B000D6015 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		B50F794C1FF2248C000D6015 /* patchfinder64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = patchfinder64.h; sourceTree = "<group>"; };
@@ -133,16 +129,14 @@
 		B5B7C2B51FF353970087619A /* v0rtex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = v0rtex.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		B5B7C2B61FF353980087619A /* v0rtex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v0rtex.h; sourceTree = "<group>"; };
 		B5B9E03A2060280400FEA273 /* build_time */ = {isa = PBXFileReference; lastKnownFileType = text; name = build_time; path = Meridian/build_time; sourceTree = "<group>"; };
-		B5C4FBD42052E67600F82D43 /* JailbreakController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JailbreakController.m; sourceTree = "<group>"; };
-		B5C4FBD52052E67700F82D43 /* JailbreakController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JailbreakController.h; sourceTree = "<group>"; };
-		B5C4FBD62052E67700F82D43 /* MeridianController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeridianController.h; sourceTree = "<group>"; };
-		B5C4FBD72052E67700F82D43 /* MeridianController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeridianController.m; sourceTree = "<group>"; };
 		B5C4FBD82052E67700F82D43 /* SettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsController.h; sourceTree = "<group>"; };
 		B5C4FBD92052E67700F82D43 /* SettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsController.m; sourceTree = "<group>"; };
 		B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboffsetfinder64.a; sourceTree = "<group>"; };
 		B5DF1AC12059C0E20090B4B5 /* libmerged.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmerged.a; sourceTree = "<group>"; };
 		B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
+		B5F8941A20C12B6C00F0AB04 /* ToolsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolsController.m; sourceTree = "<group>"; };
+		B5F8941B20C12B6D00F0AB04 /* ToolsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolsController.h; sourceTree = "<group>"; };
 		B5FDF8EA206EF1260074A075 /* offsetdump.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsetdump.m; sourceTree = "<group>"; };
 		B5FDF8EC206EF4880074A075 /* offsetdump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetdump.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -171,16 +165,12 @@
 				B514CC871FECD788005F4E6B /* Info.plist */,
 				B514CC791FECD788005F4E6B /* AppDelegate.h */,
 				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
-				B50F79391FF2248A000D6015 /* CreditsController.h */,
-				B50F79471FF2248B000D6015 /* CreditsController.m */,
-				B514CC7C1FECD788005F4E6B /* ViewController.h */,
-				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
-				B5C4FBD52052E67700F82D43 /* JailbreakController.h */,
-				B5C4FBD42052E67600F82D43 /* JailbreakController.m */,
-				B5C4FBD62052E67700F82D43 /* MeridianController.h */,
-				B5C4FBD72052E67700F82D43 /* MeridianController.m */,
 				B5C4FBD82052E67700F82D43 /* SettingsController.h */,
 				B5C4FBD92052E67700F82D43 /* SettingsController.m */,
+				B5F8941B20C12B6D00F0AB04 /* ToolsController.h */,
+				B5F8941A20C12B6C00F0AB04 /* ToolsController.m */,
+				B514CC7C1FECD788005F4E6B /* ViewController.h */,
+				B514CC8F1FECDC71005F4E6B /* ViewController.m */,
 				B514CC821FECD788005F4E6B /* Assets.xcassets */,
 				B514CC7F1FECD788005F4E6B /* Main.storyboard */,
 				B514CC841FECD788005F4E6B /* LaunchScreen.storyboard */,
@@ -501,12 +491,10 @@
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B52F29282051F10800F4EB57 /* fucksigningservices.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
-				B5C4FBDA2052E67700F82D43 /* JailbreakController.m in Sources */,
+				B5F8941C20C12B6D00F0AB04 /* ToolsController.m in Sources */,
 				B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */,
 				B585F4182051993E0049C703 /* offsetfinder.mm in Sources */,
 				B57CBF62205DA3DF00EEDA20 /* jailbreak_daemonUser.c in Sources */,
-				B50F795D1FF2248D000D6015 /* CreditsController.m in Sources */,
-				B5C4FBDB2052E67700F82D43 /* MeridianController.m in Sources */,
 				B514CC901FECDC71005F4E6B /* ViewController.m in Sources */,
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
 				B585494B20A64F8F00107CF2 /* nvpatch.c in Sources */,
@@ -664,7 +652,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Blue";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;
@@ -697,7 +685,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Blue";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6EKJWC698P;

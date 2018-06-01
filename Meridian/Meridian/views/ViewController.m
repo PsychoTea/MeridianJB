@@ -19,7 +19,6 @@
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *progressSpinner;
 @property (weak, nonatomic) IBOutlet UITextView *textArea;
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
-@property (nonatomic, readwrite) IBOutlet UISwitch *v0rtexSwitch;
 @end
 
 NSString *Version = @"Meridian: Internal Beta 7";
@@ -75,7 +74,7 @@ bool jailbreak_has_run = false;
         // aaaaand grey it out
         [self.goButton setEnabled:NO];
         self.goButton.alpha = 0.5;
-    
+        
         return;
     }
     
@@ -145,7 +144,7 @@ bool jailbreak_has_run = false;
             
             return;
         }
-
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self exploitSucceeded];
         });
@@ -300,3 +299,4 @@ void log_message(NSString *message) {
 }
 
 @end
+

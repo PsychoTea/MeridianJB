@@ -1,5 +1,5 @@
 //
-//  SettingsController.h
+//  ToolsController.h
 //  Meridian
 //
 //  Created by Sticktron on 2018-04-03.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SettingsController : UITableViewController
+@interface ToolsController : UITableViewController
 
 @end
