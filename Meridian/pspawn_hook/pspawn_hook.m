@@ -54,8 +54,7 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 enum CurrentProcess {
     PROCESS_LAUNCHD,
     PROCESS_XPCPROXY,
-    PROCESS_OTHER,
-    PROCESS_CYDIA
+    PROCESS_OTHER
 };
 
 int current_process = PROCESS_OTHER;
