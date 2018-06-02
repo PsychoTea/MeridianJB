@@ -34,22 +34,6 @@
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:nil];
 }
 
-- (void)openTwitter:(NSString *)user {
-    NSString *url;
-    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot:"]]) {
-        url = [NSString stringWithFormat:@"tweetbot:///user_profile/%@", user];
-    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific:"]]) {
-        url = [NSString stringWithFormat:@"twitterrific:///profile?screen_name=%@", user];
-    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetings:"]]) {
-        url = [NSString stringWithFormat:@"tweetings:///user?screen_name=%@", user];
-    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter:"]]) {
-        url = [NSString stringWithFormat:@"twitter://user?screen_name=%@", user];
-    } else {
-        url = [NSString stringWithFormat:@"http://twitter.com/%@", user];
-    }
-    [self openLink:url];
-}
-
 
 #pragma mark - Table view
 
@@ -59,7 +43,7 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     if (cell == self.psychoTwitterCell) {
-        [self openTwitter:@"PsychoTea"];
+        [self openLink:@"http://www.twitter.com/iBSparkes"];
         
     } else if (cell == self.websiteCell) {
         [self openLink:@"https://meridian.sparkes.zone"];
