@@ -424,9 +424,15 @@ int execprog(const char *prog, const char* args[]) {
     
     grant_csflags(pd);
     
-    int status;
-    waitpid(pd, &status, 0);
-    NSLog(@"'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));
+    int ret, status;
+    do {
+        ret = waitpid(pd, &status, 0);
+        if (ret > 0) {
+            NSLog(@"'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));
+        } else if (errno != EINTR) {
+            NSLog(@"waitpid error %d: %s\n", ret, strerror(errno));
+        }
+    } while (ret < 0 && errno == EINTR);
     
     char buf[65] = {0};
     int fd = open(logfile, O_RDONLY);
@@ -446,7 +452,7 @@ int execprog(const char *prog, const char* args[]) {
     
     close(fd);
     remove(logfile);
-    return WEXITSTATUS(status);
+    return (int8_t)WEXITSTATUS(status);
 }
 
 // too lazy to find & add IOKit headers so here we are

@@ -83,38 +83,46 @@ int makeShitHappen(ViewController *view) {
         [fileMgr removeItemAtPath:@"/meridian" error:nil];
     }
     
-    ret = mkdir("/meridian", 0755);
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        [view writeTextPlain:@"creating /meridian failed with retcode %d", ret];
-        return 1;
+    if (file_exists("/meridian") != 0) {
+        ret = mkdir("/meridian", 0755);
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"creating /meridian failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
     }
     
-    ret = mkdir("/meridian/logs", 0755);
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        [view writeTextPlain:@"creating /meridian/logs failed with retcode %d", ret];
-        return 1;
+    if (file_exists("/meridian/logs") == 0) {
+        ret = mkdir("/meridian/logs", 0755);
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"creating /meridian/logs failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
     }
     
-    ret = unlink("/meridian/tar");
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        [view writeTextPlain:@"removing /meridian/tar failed with retcode %d", ret];
-        return 1;
+    if (file_exists("/meridian/tar") == 0) {
+        ret = unlink("/meridian/tar");
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"removing /meridian/tar failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
     }
     
-    ret = unlink("/meridian/tar.tar");
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        [view writeTextPlain:@"creating /meridian/tar.tar failed with retcode %d", ret];
-        return 1;
+    if (file_exists("/meridian/tar.tar") == 0) {
+        ret = unlink("/meridian/tar.tar");
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"deleting /meridian/tar.tar failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
     }
     
     ret = extract_bundle("tar.tar", "/meridian");
     if (ret != 0) {
         [view writeText:@"failed!"];
-        [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d", ret, errno];
+        [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d: %s", ret, errno, strerror(errno)];
         return 1;
     }
     
@@ -127,7 +135,7 @@ int makeShitHappen(ViewController *view) {
     ret = chmod("/meridian/tar", 0755);
     if (ret != 0) {
         [view writeText:@"failed!"];
-        [view writeTextPlain:@"chmod(755)'ing /meridian/tar failed with retcode %d", ret];
+        [view writeTextPlain:@"chmod(755)'ing /meridian/tar failed with error %d: %s", errno, strerror(errno)];
         return 1;
     }
     
