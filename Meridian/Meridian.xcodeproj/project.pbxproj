@@ -44,6 +44,7 @@
 		B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */; };
 		B5F8941C20C12B6D00F0AB04 /* ToolsController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F8941A20C12B6C00F0AB04 /* ToolsController.m */; };
 		B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FDF8EA206EF1260074A075 /* offsetdump.m */; };
+		EE45BD8F20C2DEDE00D627C0 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE45BD8E20C2DEDE00D627C0 /* CreditsController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +140,8 @@
 		B5F8941B20C12B6D00F0AB04 /* ToolsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolsController.h; sourceTree = "<group>"; };
 		B5FDF8EA206EF1260074A075 /* offsetdump.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsetdump.m; sourceTree = "<group>"; };
 		B5FDF8EC206EF4880074A075 /* offsetdump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetdump.h; sourceTree = "<group>"; };
+		EE45BD8D20C2DEDE00D627C0 /* CreditsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
+		EE45BD8E20C2DEDE00D627C0 /* CreditsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +170,8 @@
 				B50F794A1FF2248B000D6015 /* AppDelegate.m */,
 				B5C4FBD82052E67700F82D43 /* SettingsController.h */,
 				B5C4FBD92052E67700F82D43 /* SettingsController.m */,
+				EE45BD8D20C2DEDE00D627C0 /* CreditsController.h */,
+				EE45BD8E20C2DEDE00D627C0 /* CreditsController.m */,
 				B5F8941B20C12B6D00F0AB04 /* ToolsController.h */,
 				B5F8941A20C12B6C00F0AB04 /* ToolsController.m */,
 				B514CC7C1FECD788005F4E6B /* ViewController.h */,
@@ -499,6 +504,7 @@
 				B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */,
 				B585494B20A64F8F00107CF2 /* nvpatch.c in Sources */,
 				B50F795C1FF2248D000D6015 /* root-rw.m in Sources */,
+				EE45BD8F20C2DEDE00D627C0 /* CreditsController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
