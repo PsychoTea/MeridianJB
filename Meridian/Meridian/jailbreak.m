@@ -75,29 +75,70 @@ int makeShitHappen(ViewController *view) {
     
     /*      Begin the filesystem fuckery      */
     
+    [view writeText:@"pertaining some filessytem fuckery..."];
+    
     // Remove /meridian in the case of PB's
     if (file_exists("/meridian") == 0 &&
         file_exists("/meridian/.bootstrap") != 0) {
         [fileMgr removeItemAtPath:@"/meridian" error:nil];
     }
     
-    mkdir("/meridian", 0755);
-    mkdir("/meridian/logs", 0755);
-    unlink("/meridian/tar");
-    unlink("/meridian/tar.tar");
+    ret = mkdir("/meridian", 0755);
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"creating /meridian failed with retcode %d", ret];
+        return 1;
+    }
+    
+    ret = mkdir("/meridian/logs", 0755);
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"creating /meridian/logs failed with retcode %d", ret];
+        return 1;
+    }
+    
+    ret = unlink("/meridian/tar");
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"removing /meridian/tar failed with retcode %d", ret];
+        return 1;
+    }
+    
+    ret = unlink("/meridian/tar.tar");
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"creating /meridian/tar.tar failed with retcode %d", ret];
+        return 1;
+    }
+    
     ret = extract_bundle("tar.tar", "/meridian");
     if (ret != 0) {
+        [view writeText:@"failed!"];
         [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d", ret, errno];
         return 1;
     }
     
     if (file_exists("/meridian/tar") != 0) {
+        [view writeText:@"failed!"];
         [view writeTextPlain:@"/meridian/tar was not found :("];
         return 1;
     }
     
-    chmod("/meridian/tar", 0755);
-    inject_trust("/meridian/tar");
+    ret = chmod("/meridian/tar", 0755);
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"chmod(755)'ing /meridian/tar failed with retcode %d", ret];
+        return 1;
+    }
+    
+    ret = inject_trust("/meridian/tar");
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"injecting trust to /meridian/tar failed with retcode %d", ret];
+        return 1;
+    }
+    
+    [view writeText:@"done!"];
     
     // extract meridian-bootstrap
     [view writeText:@"extracting meridian files..."];
