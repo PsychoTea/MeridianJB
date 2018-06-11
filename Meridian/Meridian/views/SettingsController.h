@@ -1,8 +1,8 @@
 //
-//  UIViewController+Credits.h
+//  SettingsController.h
 //  Meridian
 //
-//  Created by Ben Sparkes on 10/02/2018.
+//  Created by Sticktron on 2018-04-03.
 //  Copyright © 2018 Ben Sparkes. All rights reserved.
 //
 

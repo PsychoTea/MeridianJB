@@ -106,6 +106,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
                                      cd_hash,
                                      cdir_offset,
                                      entitlements);
+    
     if (ret != 0) {
         ERROR(@"fixup_platform_application returned: %d", ret);
     }
@@ -124,7 +125,7 @@ void *hook_funcs(void *arg) {
     
     struct rebinding rebindings[] = {
         { "MISValidateSignatureAndCopyInfo", (void *)fake_MISValidateSignatureAndCopyInfo, (void **)&old_MISValidateSignatureAndCopyInfo_broken }
-        /*                                                                                                                               ^^^^^^ you can say that again */
+        /*                                                                                                       you can say that again  ^^^^^^ */
     };
     
     rebind_symbols(rebindings, 1);
@@ -154,6 +155,7 @@ static void ctor(void) {
     offset_kernel_task          = strtoull([off_file[@"KernelTask"]           UTF8String], NULL, 16) + kernel_slide;
     offset_vfs_context_current  = strtoull([off_file[@"VfsContextCurrent"]    UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getfromfd      = strtoull([off_file[@"VnodeGetFromFD"]       UTF8String], NULL, 16) + kernel_slide;
+    offset_vnode_getattr        = strtoull([off_file[@"VnodeGetAttr"]         UTF8String], NULL, 16) + kernel_slide;
     offset_csblob_ent_dict_set  = strtoull([off_file[@"CSBlobEntDictSet"]     UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_init            = strtoull([off_file[@"SHA1Init"]             UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_update          = strtoull([off_file[@"SHA1Update"]           UTF8String], NULL, 16) + kernel_slide;

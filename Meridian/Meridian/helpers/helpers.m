@@ -279,14 +279,8 @@ char* bundle_path() {
 int extract_bundle(const char* bundle_name, const char* directory) {
     int ret;
     
-    char *tarFile = malloc(strlen(bundle_name) +
-                           strlen("/") +
-                           strlen(bundle_name) +
-                           3);
-    
-    strcpy(tarFile, directory);
-    strcat(tarFile, "/");
-    strcat(tarFile, bundle_name);
+    char *tarFile = NULL;
+    asprintf(&tarFile, "%s/%s", directory, bundle_name);
     
     ret = file_exists(bundled_file(bundle_name));
     if (ret != 0) {
@@ -303,17 +297,29 @@ int extract_bundle(const char* bundle_name, const char* directory) {
     ret = cp(bundled_file(bundle_name), tarFile);
     if (ret != 0) {
         NSLog(@"cp has failed: %d", ret);
-        return ret;
+        return -3;
     }
     
-    chdir(directory);
+    ret = chdir(directory);
+    if (ret != 0) {
+        NSLog(@"failed to chdir *rolls eyes* code %d", ret);
+        return -4;
+    }
     
     ret = untar(fopen(tarFile, "r"), bundle_name);
     NSLog(@"untar returned: %d", ret);
+    if (ret != 0) {
+        return -5;
+    }
     
-    unlink(tarFile);
+    ret = unlink(tarFile);
+    if (ret != 0) {
+        NSLog(@"now fucking `unlink` is failing tooo? %d", ret);
+        return -6;
+    }
     
-    return ret;
+    free(tarFile);
+    return 0;
 }
 
 int extract_bundle_tar(const char *bundle_name) {
@@ -418,9 +424,15 @@ int execprog(const char *prog, const char* args[]) {
     
     grant_csflags(pd);
     
-    int status;
-    waitpid(pd, &status, 0);
-    NSLog(@"'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));
+    int ret, status;
+    do {
+        ret = waitpid(pd, &status, 0);
+        if (ret > 0) {
+            NSLog(@"'%s' exited with %d (sig %d)\n", prog, WEXITSTATUS(status), WTERMSIG(status));
+        } else if (errno != EINTR) {
+            NSLog(@"waitpid error %d: %s\n", ret, strerror(errno));
+        }
+    } while (ret < 0 && errno == EINTR);
     
     char buf[65] = {0};
     int fd = open(logfile, O_RDONLY);
@@ -440,7 +452,7 @@ int execprog(const char *prog, const char* args[]) {
     
     close(fd);
     remove(logfile);
-    return WEXITSTATUS(status);
+    return (int8_t)WEXITSTATUS(status);
 }
 
 // too lazy to find & add IOKit headers so here we are

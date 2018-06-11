@@ -9,13 +9,15 @@
 #ifndef jailbreak_h
 #define jailbreak_h
 
+BOOL great_success;
+
 int makeShitHappen(id view);
 int runV0rtex(void);
 int patchContainermanagerd(void);
 int remountRootFs(void);
 int extractMeridianData(void);
 void setUpSymLinks(void);
-int extractBootstrap(int exitCode);
+int extractBootstrap(int *exitCode);
 int defecateAmfi(void);
 int launchDropbear(void);
 void setUpSubstitute(void);

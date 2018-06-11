@@ -10,17 +10,16 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
+
 - (void)writeText:(NSString *)message;
 - (void)writeTextPlain:(NSString *)message, ...;
-@property (nonatomic, readonly) IBOutlet UISwitch *v0rtexSwitch;
+
 @end
 
 task_t tfp0;
-uint64_t kslide;
-uint64_t kernel_base;
-uint64_t kern_ucred;
-uint64_t kernprocaddr;
-
-id thisClass;
+kptr_t kslide;
+kptr_t kernel_base;
+kptr_t kern_ucred;
+kptr_t kernprocaddr;
 
 void log_message(NSString *message);

@@ -25,6 +25,8 @@ NSFileManager *fileMgr;
 
 offsets_t offsets;
 
+BOOL great_success = FALSE;
+
 int makeShitHappen(ViewController *view) {
     int ret;
     
@@ -73,29 +75,78 @@ int makeShitHappen(ViewController *view) {
     
     /*      Begin the filesystem fuckery      */
     
+    [view writeText:@"some filesytem fuckery..."];
+    
     // Remove /meridian in the case of PB's
     if (file_exists("/meridian") == 0 &&
         file_exists("/meridian/.bootstrap") != 0) {
         [fileMgr removeItemAtPath:@"/meridian" error:nil];
     }
     
-    mkdir("/meridian", 0755);
-    mkdir("/meridian/logs", 0755);
-    unlink("/meridian/tar");
-    unlink("/meridian/tar.tar");
+    if (file_exists("/meridian") != 0) {
+        ret = mkdir("/meridian", 0755);
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"creating /meridian failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
+    }
+    
+    if (file_exists("/meridian/logs") == 0) {
+        ret = mkdir("/meridian/logs", 0755);
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"creating /meridian/logs failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
+    }
+    
+    if (file_exists("/meridian/tar") == 0) {
+        ret = unlink("/meridian/tar");
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"removing /meridian/tar failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
+    }
+    
+    if (file_exists("/meridian/tar.tar") == 0) {
+        ret = unlink("/meridian/tar.tar");
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"deleting /meridian/tar.tar failed with error %d: %s", errno, strerror(errno)];
+            return 1;
+        }
+    }
+    
     ret = extract_bundle("tar.tar", "/meridian");
     if (ret != 0) {
-        [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d", ret, errno];
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"failed to extract tar.tar bundle! ret: %d, errno: %d: %s", ret, errno, strerror(errno)];
         return 1;
     }
     
     if (file_exists("/meridian/tar") != 0) {
+        [view writeText:@"failed!"];
         [view writeTextPlain:@"/meridian/tar was not found :("];
         return 1;
     }
     
-    chmod("/meridian/tar", 0755);
-    inject_trust("/meridian/tar");
+    ret = chmod("/meridian/tar", 0755);
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"chmod(755)'ing /meridian/tar failed with error %d: %s", errno, strerror(errno)];
+        return 1;
+    }
+    
+    ret = inject_trust("/meridian/tar");
+    if (ret != 0) {
+        [view writeText:@"failed!"];
+        [view writeTextPlain:@"injecting trust to /meridian/tar failed with retcode %d", ret];
+        return 1;
+    }
+    
+    [view writeText:@"done!"];
     
     // extract meridian-bootstrap
     [view writeText:@"extracting meridian files..."];
@@ -141,7 +192,7 @@ int makeShitHappen(ViewController *view) {
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
         int exitCode = 0;
-        ret = extractBootstrap(exitCode);
+        ret = extractBootstrap(&exitCode);
         
         if (ret != 0) {
             [view writeText:@"failed!"];
@@ -224,6 +275,8 @@ int makeShitHappen(ViewController *view) {
         return 1;
     }
     [view writeText:@"done!"];
+    
+    great_success = TRUE;
     
     return 0;
 }
@@ -329,27 +382,27 @@ void setUpSymLinks() {
     symlink("/usr/lib/tweaks", "/Library/MobileSubstrate/DynamicLibraries");
 }
 
-int extractBootstrap(int exitCode) {
+int extractBootstrap(int *exitCode) {
     int rv;
     
     // extract system-base.tar
     rv = extract_bundle_tar("system-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 1;
     }
     
     // extract installer-base.tar
     rv = extract_bundle_tar("installer-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 2;
     }
     
     if (file_exists("/private/var/lib/dpkg/status") != 0) {
         rv = extract_bundle_tar("dpkgdb-base.tar");
         if (rv != 0) {
-            exitCode = rv;
+            *exitCode = rv;
             return 3;
         }
     }
@@ -357,14 +410,14 @@ int extractBootstrap(int exitCode) {
     // extract cydia-base.tar
     rv = extract_bundle_tar("cydia-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 4;
     }
     
     // extract optional-base.tar
     rv = extract_bundle_tar("optional-base.tar");
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 5;
     }
     
@@ -374,7 +427,7 @@ int extractBootstrap(int exitCode) {
     
     rv = uicache();
     if (rv != 0) {
-        exitCode = rv;
+        *exitCode = rv;
         return 6;
     }
     

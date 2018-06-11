@@ -2,8 +2,8 @@
 //  CreditsController.h
 //  Meridian
 //
-//  Created by Ben Sparkes on 22/12/2017.
-//  Copyright © 2017 Ben Sparkes. All rights reserved.
+//  Created by Sticktron on 2018-06-02.
+//  Copyright © 2018 Ben Sparkes. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
