@@ -75,7 +75,7 @@ int makeShitHappen(ViewController *view) {
     
     /*      Begin the filesystem fuckery      */
     
-    [view writeText:@"pertaining some filessytem fuckery..."];
+    [view writeText:@"some filesytem fuckery..."];
     
     // Remove /meridian in the case of PB's
     if (file_exists("/meridian") == 0 &&
