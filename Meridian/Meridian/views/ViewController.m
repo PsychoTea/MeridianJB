@@ -278,18 +278,16 @@ bool jailbreak_has_run = false;
 }
 
 - (void)writeTextPlain:(NSString *)message, ... {
-    message = [message stringByAppendingString:@"\n"];
     va_list args;
     va_start(args, message);
+    message = [[NSString alloc] initWithFormat:[message stringByAppendingString:@"\n"] arguments:args];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        _textArea.text = [_textArea.text stringByAppendingString:[[NSString alloc] initWithFormat:message, args]];
+        _textArea.text = [_textArea.text stringByAppendingString:message];
         NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
-        
-        NSLog(message, args);
+        NSLog(@"%@", message);
     });
-    
     va_end(args);
 }
 
