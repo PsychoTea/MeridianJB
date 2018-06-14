@@ -92,7 +92,7 @@ int makeShitHappen(ViewController *view) {
         }
     }
     
-    if (file_exists("/meridian/logs") == 0) {
+    if (file_exists("/meridian/logs") != 0) {
         ret = mkdir("/meridian/logs", 0755);
         if (ret != 0) {
             [view writeText:@"failed!"];
@@ -275,6 +275,8 @@ int makeShitHappen(ViewController *view) {
         return 1;
     }
     [view writeText:@"done!"];
+    
+    [view writeTextPlain:@"test output: %d, %s, %d", errno, "wagwan sausage", -542];
     
     great_success = TRUE;
     
