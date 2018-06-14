@@ -73,7 +73,19 @@ bool jailbreak_has_run = false;
         
         // aaaaand grey it out
         [self.goButton setEnabled:NO];
-        self.goButton.alpha = 0.5;
+        [self.goButton setAlpha:0.5];
+        
+        return;
+    }
+    
+    // Device is already jailbroken, but not with Meridian
+    if (file_exists("/private/var/lib/dpkg/status") == 0 &&
+        file_exists("/meridian/.installed") != 0) {
+        [self writeTextPlain:@"this device has already been jailbroken with another tool. please run Cydia Eraser to wipe this device to ensure you encounter no issues with Meridian"];
+        
+        [self.goButton setTitle:@"please erase" forState:UIControlStateNormal];
+        [self.goButton setEnabled:NO];
+        [self.goButton setAlpha:0.5];
         
         return;
     }

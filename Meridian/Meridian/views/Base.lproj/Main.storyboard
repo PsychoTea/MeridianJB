@@ -717,10 +717,33 @@
                         <color key="tintColor" red="0.81568627450980391" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="separatorColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <sections>
-                            <tableViewSection footerTitle="Lorem ipsum dolor sit amet." id="OAT-ad-PHE">
+                            <tableViewSection id="F3z-PC-Ldv">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="Xu1-5B-nIJ" imageView="7NQ-LG-biw" style="IBUITableViewCellStyleDefault" id="eZK-kP-NzU">
-                                        <rect key="frame" x="0.0" y="35" width="375" height="50"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" indentationWidth="10" textLabel="Chf-wE-5Kj" rowHeight="102" style="IBUITableViewCellStyleDefault" id="0rS-tw-yDf">
+                                        <rect key="frame" x="0.0" y="35" width="375" height="102"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="0rS-tw-yDf" id="htz-3R-zUv">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="101.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="wen eta? these options are coming soon™️" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Chf-wE-5Kj">
+                                                    <rect key="frame" x="15" y="0.0" width="344" height="101.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" name="Monaco" family="Monaco" pointSize="20"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" red="0.090196078430000007" green="0.090196078430000007" blue="0.090196078430000007" alpha="1" colorSpace="calibratedRGB"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                            <tableViewSection id="OAT-ad-PHE">
+                                <cells>
+                                    <tableViewCell hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="Xu1-5B-nIJ" imageView="7NQ-LG-biw" style="IBUITableViewCellStyleDefault" id="eZK-kP-NzU">
+                                        <rect key="frame" x="0.0" y="173" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="eZK-kP-NzU" id="UiG-ZL-hWq">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -744,10 +767,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection footerTitle="Lorem ipsum dolor sit amet." id="QKi-lx-vAC">
+                            <tableViewSection id="QKi-lx-vAC">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="jvH-Bj-tag" imageView="1wb-qG-hzE" style="IBUITableViewCellStyleDefault" id="3Mr-fn-zW0">
-                                        <rect key="frame" x="0.0" y="133" width="375" height="50"/>
+                                    <tableViewCell hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="jvH-Bj-tag" imageView="1wb-qG-hzE" style="IBUITableViewCellStyleDefault" id="3Mr-fn-zW0">
+                                        <rect key="frame" x="0.0" y="259" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3Mr-fn-zW0" id="gHl-bo-Lm8">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -771,10 +794,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection footerTitle="Lorem ipsum dolor sit amet." id="1hG-LT-Zo9">
+                            <tableViewSection id="1hG-LT-Zo9">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="ZeC-4X-mV1" imageView="nm2-Dx-tQI" style="IBUITableViewCellStyleDefault" id="zv9-cE-QVe">
-                                        <rect key="frame" x="0.0" y="231" width="375" height="50"/>
+                                    <tableViewCell hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="ZeC-4X-mV1" imageView="nm2-Dx-tQI" style="IBUITableViewCellStyleDefault" id="zv9-cE-QVe">
+                                        <rect key="frame" x="0.0" y="345" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="zv9-cE-QVe" id="Q1a-3S-wg6">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -798,10 +821,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection footerTitle="Lorem ipsum dolor sit amet." id="jOW-Wg-FbK">
+                            <tableViewSection id="jOW-Wg-FbK">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="V4R-rT-klc" imageView="laC-1O-4Pq" style="IBUITableViewCellStyleDefault" id="ffC-Qw-pWj">
-                                        <rect key="frame" x="0.0" y="329" width="375" height="50"/>
+                                    <tableViewCell hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="V4R-rT-klc" imageView="laC-1O-4Pq" style="IBUITableViewCellStyleDefault" id="ffC-Qw-pWj">
+                                        <rect key="frame" x="0.0" y="431" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ffC-Qw-pWj" id="14q-QY-N13">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -842,7 +865,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PUf-sq-TJI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1021" y="981"/>
+            <point key="canvasLocation" x="1020" y="980.5097451274363"/>
         </scene>
         <!--Tools Nav-->
         <scene sceneID="8Zw-zf-vX2">
@@ -861,6 +884,9 @@
                         </textAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="5pi-rg-ISh">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="42s-cm-LpD" kind="relationship" relationship="rootViewController" id="nP8-oY-6KI"/>
                     </connections>
