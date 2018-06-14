@@ -276,8 +276,6 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
-    [view writeTextPlain:@"test output: %d, %s, %d", errno, "wagwan sausage", -542];
-    
     great_success = TRUE;
     
     return 0;
