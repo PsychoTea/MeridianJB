@@ -80,7 +80,7 @@ bool jailbreak_has_run = false;
     
     // Device is already jailbroken, but not with Meridian
     if (file_exists("/private/var/lib/dpkg/status") == 0 &&
-        file_exists("/meridian/.installed") != 0) {
+        file_exists("/.meridian_installed") != 0) {
         [self writeTextPlain:@"this device has already been jailbroken with another tool. please run Cydia Eraser to wipe this device to ensure you encounter no issues with Meridian"];
         
         [self.goButton setTitle:@"please erase" forState:UIControlStateNormal];

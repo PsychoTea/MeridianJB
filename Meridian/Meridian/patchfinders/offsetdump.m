@@ -61,5 +61,8 @@ void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel
     off_file[@"SHA1Update"]                     = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_update];
     off_file[@"SHA1Final"]                      = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_final];
     
+    off_file[@"ProcFind"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->proc_find];
+    off_file[@"ProcName"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->proc_name];
+    
     [off_file writeToFile:@"/meridian/offsets.plist" atomically:YES];
 }

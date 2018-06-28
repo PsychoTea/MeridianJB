@@ -276,6 +276,10 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    if (file_exists("/.meridian_installed") != 0) {
+        touch_file("/.meridian_installed");
+    }
+    
     great_success = TRUE;
     
     return 0;
@@ -490,9 +494,11 @@ int startJailbreakd() {
     NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
     NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
     
-    job[@"EnvironmentVariables"][@"KernelBase"] = [NSString stringWithFormat:@"0x%16llx", kernel_base];
-    job[@"EnvironmentVariables"][@"KernProcAddr"] = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
-    job[@"EnvironmentVariables"][@"ZoneMapOffset"] = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
+    job[@"EnvironmentVariables"][@"KernelBase"]     = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+    job[@"EnvironmentVariables"][@"KernProcAddr"]   = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+    job[@"EnvironmentVariables"][@"ZoneMapOffset"]  = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
+    job[@"EnvironmentVariables"][@"ProcFind"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_find];
+    job[@"EnvironmentVariables"][@"ProcName"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_name];
     [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
     chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
     chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);

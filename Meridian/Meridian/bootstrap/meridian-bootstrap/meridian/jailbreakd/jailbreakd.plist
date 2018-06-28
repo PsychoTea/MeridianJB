@@ -8,6 +8,10 @@
 	<string>/meridian/jailbreakd/jailbreakd</string>
 	<key>EnvironmentVariables</key>
 	<dict>
+		<key>ProcName</key>
+		<string>0x0000000000000000</string>
+		<key>ProcFind</key>
+		<string>0x0000000000000000</string>
 		<key>ZoneMapOffset</key>
 		<string>0x0000000000000000</string>
 		<key>KernProcAddr</key>

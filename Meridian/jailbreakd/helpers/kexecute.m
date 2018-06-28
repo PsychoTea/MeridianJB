@@ -5,18 +5,18 @@
 #include "patchfinder64.h"
 #include "offsetof.h"
 
-mach_port_t prepare_user_client(void) {
+mach_port_t prepare_user_client() {
     kern_return_t err;
     mach_port_t user_client;
     io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOSurfaceRoot"));
     
-    if (service == IO_OBJECT_NULL){
+    if (service == IO_OBJECT_NULL) {
         printf(" [-] unable to find service\n");
         exit(EXIT_FAILURE);
     }
     
     err = IOServiceOpen(service, mach_task_self(), 0, &user_client);
-    if (err != KERN_SUCCESS){
+    if (err != KERN_SUCCESS) {
         printf(" [-] unable to get user client connection\n");
         exit(EXIT_FAILURE);
     }
@@ -35,7 +35,7 @@ static uint64_t fake_vtable;
 static uint64_t fake_client;
 const int fake_kalloc_size = 0x1000;
 
-void init_kexecute(void) {
+void init_kexecute() {
     user_client = prepare_user_client();
     
     // From v0rtex - get the IOSurfaceRootUserClient port, and then the address of the actual client, and vtable
@@ -76,7 +76,7 @@ void init_kexecute(void) {
     pthread_mutex_init(&kexecute_lock, NULL);
 }
 
-void term_kexecute(void) {
+void term_kexecute() {
     wk64(IOSurfaceRootUserClient_port + offsetof_ip_kobject, IOSurfaceRootUserClient_addr);
     kfree(fake_vtable, fake_kalloc_size);
     kfree(fake_client, fake_kalloc_size);

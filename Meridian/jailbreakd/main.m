@@ -10,8 +10,11 @@
 #include "helpers/kexecute.h"
 #include "mach/jailbreak_daemonServer.h"
 
-#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
-int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
+//#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
+//int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
+
+#define MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT 6
+int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
 
 typedef boolean_t (*dispatch_mig_callback_t)(mach_msg_header_t *message, mach_msg_header_t *reply);
 mach_msg_return_t dispatch_mig_server(dispatch_source_t ds, size_t maxmsgsz, dispatch_mig_callback_t callback);
@@ -22,14 +25,11 @@ kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
 #define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
-mach_port_t tfpzero;
-uint64_t kernel_base;
-uint64_t kernel_slide;
+//mach_port_t tfpzero;
+//uint64_t kernel_base;
+//uint64_t kernel_slide;
 
-#define MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT 6
-int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
-
-int remove_memory_limit(void) {
+int remove_memory_limit() {
     return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, getpid(), 0, NULL, 0);
 }
 
@@ -55,7 +55,7 @@ int handle_command(uint8_t command, uint32_t pid) {
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
-        setcsflagsandplatformize(pid);
+         setcsflagsandplatformize(pid);
         kill(pid, SIGCONT);
     }
     
@@ -99,25 +99,32 @@ int main(int argc, char **argv, char **envp) {
     NSLog(@"start");
     unlink("/var/tmp/jailbreakd.pid");
     
-    kernel_base     = strtoull(getenv("KernelBase"), NULL, 16);
-    kernprocaddr    = strtoull(getenv("KernProcAddr"), NULL, 16);
-    offset_zonemap  = strtoull(getenv("ZoneMapOffset"), NULL, 16);
-    kernel_slide    = kernel_base - 0xFFFFFFF007004000;
+    kernel_base         = strtoull(getenv("KernelBase"),    NULL, 16);
+    kernel_slide        = kernel_base - 0xFFFFFFF007004000;
     
-    remove_memory_limit();
+    kernprocaddr        = strtoull(getenv("KernProcAddr"),  NULL, 16);
+    offset_zonemap      = strtoull(getenv("ZoneMapOffset"), NULL, 16);
+    offset_proc_find    = strtoull(getenv("ProcFind"),      NULL, 16) + kernel_slide;
+    offset_proc_name    = strtoull(getenv("ProcName"),      NULL, 16) + kernel_slide;
+    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
+    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
+    NSLog(@"[jailbreakd] proc_find: 0x%016llx", offset_proc_find);
+    NSLog(@"[jailbreakd] proc_name: 0x%016llx", offset_proc_name);
     
     err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
     if (err != KERN_SUCCESS) {
         NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
         return -1;
     }
+    NSLog(@"tfp0: %x", tfpzero);
     
     init_kernel(kernel_base, NULL);
+    NSLog(@"init_kernel(...)");
     init_kexecute();
     NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
     NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
-    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
-    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
+    
+    remove_memory_limit();
     
     // set up mach stuff
     mach_port_t server_port;
@@ -143,5 +150,6 @@ int main(int argc, char **argv, char **envp) {
     dispatch_main();
     
     term_kexecute();
+    
     return 0;
 }

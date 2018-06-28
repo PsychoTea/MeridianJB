@@ -116,12 +116,12 @@ static uint64_t Replicate(uint64_t val, unsigned bits)
 
 static int DecodeBitMasks(unsigned immN, unsigned imms, unsigned immr, int immediate, uint64_t *newval)
 {
-	unsigned levels, S, R, esize;
+	unsigned S, R, esize;
 	int len = HighestSetBit(7, (immN << 6) | (~imms & 0x3F));
 	if (len < 1) {
 		return -1;
 	}
-	levels = ZeroExtendOnes(len, 6);
+	uint64_t levels = ZeroExtendOnes(len, 6);
 	if (immediate && (imms & levels) == levels) {
 		return -1;
 	}
