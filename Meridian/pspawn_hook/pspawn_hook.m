@@ -185,7 +185,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         posix_spawnattr_getflags(attrp, &flags);
         flags |= POSIX_SPAWN_START_SUSPENDED;
         posix_spawnattr_setflags(attrp, flags);
-    } else { /* set new attribs */
+    } else {    /* set new attribs */
         posix_spawnattr_init(&attr);
         posix_spawnattr_setflags(&attr, POSIX_SPAWN_START_SUSPENDED);
     }
@@ -198,7 +198,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
-            
+
             kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
             if (ret != KERN_SUCCESS) {
                 DEBUGLOG("err: got %x from jbd_call(sigcont, %d)", ret, gotpid);
@@ -278,9 +278,9 @@ static void ctor(void) {
     // pspawn is usually only ever injected into either launchd,
     // or xpcproxy. this is here in case you want to manually inject it into
     // another process, in order to have it call to jbd. consider this
-    // testing-only, and should not be used in production code.
+    // testing-only.
     // example (in shell): "> DYLD_INSERT_LIBRARIES=/usr/lib/libjailbreak.dylib ./cydo"
-    // this will have cydo call to jbd in order to platformize, used in testing
+    // this will have cydo call to jbd in order to platformize
     if (current_process == PROCESS_OTHER) {
         if (access(LIBJAILBREAK_DYLIB, F_OK) == 0) {
             void *handle = dlopen(LIBJAILBREAK_DYLIB, RTLD_LAZY);
