@@ -280,11 +280,12 @@ bool jailbreak_has_run = false;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (![message  isEqual: @"done!"] && ![message isEqual:@"failed!"]) {
             NSLog(@"%@", message);
-            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@ ", message]];
+            [self.textArea setText:[self.textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@ ", message]]];
         } else {
-            _textArea.text = [_textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]];
+            [self.textArea setText:[self.textArea.text stringByAppendingString:[NSString stringWithFormat:@"%@\n", message]]];
         }
-        NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
+        
+        NSRange bottom = NSMakeRange(self.textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
     });
 }
@@ -295,8 +296,8 @@ bool jailbreak_has_run = false;
     message = [[NSString alloc] initWithFormat:[message stringByAppendingString:@"\n"] arguments:args];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        _textArea.text = [_textArea.text stringByAppendingString:message];
-        NSRange bottom = NSMakeRange(_textArea.text.length - 1, 1);
+        [self.textArea setText:[self.textArea.text stringByAppendingString:message]];
+        NSRange bottom = NSMakeRange(self.textArea.text.length - 1, 1);
         [self.textArea scrollRangeToVisible:bottom];
         NSLog(@"%@", message);
     });
