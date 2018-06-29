@@ -499,6 +499,7 @@ int startJailbreakd() {
     job[@"EnvironmentVariables"][@"ZoneMapOffset"]  = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
     job[@"EnvironmentVariables"][@"ProcFind"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_find];
     job[@"EnvironmentVariables"][@"ProcName"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_name];
+    job[@"EnvironmentVariables"][@"ProcRele"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_rele];
     [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
     chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
     chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);

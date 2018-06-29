@@ -65,9 +65,6 @@ kern_return_t mach_vm_write(vm_map_t target_task, mach_vm_address_t address, vm_
 kern_return_t mach_vm_allocate(vm_map_t target, mach_vm_address_t *address, mach_vm_size_t size, int flags);
 kern_return_t mach_vm_deallocate(vm_map_t target, mach_vm_address_t address, mach_vm_size_t size);
 
-#define PROC_PIDPATHINFO_MAXSIZE (4 * MAXPATHLEN)
-int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
-
 #define CS_VALID                        0x0000001    /* dynamically valid */
 #define CS_ADHOC                        0x0000002    /* ad hoc signed */
 #define CS_GET_TASK_ALLOW               0x0000004    /* has get-task-allow entitlement */
@@ -97,18 +94,19 @@ int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 #define CS_SIGNED                       0x20000000  /* process has a signature (may have gone invalid) */
 #define CS_DEV_CODE                     0x40000000  /* code is dev signed, cannot be loaded into prod signed code */
 
+mach_port_t tfp0;
+uint64_t kernel_base;
+uint64_t kernel_slide;
+
+uint64_t kernprocaddr;
+uint64_t offset_zonemap;
+
+uint64_t offset_proc_find;
+uint64_t offset_proc_name;
+uint64_t offset_proc_rele;
+
 uint64_t find_port(mach_port_name_t port);
 char *proc_name(int pd);
 
 int dumppid(int pd);
 int setcsflagsandplatformize(int pd);
-
-extern mach_port_t tfpzero;
-extern uint64_t kernel_base;
-extern uint64_t kernel_slide;
-
-extern uint64_t kernprocaddr;
-extern uint64_t offset_zonemap;
-
-extern uint64_t offset_proc_find;
-extern uint64_t offset_proc_name;

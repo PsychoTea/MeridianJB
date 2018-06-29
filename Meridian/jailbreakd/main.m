@@ -10,24 +10,20 @@
 #include "helpers/kexecute.h"
 #include "mach/jailbreak_daemonServer.h"
 
-//#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
-//int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
+#define PROC_PIDPATHINFO_MAXSIZE  (4 * MAXPATHLEN)
+int proc_pidpath(pid_t pid, void *buffer, uint32_t buffersize);
 
 #define MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT 6
 int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffersize);
-
-typedef boolean_t (*dispatch_mig_callback_t)(mach_msg_header_t *message, mach_msg_header_t *reply);
-mach_msg_return_t dispatch_mig_server(dispatch_source_t ds, size_t maxmsgsz, dispatch_mig_callback_t callback);
-kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service, mach_port_t *server_port);
 
 #define JAILBREAKD_COMMAND_ENTITLE 1
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT 2
 #define JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY 3
 #define JAILBREAKD_COMMAND_FIXUP_SETUID 4
 
-//mach_port_t tfpzero;
-//uint64_t kernel_base;
-//uint64_t kernel_slide;
+typedef boolean_t (*dispatch_mig_callback_t)(mach_msg_header_t *message, mach_msg_header_t *reply);
+mach_msg_return_t dispatch_mig_server(dispatch_source_t ds, size_t maxmsgsz, dispatch_mig_callback_t callback);
+kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service, mach_port_t *server_port);
 
 int remove_memory_limit() {
     return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, getpid(), 0, NULL, 0);
@@ -96,37 +92,45 @@ kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
 int main(int argc, char **argv, char **envp) {
     kern_return_t err;
     
-    NSLog(@"start");
+    NSLog(@"the fun and games shall begin! (applying lube...)");
     unlink("/var/tmp/jailbreakd.pid");
     
+    // Parse offsets from env var's
     kernel_base         = strtoull(getenv("KernelBase"),    NULL, 16);
     kernel_slide        = kernel_base - 0xFFFFFFF007004000;
+    NSLog(@"kern base: %llx, slide: %llx", kernel_base, kernel_slide);
     
     kernprocaddr        = strtoull(getenv("KernProcAddr"),  NULL, 16);
     offset_zonemap      = strtoull(getenv("ZoneMapOffset"), NULL, 16);
     offset_proc_find    = strtoull(getenv("ProcFind"),      NULL, 16) + kernel_slide;
     offset_proc_name    = strtoull(getenv("ProcName"),      NULL, 16) + kernel_slide;
-    NSLog(@"[jailbreakd] kernproc: 0x%016llx", kernprocaddr);
-    NSLog(@"[jailbreakd] zonemap: 0x%016llx", offset_zonemap);
-    NSLog(@"[jailbreakd] proc_find: 0x%016llx", offset_proc_find);
-    NSLog(@"[jailbreakd] proc_name: 0x%016llx", offset_proc_name);
+    offset_proc_rele    = strtoull(getenv("ProcRele"),      NULL, 16) + kernel_slide;
+    NSLog(@"kernproc: 0x%016llx", kernprocaddr);
+    NSLog(@"zonemap: 0x%016llx", offset_zonemap);
+    NSLog(@"proc_find: 0x%016llx", offset_proc_find);
+    NSLog(@"proc_name: 0x%016llx", offset_proc_name);
+    NSLog(@"proc_rele: 0x%016llx", offset_proc_rele);
     
-    err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfpzero);
+    // tfp0, patchfinder, kexecute
+    err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
     if (err != KERN_SUCCESS) {
         NSLog(@"host_get_special_port 4: %s", mach_error_string(err));
         return -1;
     }
-    NSLog(@"tfp0: %x", tfpzero);
+    NSLog(@"tfp0: %x", tfp0);
     
-    init_kernel(kernel_base, NULL);
-    NSLog(@"init_kernel(...)");
-    init_kexecute();
-    NSLog(@"[jailbreakd] tfp: 0x%016llx", (uint64_t)tfpzero);
-    NSLog(@"[jailbreakd] slide: 0x%016llx", kernel_slide);
-    
+    // required for patchfinder64 as it needs to read the entire kernel image
     remove_memory_limit();
     
-    // set up mach stuff
+    err = init_kernel(kernel_base, NULL);
+    if (err != 0) {
+        NSLog(@"failed to initialize patchfinder64!");
+        return -1;
+    }
+    
+    init_kexecute();
+    
+    // Set up mach stuff
     mach_port_t server_port;
     
     if ((err = bootstrap_check_in(bootstrap_port, "zone.sparkes.jailbreakd", &server_port))) {
@@ -142,11 +146,13 @@ int main(int argc, char **argv, char **envp) {
     
     // Now ready for connections!
     NSLog(@"mach server now running!");
+    
     FILE *f = fopen("/var/tmp/jailbreakd.pid", "w");
     fprintf(f, "%d\n", getpid());
     fclose(f);
     
     // Start accepting connections
+    // This will block exec
     dispatch_main();
     
     term_kexecute();

@@ -8,7 +8,7 @@
 #import "helpers/osobject.h"
 #import "sandbox.h"
 
-mach_port_t tfpzero;
+mach_port_t tfp0;
 uint64_t kernel_base;
 uint64_t kernel_slide;
 
@@ -17,63 +17,78 @@ uint64_t offset_zonemap;
 
 uint64_t offset_proc_find;
 uint64_t offset_proc_name;
+uint64_t offset_proc_rele;
 
-uint64_t proc_find(int pd) {
-    NSLog(@"offset_proc_find = %llx, on pd = %d, our pid = %d", offset_proc_find, pd, getpid());
+uint64_t shit_old_method(int pd) {
+    uint64_t proc = rk64(kernprocaddr + 0x8);
     
-    uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
-    NSLog(@"[proc_find] got addr: %llx", addr);
-    
-    uint64_t fix = zm_fix_addr(addr);
-    
-    uint32_t got_pid = rk32(fix + 0x10);
-    if (got_pid != pd) {
-        NSLog(@"[proc_find] failed! pd: %d, got pid: %d", pd, got_pid);
+    while (proc) {
+        uint32_t proc_pid = rk32(proc + 0x10);
+        
+        if (proc_pid == pd) {
+            return proc;
+        }
+        
+        proc = rk64(proc + 0x8);
     }
     
-    NSLog(@"[proc_find] got fixed addr: %llx", fix);
+    return 0;
+}
+
+// Please call `proc_release` after you are finished with your proc!
+uint64_t proc_find(int pd) {
+    uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
     
-    return fix;
+    addr = zm_fix_addr(addr);
     
-//    while (tries-- > 0) {
-//        uint64_t proc = rk64(kernprocaddr + 0x08);
-//
-//        while (proc) {
-//            uint32_t proc_pid = rk32(proc + 0x10);
-//
-//            if (proc_pid == pd) {
-//                return proc;
-//            }
-//
-//            proc = rk64(proc + 0x08);
-//        }
-//    }
+    uint32_t got_pid = rk32(addr + 0x10);
+    if (got_pid != pd) {
+        NSLog(@"[proc_find] failed! wanted pid: %d, got pid: %d", pd, got_pid);
+        return 0;
+    }
     
-    // return 0;
+    return addr;
 }
 
 char *proc_name(int pd) {
-    uint64_t proc = proc_find(pd);
-    if (proc == 0) {
-        return NULL;
-    }
+    uint64_t name_buf = kalloc(MAXCOMLEN);
     
-    char *proc_name = (char *)calloc(40, sizeof(char));
+    kexecute(offset_proc_name, pd, name_buf, MAXCOMLEN, 0, 0, 0, 0);
     
-    kread(proc + 0x26c, proc_name, 40);
+    char *name = calloc(MAXCOMLEN, sizeof(char));
+    kread(name_buf, name, MAXCOMLEN);
     
-    return proc_name;
+    return name;
+}
+
+void proc_release(uint64_t proc) {
+    // defined as `int proc_rele(...)` but return value is
+    // always 0 -- can be ignored
+    kexecute(offset_proc_rele, proc, 0, 0, 0, 0, 0, 0);
 }
 
 CACHED_FIND(uint64_t, our_task_addr) {
-    uint64_t our_proc = proc_find(getpid());
-
-    if (our_proc == 0) {
+    // proc_find won't work as it requires kexecute, which
+    // is not yet set up when this is called. we will just
+    // manually walk the proc list instead
+    uint64_t proc = rk64(kernprocaddr + 0x8);
+    
+    while (proc) {
+        uint32_t proc_pid = rk32(proc + 0x10);
+        
+        if (proc_pid == getpid()) {
+            break;
+        }
+        
+        proc = rk64(proc + 0x8);
+    }
+    
+    if (proc == 0) {
         fprintf(stderr, "failed to find our_task_addr!\n");
         exit(EXIT_FAILURE);
     }
 
-    return rk64(our_proc + offsetof_task);
+    return rk64(proc + offsetof_task);
 }
 
 uint64_t find_port(mach_port_name_t port) {
@@ -99,32 +114,34 @@ void set_csflags(uint64_t proc) {
 void set_csblob(uint64_t proc) {
     uint64_t textvp = rk64(proc + offsetof_p_textvp); // vnode of executable
     off_t textoff = rk64(proc + offsetof_p_textoff);
-    
-    if (textvp != 0){
-      uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
-      uint16_t vnode_type = vnode_type_tag & 0xffff;
-      uint16_t vnode_tag = (vnode_type_tag >> 16);
-      
-      if (vnode_type == 1) {
-          uint64_t ubcinfo = rk64(textvp + offsetof_v_ubcinfo);
-          
-          uint64_t csblobs = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
-          while (csblobs != 0) {
-              cpu_type_t csblob_cputype = rk32(csblobs + offsetof_csb_cputype);
-              unsigned int csblob_flags = rk32(csblobs + offsetof_csb_flags);
-              off_t csb_base_offset = rk64(csblobs + offsetof_csb_base_offset);
-              uint64_t csb_entitlements = rk64(csblobs + offsetof_csb_entitlements_offset);
-              unsigned int csb_signer_type = rk32(csblobs + offsetof_csb_signer_type);
-              unsigned int csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
-              unsigned int csb_platform_path = rk32(csblobs + offsetof_csb_platform_path);
 
-              wk32(csblobs + offsetof_csb_platform_binary, 1);
+    if (textvp == 0) return;
 
-              csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
-              
-              csblobs = rk64(csblobs);
-          }
-      }
+    uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
+    uint16_t vnode_type = vnode_type_tag & 0xffff;
+    uint16_t vnode_tag = (vnode_type_tag >> 16);
+
+    if (vnode_type != 1) return;
+
+    uint64_t ubcinfo = rk64(textvp + offsetof_v_ubcinfo);
+
+    // Loop through all csblob entries (linked list) and update
+    // all (they must match by design)
+    uint64_t csblobs = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
+    while (csblobs != 0) {
+        cpu_type_t csblob_cputype = rk32(csblobs + offsetof_csb_cputype);
+        unsigned int csblob_flags = rk32(csblobs + offsetof_csb_flags);
+        off_t csb_base_offset = rk64(csblobs + offsetof_csb_base_offset);
+        uint64_t csb_entitlements = rk64(csblobs + offsetof_csb_entitlements_offset);
+        unsigned int csb_signer_type = rk32(csblobs + offsetof_csb_signer_type);
+        unsigned int csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
+        unsigned int csb_platform_path = rk32(csblobs + offsetof_csb_platform_path);
+
+        wk32(csblobs + offsetof_csb_platform_binary, 1);
+
+        csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
+        
+        csblobs = rk64(csblobs);
     }
 }
 
@@ -241,5 +258,8 @@ int setcsflagsandplatformize(int pid) {
     set_amfi_entitlements(proc);
     set_sandbox_extensions(proc);
     set_csblob(proc);
+    
+    // Remember to drop the proc refcount! :-)
+    proc_release(proc);
     return 0;
 }

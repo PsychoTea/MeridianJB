@@ -258,21 +258,18 @@ int fixup_platform_application(const char *path,
 //        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen), 1);
 //        NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
 
-        // record_mtime
+        // Update the cs_mtime field in ubc_info struct
         uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
         wk64(vnode_attr + offsetof(struct vnode_attr, va_supported), 0);
         wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
         wk64(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
-        // vnode_getattr
+        // int vnode_getattr(vnode_t vp, struct vnode_attr *vap, vfs_context_t ctx)
         ret = kexecute(offset_vnode_getattr, vnode, vnode_attr, vfs_context, 0, 0, 0, 0);
         if (ret != 0) {
             NSLog(@"vnode_attr failed - ret value: %d", ret);
         } else {
             uint64_t mtime = rk64(vnode_attr + offsetof(struct vnode_attr, va_modify_time));
-            if (mtime == 0) {
-                NSLog(@"mtime is 0!");
-            } else {
-                NSLog(@"got mtime: %llx", mtime);
+            if (mtime != 0) {
                 wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_mtime), mtime);
             }
         }
