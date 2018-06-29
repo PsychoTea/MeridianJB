@@ -19,22 +19,6 @@ uint64_t offset_proc_find;
 uint64_t offset_proc_name;
 uint64_t offset_proc_rele;
 
-uint64_t shit_old_method(int pd) {
-    uint64_t proc = rk64(kernprocaddr + 0x8);
-    
-    while (proc) {
-        uint32_t proc_pid = rk32(proc + 0x10);
-        
-        if (proc_pid == pd) {
-            return proc;
-        }
-        
-        proc = rk64(proc + 0x8);
-    }
-    
-    return 0;
-}
-
 // Please call `proc_release` after you are finished with your proc!
 uint64_t proc_find(int pd) {
     uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
