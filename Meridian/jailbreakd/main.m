@@ -42,22 +42,29 @@ int handle_command(uint8_t command, uint32_t pid) {
         return 1;
     }
     
+    uint64_t proc = proc_find(pid);
+    if (proc == 0x0) {
+        NSLog(@"Unable to find pid %d to entitle!", pid);
+        return 1;
+    }
+    
     char *name = proc_name(pid);
     
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
-        setcsflagsandplatformize(pid);
+        platformize(proc);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
-         setcsflagsandplatformize(pid);
+        platformize(proc);
         kill(pid, SIGCONT);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
         __block int blk_pid = pid;
+        __block uint64_t blk_proc = proc;
         
         dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
         dispatch_async(queue, ^{
@@ -70,7 +77,8 @@ int handle_command(uint8_t command, uint32_t pid) {
                 usleep(100);
             }
             
-            setcsflagsandplatformize(blk_pid);
+            NSLog(@"xpcproxy morphed into process: %s", pathbuf);
+            platformize(blk_proc);
             kill(blk_pid, SIGCONT);
         });
         dispatch_release(queue);
@@ -80,6 +88,7 @@ int handle_command(uint8_t command, uint32_t pid) {
         NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s (ignored)", pid, name);
     }
     
+    proc_release(proc);
     free(name);
     
     return 0;
