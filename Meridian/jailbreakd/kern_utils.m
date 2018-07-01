@@ -22,26 +22,22 @@ uint64_t offset_proc_rele;
 // Please call `proc_release` after you are finished with your proc!
 uint64_t proc_find(int pd) {
     uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
-    
-    addr = zm_fix_addr(addr);
-    
-    uint32_t got_pid = rk32(addr + 0x10);
-    if (got_pid != pd) {
-        NSLog(@"[proc_find] failed! wanted pid: %d, got pid: %d", pd, got_pid);
+
+    if (addr == 0) {
         return 0;
     }
     
-    return addr;
+    return zm_fix_addr(addr);
 }
 
 char *proc_name(int pd) {
     uint64_t name_buf = kalloc(MAXCOMLEN);
-    
+
     kexecute(offset_proc_name, pd, name_buf, MAXCOMLEN, 0, 0, 0, 0);
-    
+
     char *name = calloc(MAXCOMLEN, sizeof(char));
     kread(name_buf, name, MAXCOMLEN);
-    
+
     return name;
 }
 
@@ -97,9 +93,9 @@ void set_csflags(uint64_t proc) {
 
 void set_csblob(uint64_t proc) {
     uint64_t textvp = rk64(proc + offsetof_p_textvp); // vnode of executable
-    off_t textoff = rk64(proc + offsetof_p_textoff);
-
     if (textvp == 0) return;
+    
+    uint64_t textoff = rk64(proc + offsetof_p_textoff);
 
     uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
     uint16_t vnode_type = vnode_type_tag & 0xffff;
@@ -113,17 +109,7 @@ void set_csblob(uint64_t proc) {
     // all (they must match by design)
     uint64_t csblobs = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
     while (csblobs != 0) {
-        cpu_type_t csblob_cputype = rk32(csblobs + offsetof_csb_cputype);
-        unsigned int csblob_flags = rk32(csblobs + offsetof_csb_flags);
-        off_t csb_base_offset = rk64(csblobs + offsetof_csb_base_offset);
-        uint64_t csb_entitlements = rk64(csblobs + offsetof_csb_entitlements_offset);
-        unsigned int csb_signer_type = rk32(csblobs + offsetof_csb_signer_type);
-        unsigned int csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
-        unsigned int csb_platform_path = rk32(csblobs + offsetof_csb_platform_path);
-
         wk32(csblobs + offsetof_csb_platform_binary, 1);
-
-        csb_platform_binary = rk32(csblobs + offsetof_csb_platform_binary);
         
         csblobs = rk64(csblobs);
     }
@@ -231,19 +217,9 @@ void set_amfi_entitlements(uint64_t proc) {
     }
 }
 
-int setcsflagsandplatformize(int pid) {
-    uint64_t proc = proc_find(pid);
-    if (proc == 0) {
-        NSLog(@"Unable to find pid %d to entitle!", pid);
-        return 1;
-    }
-    
+void platformize(uint64_t proc) {
     set_csflags(proc);
     set_amfi_entitlements(proc);
     set_sandbox_extensions(proc);
     set_csblob(proc);
-    
-    // Remember to drop the proc refcount! :-)
-    proc_release(proc);
-    return 0;
 }
