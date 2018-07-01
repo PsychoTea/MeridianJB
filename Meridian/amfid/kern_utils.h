@@ -88,7 +88,6 @@ kern_return_t mach_vm_allocate(vm_map_t target, mach_vm_address_t *address, mach
 kern_return_t mach_vm_deallocate(vm_map_t target, mach_vm_address_t address, mach_vm_size_t size);
 
 uint64_t proc_find(int pid, int tries);
-uint64_t proc_find_by_name(const char *name);
 uint64_t find_port(mach_port_name_t port);
 
 mach_port_t tfp0;

@@ -26,27 +26,6 @@ uint64_t proc_find(int pd, int tries) {
     return 0;
 }
 
-uint64_t proc_find_by_name(const char *name) {
-    uint64_t ktask = rk64(offset_kernel_task);
-    uint64_t kern_proc = rk64(ktask + offsetof_bsd_info);
-    uint64_t proc = rk64(kern_proc + 0x08);
-    
-    while (proc) {
-        uint32_t pid = rk32(proc + 0x10);
-        
-        char proc_name[40] = { 0 };
-        kread(proc + 0x26c, proc_name, 40);
-        
-        if (!strcmp(name, proc_name)) {
-            return proc;
-        }
-        
-        proc = rk64(proc + 0x08);
-    }
-    
-    return 0;
-}
-
 CACHED_FIND(uint64_t, our_task_addr) {
     uint64_t our_proc = proc_find(getpid(), 3);
 
