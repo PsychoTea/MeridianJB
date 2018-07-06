@@ -115,7 +115,11 @@ uint64_t find_csb_hashtype(uint32_t hashType) {
             .cs_final = offset_sha1_final
         };
         cs_hash_ptr = kalloc(sizeof(hash));
-        kwrite(cs_hash_ptr, &hash, sizeof(hash));
+        if (cs_hash_ptr != 0) {
+            kwrite(cs_hash_ptr, &hash, sizeof(hash));
+        } else {
+            NSLog(@"failed to kalloc %lu bytes! (find_csb_hashtype)", sizeof(hash));
+        }
     }
     
     uint64_t cs_find_md = find_cs_find_md();
@@ -135,6 +139,11 @@ uint64_t construct_cs_blob(const void *cs,
                            uint32_t chosen_off,
                            uint64_t macho_offset) {
     uint64_t entire_csdir = kalloc(cs_length);
+    if (entire_csdir == 0) {
+        NSLog(@"error!! failed to kalloc %d bytes!! (construct_cs_blob)", cs_length);
+        return 0;
+    }
+    
     kwrite(entire_csdir, cs, cs_length);
     
     const CS_CodeDirectory *blob = (const CS_CodeDirectory *)((uintptr_t)cs + chosen_off);
@@ -253,7 +262,7 @@ int fixup_platform_application(const char *path,
                                                  cd_hash,
                                                  csdir_offset,
                                                  macho_offset);
-        if (new_cs_blob < 1) {
+        if (new_cs_blob == 0) {
             NSLog(@"failed to construct csblob");
             ret = -7;
             goto out;
@@ -315,6 +324,12 @@ int fixup_platform_application(const char *path,
                               "</plist>";
         
         uint64_t dict = OSUnserializeXML(cstring);
+        if (dict == 0) {
+            NSLog(@"failed to call OSUnserializeXML in ent_patching!!");
+            ret = -9;
+            goto out;
+        }
+        
         csblob_ent_dict_set(cs_blobs, dict);
         csblob_update_csflags(dict, CS_GET_TASK_ALLOW);
         
@@ -327,10 +342,16 @@ int fixup_platform_application(const char *path,
         
         // Copy the data into kernel, and write to the csb_entitlements_blob field
         uint64_t entptr = kalloc(size);
-        kwrite(entptr, entitlements_blob, size);
-        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
+        if (entptr == 0) {
+            NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
+            ret = -10;
+            goto out;
+        }
         
+        kwrite(entptr, entitlements_blob, size);
         free(entitlements_blob);
+        
+        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
@@ -361,6 +382,12 @@ int fixup_platform_application(const char *path,
         // designed to be 'userland-viewable'
         int size = ntohl(entitlements->length);
         uint64_t entptr = kalloc(size);
+        if (entptr == 0) {
+            NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
+            ret = -11;
+            goto out;
+        }
+        
         kwrite(entptr, entitlements, size);
         wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
