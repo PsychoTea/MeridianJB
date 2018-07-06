@@ -35,7 +35,8 @@ int check_vtype(uint64_t vnode) {
             ...
             uint16_t `v_type`;
      */
-    uint16_t v_type = rk64(vnode + offsetof(struct vnode, v_type));
+    uint16_t v_type = rk16(vnode + offsetof(struct vnode, v_type));
+    
     return (v_type == VREG) ? 0 : 1;
 }
 
@@ -64,10 +65,18 @@ void csblob_ent_dict_set(uint64_t cs_blobs, uint64_t dict) {
     kexecute(offset_csblob_ent_dict_set, cs_blobs, dict, 0, 0, 0, 0, 0);
 }
 
-void csblob_update_csflags(uint64_t cs_blobs, uint64_t flags_to_add) {
-    uint64_t csflags = rk64(cs_blobs + offsetof(struct cs_blob, csb_flags));
+void csblob_update_csflags(uint64_t cs_blobs, uint32_t flags_to_add) {
+    /*
+         struct cs_blob {
+            ...
+            unsigned int    csb_flags;
+     */
+    
+    uint32_t csflags = rk32(cs_blobs + offsetof(struct cs_blob, csb_flags));
+    
     csflags |= flags_to_add;
-    wk64(cs_blobs + offsetof(struct cs_blob, csb_flags), csflags);
+    
+    wk32(cs_blobs + offsetof(struct cs_blob, csb_flags), csflags);
 }
 
 int set_memory_object_code_signed(uint64_t vu_ubcinfo) {
@@ -147,17 +156,23 @@ uint64_t construct_cs_blob(const void *cs,
                                                               ((1U << blob->pageSize) - 1) &
                                                                 ~((vm_offset_t)((1U << blob->pageSize) - 1))));
     
-    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_offset), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
+    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length);
+    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_offset), 0);
+    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
     
     kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), find_csb_hashtype(blob->hashType));
     
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_pageshift), blob->pageSize);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hash_firstlevel_pagesize), 0);
+    uint64_t csb_hashtype = find_csb_hashtype(blob->hashType);
+    if (csb_hashtype == 0) {
+        NSLog(@"failed to get csb_hashtype!! (construct_cs_blob)");
+        return 0;
+    }
+    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), csb_hashtype);
+    
+    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
+    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1);
+    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pageshift), blob->pageSize);
+    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_firstlevel_pagesize), 0);
     wk64(cs_blob + offsetof(struct cs_blob, csb_cd), entire_csdir + chosen_off);
     
     wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), 0);
@@ -167,12 +182,17 @@ uint64_t construct_cs_blob(const void *cs,
     wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), 0);
     
     if (csb_flags & CS_PLATFORM_BINARY) {
-        wk64(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 1);
-        wk64(cs_blob + offsetof(struct cs_blob, csb_platform_path), !!(csb_flags & CS_PLATFORM_PATH));
+        wk32(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 1);
+        wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), !!(csb_flags & CS_PLATFORM_PATH));
     } else if ((ntohl(blob->version) >= CS_SUPPORTSTEAMID) &&
                (blob->teamOffset > 0)) {
         const char *name = ((const char *)blob) + ntohl(blob->teamOffset);
         uint64_t teamid_addr = kalloc(strlen(name));
+        if (teamid_addr == 0) {
+            NSLog(@"failed to kalloc %lu bytes!! (construct_cs_blob)", strlen(name));
+            return 0;
+        }
+        
         kwrite(teamid_addr, name, strlen(name));
         wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), teamid_addr);
     }
@@ -262,7 +282,8 @@ int fixup_platform_application(const char *path,
         uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
         wk64(vnode_attr + offsetof(struct vnode_attr, va_supported), 0);
         wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
+        wk32(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
+        
         // int vnode_getattr(vnode_t vp, struct vnode_attr *vap, vfs_context_t ctx)
         ret = kexecute(offset_vnode_getattr, vnode, vnode_attr, vfs_context, 0, 0, 0, 0);
         if (ret != 0) {
