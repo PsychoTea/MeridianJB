@@ -50,6 +50,12 @@ void kfree(mach_vm_address_t address, vm_size_t size) {
   mach_vm_deallocate(tfp0, address, size);
 }
 
+uint16_t rk16(uint64_t kaddr) {
+    uint16_t val = 0;
+    kread(kaddr, &val, sizeof(val));
+    return val;
+}
+
 uint32_t rk32(uint64_t kaddr) {
   uint32_t val = 0;
   kread(kaddr, &val, sizeof(val));
@@ -60,6 +66,10 @@ uint64_t rk64(uint64_t kaddr) {
   uint64_t val = 0;
   kread(kaddr, &val, sizeof(val));
   return val;
+}
+
+void wk16(uint64_t kaddr, uint16_t val) {
+    kwrite(kaddr, &val, sizeof(val));
 }
 
 void wk32(uint64_t kaddr, uint32_t val) {
@@ -107,9 +117,7 @@ uint64_t zm_fix_addr(uint64_t addr) {
   return zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp;
 }
 
-int kstrcmp(uint64_t kstr, const char* str) {
-	// XXX be safer, dont just assume you wont cause any
-	// page faults by this
+int kstrcmp(uint64_t kstr, const char *str) {
 	size_t len = strlen(str) + 1;
 	char *local = malloc(len + 1);
 	local[len] = '\0';
