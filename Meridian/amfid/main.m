@@ -30,7 +30,7 @@ int (*old_MISValidateSignatureAndCopyInfo)(NSString* file, NSDictionary* options
 int (*old_MISValidateSignatureAndCopyInfo_broken)(NSString* file, NSDictionary* options, NSMutableDictionary** info);
 
 int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, NSMutableDictionary** info) {
-    const char* file_path = [file UTF8String];
+    const char *file_path = [file UTF8String];
     INFO(@"called for file %s", file_path);
     
     // Call the original func
@@ -53,8 +53,8 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
         return 0;
     }
     
-    NSNumber* file_offset = [options objectForKey:@"UniversalFileOffset"];
-    uint64_t file_off = [file_offset unsignedLongLongValue];
+    NSNumber *file_offset = [options objectForKey:@"UniversalFileOffset"];
+    uint64_t  file_off    = [file_offset unsignedLongLongValue];
     
     img_info_t img;
     img.name = file.UTF8String;
