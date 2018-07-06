@@ -111,5 +111,4 @@ uint64_t proc_find(int pd);
 char *proc_name(int pd);
 void proc_release(uint64_t proc);
 
-int dumppid(int pd);
-void platformize(uint64_t proc);
+void platformize(int pd);

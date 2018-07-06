@@ -27,18 +27,28 @@ uint64_t proc_find(int pd) {
         return 0;
     }
     
-    return zm_fix_addr(addr);
+    addr = zm_fix_addr(addr);
+    
+    uint32_t found_pid = rk32(addr + 0x10);
+    if (found_pid != pd) {
+        NSLog(@"got proc for %d but found pid %d instead!", pd, found_pid);
+        proc_release(addr); // I guess?
+        return 0;
+    }
+    
+    return addr;
 }
 
 char *proc_name(int pd) {
-    uint64_t name_buf = kalloc(MAXCOMLEN);
-
-    kexecute(offset_proc_name, pd, name_buf, MAXCOMLEN, 0, 0, 0, 0);
-
-    char *name = calloc(MAXCOMLEN, sizeof(char));
-    kread(name_buf, name, MAXCOMLEN);
-
-    return name;
+    return strdup("none atm");
+//    uint64_t name_buf = kalloc(MAXCOMLEN);
+//
+//    kexecute(offset_proc_name, pd, name_buf, MAXCOMLEN, 0, 0, 0, 0);
+//
+//    char *name = calloc(MAXCOMLEN, sizeof(char));
+//    kread(name_buf, name, MAXCOMLEN);
+//
+//    return name;
 }
 
 void proc_release(uint64_t proc) {
@@ -81,13 +91,14 @@ uint64_t find_port(mach_port_name_t port) {
     uint32_t port_index = port >> 8;
     const int sizeof_ipc_entry_t = 0x18;
   
-    uint64_t port_addr = rk64(is_table + (port_index * sizeof_ipc_entry_t));
-    return port_addr;
+    return rk64(is_table + (port_index * sizeof_ipc_entry_t));
 }
 
 void set_csflags(uint64_t proc) {
     uint32_t csflags = rk32(proc + offsetof_p_csflags);
+
     csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW | CS_DEBUGGED) & ~(CS_RESTRICT | CS_HARD | CS_KILL);
+
     wk32(proc + offsetof_p_csflags, csflags);
 }
 
@@ -97,21 +108,24 @@ void set_csblob(uint64_t proc) {
     
     uint64_t textoff = rk64(proc + offsetof_p_textoff);
 
-    uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
-    uint16_t vnode_type = vnode_type_tag & 0xffff;
-    uint16_t vnode_tag = (vnode_type_tag >> 16);
-
-    if (vnode_type != 1) return;
+    uint16_t vnode_type = rk16(textvp + offsetof_v_type);
+    if (vnode_type != 1) return; // 1 = VREG
+    
+//    uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
+//    uint16_t vnode_type = vnode_type_tag & 0xffff;
+//    uint16_t vnode_tag = (vnode_type_tag >> 16);
+//
+//    if (vnode_type != 1) return;
 
     uint64_t ubcinfo = rk64(textvp + offsetof_v_ubcinfo);
 
     // Loop through all csblob entries (linked list) and update
     // all (they must match by design)
-    uint64_t csblobs = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
-    while (csblobs != 0) {
-        wk32(csblobs + offsetof_csb_platform_binary, 1);
+    uint64_t csblob = rk64(ubcinfo + offsetof_ubcinfo_csblobs);
+    while (csblob != 0) {
+        wk32(csblob + offsetof_csb_platform_binary, 1);
         
-        csblobs = rk64(csblobs);
+        csblob = rk64(csblob);
     }
 }
 
@@ -123,11 +137,10 @@ const char* abs_path_exceptions[] = {
     NULL
 };
 
+uint64_t exception_osarray_cache = 0;
 uint64_t get_exception_osarray(void) {
-    static uint64_t cached = 0;
-
-    if (cached == 0) {
-        cached = OSUnserializeXML(
+    if (exception_osarray_cache == 0) {
+        exception_osarray_cache = OSUnserializeXML(
             "<array>"
             "<string>/meridian/</string>"
             "<string>/Library/</string>"
@@ -137,7 +150,7 @@ uint64_t get_exception_osarray(void) {
         );
     }
 
-    return cached;
+    return exception_osarray_cache;
 }
 
 static const char *exc_key = "com.apple.security.exception.files.absolute-path.read-only";
@@ -176,13 +189,20 @@ void set_amfi_entitlements(uint64_t proc) {
     uint64_t proc_ucred = rk64(proc + 0x100);
     uint64_t amfi_entitlements = rk64(rk64(proc_ucred + 0x78) + 0x8);
 
-    OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
-    OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
-
-    uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
-
     int rv = 0;
-
+    
+    rv = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", find_OSBoolean_True());
+    if (rv != 1) {
+        NSLog(@"failed to set get-task-allow within amfi_entitlements!");;
+    }
+    
+    rv = OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", find_OSBoolean_True());
+    if (rv != 1) {
+        NSLog(@"failed to set com.apple.private.skip-library-validation within amfi_entitlements!");
+    }
+    
+    uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
+    
     if (present == 0) {
         rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
     } else if (present != get_exception_osarray()) {
@@ -217,9 +237,17 @@ void set_amfi_entitlements(uint64_t proc) {
     }
 }
 
-void platformize(uint64_t proc) {
+void platformize(int pd) {
+    uint64_t proc = proc_find(pd);
+    if (proc == 0) {
+        NSLog(@"failed to find proc for pid %d!", pd);
+        return;
+    }
+    
     set_csflags(proc);
     set_amfi_entitlements(proc);
     set_sandbox_extensions(proc);
     set_csblob(proc);
+    
+    proc_release(proc);
 }
