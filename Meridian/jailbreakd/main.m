@@ -37,14 +37,10 @@ int is_valid_command(uint8_t command) {
 }
 
 int handle_command(uint8_t command, uint32_t pid) {
+    int ret = 0;
+    
     if (!is_valid_command(command)) {
         NSLog(@"Invalid command recieved.");
-        return 1;
-    }
-    
-    uint64_t proc = proc_find(pid);
-    if (proc == 0x0) {
-        NSLog(@"Unable to find pid %d to entitle!", pid);
         return 1;
     }
     
@@ -52,46 +48,68 @@ int handle_command(uint8_t command, uint32_t pid) {
     
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
-        platformize(proc);
+        platformize(pid);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
-        platformize(proc);
+        platformize(pid);
         kill(pid, SIGCONT);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
         NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
-        __block int blk_pid = pid;
-        __block uint64_t blk_proc = proc;
         
-        dispatch_queue_t queue = dispatch_queue_create("org.coolstar.jailbreakd.delayqueue", NULL);
+        __block int blk_pid = pid;
+        
+        dispatch_queue_t queue = dispatch_queue_create("jailbreakd.queue", NULL);
         dispatch_async(queue, ^{
             char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-            bzero(pathbuf, sizeof(pathbuf));
+            bzero(pathbuf, PROC_PIDPATHINFO_MAXSIZE);
             
-            int ret = proc_pidpath(blk_pid, pathbuf, sizeof(pathbuf));
-            while (ret > 0 && strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
-                proc_pidpath(blk_pid, pathbuf, sizeof(pathbuf));
+            int err = 0, tries = 0;
+            
+            do {
+                err = proc_pidpath(blk_pid, pathbuf, PROC_PIDPATHINFO_MAXSIZE);
+                if (err <= 0) {
+                    NSLog(@"failed to get pidpath for %d", blk_pid);
+                    kill(blk_pid, SIGCONT); // just in case
+                    return;
+                }
+                
+                tries++;
+                // gives (50,000 * 100 microseconds) 5 seconds of total wait time
+                if (tries >= 50000) {
+                    NSLog(@"failed to get pidpath for %d (%d tries)", blk_pid, tries);
+                    kill(pid, SIGCONT); // just in case
+                    return;
+                }
+                
                 usleep(100);
-            }
+                
+                if (tries % 5000 == 0) {
+                    NSLog(@"pathbuf: %s", pathbuf);
+                }
+            } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
             
             NSLog(@"xpcproxy morphed into process: %s", pathbuf);
-            platformize(blk_proc);
+            
+            platformize(blk_pid);
             kill(blk_pid, SIGCONT);
         });
         dispatch_release(queue);
+        
+        goto out;
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
         NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s (ignored)", pid, name);
     }
     
-    proc_release(proc);
+out:
     free(name);
     
-    return 0;
+    return ret;
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
