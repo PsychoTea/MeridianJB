@@ -29,7 +29,6 @@
 		B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E8202CEDF500ACDB9D /* system-base.tar */; };
 		B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06EE202CF4F300ACDB9D /* tar.tar */; };
 		B57CBF62205DA3DF00EEDA20 /* jailbreak_daemonUser.c in Sources */ = {isa = PBXBuildFile; fileRef = B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */; };
-		B57CBF66205DB35F00EEDA20 /* fishhook in Resources */ = {isa = PBXBuildFile; fileRef = B57CBF65205DB35F00EEDA20 /* fishhook */; };
 		B582405F1FF75A4000D96DB5 /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B582405E1FF75A4000D96DB5 /* helpers.m */; };
 		B584C54A20376BCB00BF4118 /* untar.m in Sources */ = {isa = PBXBuildFile; fileRef = B584C54920376BCA00BF4118 /* untar.m */; };
 		B585494B20A64F8F00107CF2 /* nvpatch.c in Sources */ = {isa = PBXBuildFile; fileRef = B585494A20A64F8F00107CF2 /* nvpatch.c */; };
@@ -435,7 +434,6 @@
 				B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */,
 				B5370199202EAC00004E5E5C /* installer-base.tar in Resources */,
 				B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */,
-				B57CBF66205DB35F00EEDA20 /* fishhook in Resources */,
 				B57A06EC202CEDF500ACDB9D /* system-base.tar in Resources */,
 				B57A06EF202CF4F300ACDB9D /* tar.tar in Resources */,
 				B5A4EA95205F14CE00B32F89 /* meridian-bootstrap.tar in Resources */,
@@ -669,10 +667,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Meridian",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/IOKit.framework/Versions/A",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/usr/lib",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
-					"$(PROJECT_DIR)/Meridian/libs",
 					"$(PROJECT_DIR)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -702,10 +696,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Meridian",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/IOKit.framework/Versions/A",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/usr/lib",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian/amfid",
-					"$(PROJECT_DIR)/Meridian/binpacks/meridian-base/meridian",
-					"$(PROJECT_DIR)/Meridian/libs",
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
