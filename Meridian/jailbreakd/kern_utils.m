@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <sys/stat.h>
-#import <sched.h> 
+#import <sched.h>
 #import "kern_utils.h"
 #import "helpers/kmem.h"
 #import "helpers/patchfinder64.h"
@@ -22,40 +22,46 @@ uint64_t offset_proc_rele;
 
 // Please call `proc_release` after you are finished with your proc!
 uint64_t proc_find(int pd) {
-    uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
-
-    if (addr == 0) {
-        return 0;
+    uint64_t proc = kernprocaddr;
+    
+    while (proc) {
+        uint32_t found_pid = rk32(proc + 0x10);
+        
+        if (found_pid == pd) {
+            return proc;
+        }
+        
+        proc = rk64(proc + 0x8);
     }
     
-    addr = zm_fix_addr(addr);
+    return 0;
     
-    uint32_t found_pid = rk32(addr + 0x10);
-    if (found_pid != pd) {
-        NSLog(@"got proc for %d but found pid %d instead!", pd, found_pid);
-        proc_release(addr); // I guess?
-        return 0;
-    }
-    
-    return addr;
-}
-
-char *proc_name(int pd) {
-    return strdup("none atm");
-//    uint64_t name_buf = kalloc(MAXCOMLEN);
+//    uint64_t addr = kexecute(offset_proc_find, pd, 0, 0, 0, 0, 0, 0);
 //
-//    kexecute(offset_proc_name, pd, name_buf, MAXCOMLEN, 0, 0, 0, 0);
+//    if (addr == 0) {
+//        return 0;
+//    }
 //
-//    char *name = calloc(MAXCOMLEN, sizeof(char));
-//    kread(name_buf, name, MAXCOMLEN);
+//    addr = zm_fix_addr(addr);
 //
-//    return name;
+//    if (addr == 0) {
+//        return 0;
+//    }
+//
+//    uint32_t found_pid = rk32(addr + 0x10);
+//    if (found_pid != pd) {
+//        NSLog(@"got proc for %d but found pid %d instead!", pd, found_pid);
+//        proc_release(addr); // I guess?
+//        return 0;
+//    }
+//
+//    return addr;
 }
 
 void proc_release(uint64_t proc) {
     // defined as `int proc_rele(...)` but return value is
     // always 0 -- can be ignored
-    kexecute(offset_proc_rele, proc, 0, 0, 0, 0, 0, 0);
+//    kexecute(offset_proc_rele, proc, 0, 0, 0, 0, 0, 0);
 }
 
 CACHED_FIND(uint64_t, our_task_addr) {
@@ -99,15 +105,10 @@ void set_csflags(uint64_t proc) {
     uint32_t pid = rk32(proc + 0x10);
     
     uint32_t csflags = rk32(proc + offsetof_p_csflags);
-    // NSLog(@"read flags %x (pid: %d)", csflags, pid);
 
     csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW | CS_DEBUGGED) & ~(CS_RESTRICT | CS_HARD | CS_KILL);
-    // NSLog(@"new flags %x (pid: %d)", csflags, pid);
-    
-    sched_yield();
     
     wk32(proc + offsetof_p_csflags, csflags);
-//    NSLog(@"put back flags %x (pid %d)", rk32(proc + offsetof_p_csflags), pid);
 }
 
 void set_csblob(uint64_t proc) {
@@ -119,12 +120,6 @@ void set_csblob(uint64_t proc) {
     uint16_t vnode_type = rk16(textvp + offsetof_v_type);
     if (vnode_type != 1) return; // 1 = VREG
     
-//    uint32_t vnode_type_tag = rk32(textvp + offsetof_v_type);
-//    uint16_t vnode_type = vnode_type_tag & 0xffff;
-//    uint16_t vnode_tag = (vnode_type_tag >> 16);
-//
-//    if (vnode_type != 1) return;
-
     uint64_t ubcinfo = rk64(textvp + offsetof_v_ubcinfo);
 
     // Loop through all csblob entries (linked list) and update

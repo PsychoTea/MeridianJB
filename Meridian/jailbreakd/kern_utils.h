@@ -108,7 +108,6 @@ uint64_t offset_proc_rele;
 uint64_t find_port(mach_port_name_t port);
 
 uint64_t proc_find(int pd);
-char *proc_name(int pd);
 void proc_release(uint64_t proc);
 
 void platformize(int pd);

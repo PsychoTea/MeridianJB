@@ -37,28 +37,24 @@ int is_valid_command(uint8_t command) {
 }
 
 int handle_command(uint8_t command, uint32_t pid) {
-    int ret = 0;
-    
     if (!is_valid_command(command)) {
         NSLog(@"Invalid command recieved.");
         return 1;
     }
     
-    char *name = proc_name(pid);
-    
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
-        NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE PID: %d", pid);
         platformize(pid);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", pid);
         platformize(pid);
         kill(pid, SIGCONT);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d NAME: %s", pid, name);
+        NSLog(@"JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", pid);
         
         __block int blk_pid = pid;
         
@@ -92,24 +88,17 @@ int handle_command(uint8_t command, uint32_t pid) {
                 }
             } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
             
-            NSLog(@"xpcproxy morphed into process: %s (pid: %d)", pathbuf, blk_pid);
-            
             platformize(blk_pid);
             kill(blk_pid, SIGCONT);
         });
         dispatch_release(queue);
-        
-        goto out;
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d NAME: %s (ignored)", pid, name);
+        NSLog(@"JAILBREAKD_FIXUP_SETUID PID: %d (ignored)", pid);
     }
     
-out:
-    free(name);
-    
-    return ret;
+    return 0;
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
