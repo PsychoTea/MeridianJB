@@ -167,7 +167,7 @@ uint64_t construct_cs_blob(const void *cs,
     
     wk32(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length);
     wk32(cs_blob + offsetof(struct cs_blob, csb_mem_offset), 0);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
+    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
     
     kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
     
