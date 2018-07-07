@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <sys/stat.h>
+#import <sched.h> 
 #import "kern_utils.h"
 #import "helpers/kmem.h"
 #import "helpers/patchfinder64.h"
@@ -95,11 +96,18 @@ uint64_t find_port(mach_port_name_t port) {
 }
 
 void set_csflags(uint64_t proc) {
+    uint32_t pid = rk32(proc + 0x10);
+    
     uint32_t csflags = rk32(proc + offsetof_p_csflags);
+    // NSLog(@"read flags %x (pid: %d)", csflags, pid);
 
     csflags = (csflags | CS_PLATFORM_BINARY | CS_INSTALLER | CS_GET_TASK_ALLOW | CS_DEBUGGED) & ~(CS_RESTRICT | CS_HARD | CS_KILL);
-
+    // NSLog(@"new flags %x (pid: %d)", csflags, pid);
+    
+    sched_yield();
+    
     wk32(proc + offsetof_p_csflags, csflags);
+//    NSLog(@"put back flags %x (pid %d)", rk32(proc + offsetof_p_csflags), pid);
 }
 
 void set_csblob(uint64_t proc) {

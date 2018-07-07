@@ -92,7 +92,7 @@ int handle_command(uint8_t command, uint32_t pid) {
                 }
             } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
             
-            NSLog(@"xpcproxy morphed into process: %s", pathbuf);
+            NSLog(@"xpcproxy morphed into process: %s (pid: %d)", pathbuf, blk_pid);
             
             platformize(blk_pid);
             kill(blk_pid, SIGCONT);
