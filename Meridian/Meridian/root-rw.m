@@ -111,6 +111,8 @@ bool fake_rootedramdisk(void) {
 
 // props to xerub for the original '/' r/w remount code
 int remount_root(uint64_t kslide, uint64_t root_vnode) {
+    int ret;
+    
     uint64_t _rootnode = root_vnode + kslide;
     
     NSLog(@"_rootnode = %llx", _rootnode);
@@ -137,8 +139,8 @@ int remount_root(uint64_t kslide, uint64_t root_vnode) {
     
     // remount
     char *nmz = strdup("/dev/disk0s1s1");
-    kern_return_t rv = mount("hfs", "/", MNT_UPDATE, (void *)&nmz);
-    NSLog(@"remounting: %d", rv);
+    ret = mount("hfs", "/", MNT_UPDATE | MNT_NOATIME, (void *)&nmz);
+    NSLog(@"remounting: %d", ret);
     
     // read back the new flags set by `mount`
     v_mount = rk64(rootfs_vnode + off);
@@ -154,7 +156,7 @@ int remount_root(uint64_t kslide, uint64_t root_vnode) {
     
     NSLog(@"final flags = %x", v_flag);
     
-    return rv;
+    return ret;
 }
 
 int mount_root(uint64_t kslide, uint64_t root_vnode, int pre130) {
