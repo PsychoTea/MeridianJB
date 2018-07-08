@@ -823,7 +823,6 @@ CACHED_FIND_UINT64(find_cs_find_md) {
     if (ref == 0) return 0;
     
     addr_t *testing = (addr_t *)ref;
-    addr_t *result = malloc(32);
     ref = ref - (addr_t)kernel + kerndumpbase;
     
     if (*(testing - 6) == 2 && *(testing + 6) != 2) {
