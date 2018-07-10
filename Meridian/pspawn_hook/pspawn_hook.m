@@ -146,7 +146,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         while (*curr_env != NULL) {
             DEBUGLOG("\t%s", *curr_env);
             
-            if (strstr(*curr_env, DYLD_INSERT)) {
+            if (!strcmp(*curr_env, DYLD_INSERT, strlen(DYLD_INSERT))) {
                 dyld_env = calloc(sizeof(char), strlen(*curr_env) + 1 + strlen(inject_me) + 1);
                 strcat(dyld_env, *curr_env);
                 strcat(dyld_env, ":");
@@ -176,7 +176,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     int j = 0;
     for (int i = 0; i < envcount; i++) {
         const char *env_item = envp[i];
-        if (strstr(env_item, DYLD_INSERT)) {
+        if (!strcmp(env_item, DYLD_INSERT, strlen(DYLD_INSERT))) {
             continue;
         }
         
@@ -267,7 +267,7 @@ static void ctor(void) {
     
     if (getpid() == 1) {
         current_process = PROCESS_LAUNCHD;
-    } else if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
+    } else if (!strcmp(pathbuf, "/usr/libexec/xpcproxy")) {
         current_process = PROCESS_XPCPROXY;
     } else {
         current_process = PROCESS_OTHER;
