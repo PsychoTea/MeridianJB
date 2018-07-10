@@ -12,7 +12,6 @@
 #include <sys/stat.h>
 #include <mach/mach.h>
 #include <pthread.h>
-#include <Foundation/Foundation.h>
 #include "fishhook.h"
 #include "mach/jailbreak_daemonUser.h"
 
@@ -65,6 +64,8 @@ mach_port_t jbd_port;
 
 char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
 
+#define DYLD_INSERT "DYLD_INSERT_LIBRARIES="
+
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
 #define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
@@ -81,7 +82,7 @@ const char* xpcproxy_blacklist[] = {
     NULL
 };
 
-bool is_blacklisted(const char* proc) {
+bool is_blacklisted(const char *proc) {
     const char **blacklist = xpcproxy_blacklist;
     
     while (*blacklist) {
@@ -89,7 +90,7 @@ bool is_blacklisted(const char* proc) {
             return true;
         }
         
-        ++blacklist;
+        blacklist++;
     }
     
     return false;
@@ -133,52 +134,71 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     DEBUGLOG("Injecting %s", inject_me);
     
     int envcount = 0;
+    char *dyld_env = NULL;
     
-    // This prints out the Env vars to the log, and grabs the position of
-    // DYLD_INSERT_LIBRARIES, if it already exists
-    // If not, the position will be equal to the end of the env args
+    // check if DYLD_INSERT_LIBRARIES is already set
+    // if it is, copy it into `dyld_env` and append our `inject_me`
+    // also, log out all the currently set vars
     if (envp != NULL) {
-        DEBUGLOG("Env: ");
-        const char** currentenv = envp;
-        while (*currentenv != NULL) {
-            DEBUGLOG("\t%s", *currentenv);
-            if (strstr(*currentenv, "DYLD_INSERT_LIBRARIES") == NULL) {
-                envcount++;
+        DEBUGLOG("Env:");
+        const char **curr_env = envp;
+        
+        while (*curr_env != NULL) {
+            DEBUGLOG("\t%s", *curr_env);
+            
+            if (strstr(*curr_env, DYLD_INSERT)) {
+                dyld_env = calloc(sizeof(char), strlen(*curr_env) + 1 + strlen(inject_me) + 1);
+                strcat(dyld_env, *curr_env);
+                strcat(dyld_env, ":");
+                strcat(dyld_env, inject_me);
+                dyld_env[strlen(dyld_env)] = '\0';
             }
-            currentenv++;
+            
+            curr_env++;
+            envcount++;
         }
     }
     
-    char const** newenvp = (char const **)malloc((envcount + 2) * sizeof(char **));
+    // if it's not set, just copy over `DYLD_INSERT_LIBRARIES=${inject_me}`
+    if (dyld_env == NULL) {
+        dyld_env = calloc(sizeof(char), strlen(DYLD_INSERT) + strlen(inject_me) + 1);
+        strcat(dyld_env, DYLD_INSERT);
+        strcat(dyld_env, inject_me);
+        dyld_env[strlen(dyld_env)] = '\0';
+    }
+    
+    // copy all the previous env vars into a new array,
+    // excluding DYLD_INSERT.. since we modify that
+    size_t env_size = (envcount + 2) * sizeof(char **);
+    char const **newenvp = (char const **)malloc(env_size);
+    bzero(newenvp, env_size);
+    
     int j = 0;
     for (int i = 0; i < envcount; i++) {
-        if (strstr(envp[j], "DYLD_INSERT_LIBRARIES") != NULL) {
+        const char *env_item = envp[i];
+        if (strstr(env_item, DYLD_INSERT)) {
             continue;
         }
-        newenvp[i] = envp[j];
+        
+        newenvp[j] = env_item;
         j++;
     }
     
-    char *envp_inject = (char *)malloc(strlen("DYLD_INSERT_LIBRARIES=") + strlen(inject_me) + 1);
-    
-    envp_inject[0] = '\0';
-    
-    strcat(envp_inject, "DYLD_INSERT_LIBRARIES=");
-    strcat(envp_inject, inject_me);
-    
-    newenvp[j] = envp_inject;
+    // Append our `DYLD_INSERT...`
+    newenvp[j] = dyld_env;
     newenvp[j + 1] = NULL;
     
+    // log out all the env vars
     DEBUGLOG("New Env:");
-    const char** currentenv = newenvp;
-    while (*currentenv != NULL) {
-        DEBUGLOG("\t%s", *currentenv);
-        currentenv++;
+    const char **finalenv = newenvp;
+    while (*finalenv != NULL) {
+        DEBUGLOG("\t%s", *finalenv);
+        finalenv++;
     }
     
     posix_spawnattr_t attr;
     posix_spawnattr_t *newattrp = &attr;
-    
+
     if (attrp) { /* add to existing attribs */
         newattrp = attrp;
         short flags;
@@ -209,7 +229,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         if (ret != KERN_SUCCESS) {
             DEBUGLOG("err: got %x from jbd_call(xpproxy, %d)", ret, getpid());
         }
-        
+
         origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     }
     
