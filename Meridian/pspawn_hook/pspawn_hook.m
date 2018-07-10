@@ -196,25 +196,27 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         finalenv++;
     }
     
-    posix_spawnattr_t attr;
-    posix_spawnattr_t *newattrp = &attr;
-
+    short flags;
+    posix_spawnattr_t *newattrp = attrp;
+    
     if (attrp) { /* add to existing attribs */
-        newattrp = attrp;
-        short flags;
         posix_spawnattr_getflags(attrp, &flags);
-        flags |= POSIX_SPAWN_START_SUSPENDED;
-        posix_spawnattr_setflags(attrp, flags);
     } else {    /* set new attribs */
+        posix_spawnattr_t attr;
         posix_spawnattr_init(&attr);
-        posix_spawnattr_setflags(&attr, POSIX_SPAWN_START_SUSPENDED);
+        newattrp = &attr;
     }
+    flags |= POSIX_SPAWN_START_SUSPENDED;
+    posix_spawnattr_setflags(newattrp, flags);
     
     int origret;
     
     if (current_process == PROCESS_LAUNCHD) {
         int gotpid;
         origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
+        
+        free(newenvp);
+        free(dyld_env);
         
         if (origret == 0) {
             if (pid != NULL) *pid = gotpid;
