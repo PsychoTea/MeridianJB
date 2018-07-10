@@ -146,7 +146,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         while (*curr_env != NULL) {
             DEBUGLOG("\t%s", *curr_env);
             
-            if (!strcmp(*curr_env, DYLD_INSERT, strlen(DYLD_INSERT))) {
+            if (!strncmp(*curr_env, DYLD_INSERT, strlen(DYLD_INSERT))) {
                 dyld_env = calloc(sizeof(char), strlen(*curr_env) + 1 + strlen(inject_me) + 1);
                 strcat(dyld_env, *curr_env);
                 strcat(dyld_env, ":");
@@ -176,7 +176,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     int j = 0;
     for (int i = 0; i < envcount; i++) {
         const char *env_item = envp[i];
-        if (!strcmp(env_item, DYLD_INSERT, strlen(DYLD_INSERT))) {
+        if (!strncmp(env_item, DYLD_INSERT, strlen(DYLD_INSERT))) {
             continue;
         }
         
