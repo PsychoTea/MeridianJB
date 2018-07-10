@@ -439,12 +439,6 @@ int extractBootstrap(int *exitCode) {
 }
 
 int defecateAmfi() {
-    // write kslide to file
-    unlink("/meridian/kernel_slide");
-    FILE *fd = fopen("/meridian/kernel_slide", "w");
-    fprintf(fd, "%016llx", kslide);
-    fclose(fd);
-    
     // trust our payload
     int ret = inject_trust("/meridian/amfid_payload.dylib");
     if (ret != 0) return -1;
