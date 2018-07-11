@@ -74,18 +74,14 @@ int handle_command(uint8_t command, uint32_t pid) {
                 }
                 
                 tries++;
-                // gives (50,000 * 100 microseconds) 5 seconds of total wait time
-                if (tries >= 50000) {
+                // gives (5,000 * 1000 microseconds) 5 seconds of total wait time
+                if (tries >= 5000) {
                     NSLog(@"failed to get pidpath for %d (%d tries)", blk_pid, tries);
                     kill(pid, SIGCONT); // just in case
                     return;
                 }
                 
-                usleep(100);
-                
-                if (tries % 5000 == 0) {
-                    NSLog(@"pathbuf: %s", pathbuf);
-                }
+                usleep(1000);
             } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
             
             platformize(blk_pid);
