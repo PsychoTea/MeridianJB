@@ -65,6 +65,7 @@ mach_port_t jbd_port;
 char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
 
 #define DYLD_INSERT "DYLD_INSERT_LIBRARIES="
+#define MAX_INJECT  2
 
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
@@ -101,141 +102,172 @@ typedef int (*pspawn_t)(pid_t *pid, const char *path, const posix_spawn_file_act
 pspawn_t old_pspawn, old_pspawnp;
 
 int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[], pspawn_t old) {
+    int retval = -1, ret = 0, ninject = 0;
+    const char *inject[MAX_INJECT] = { NULL };
+    
+    pid_t child      = 0;
+    char **newenvp   = NULL;
+    char *insert_str = NULL;
+    posix_spawnattr_t attr;
+    
     DEBUGLOG("fake_posix_spawn_common: %s", path);
     
-    const char *inject_me = NULL;
+    if (!path || !argv || !envp) {
+        DEBUGLOG("got some bullshit args: %p, %p, %p", path, argv, envp);
+        goto out;
+    }
     
-    // is the process that's being called xpcproxy?
-    // cus we wanna inject into that bitch
-    if (current_process == PROCESS_LAUNCHD &&
-        strcmp(path, "/usr/libexec/xpcproxy") == 0) {
-        inject_me = PSPAWN_HOOK_DYLIB;                          /* inject pspawn into xpcproxy     */
+    switch (current_process) {
+        case PROCESS_LAUNCHD:
+            if (strcmp(path, "/usr/libexec/xpcproxy") == 0 &&
+                argv[0] &&
+                argv[1] &&
+                !is_blacklisted(argv[1])) {
+                inject[ninject++] = PSPAWN_HOOK_DYLIB;
+            }
+            break;
+        case PROCESS_XPCPROXY:
+            if (strcmp(path, "/usr/libexec/amfid") == 0) {
+                inject[ninject++] = AMFID_PAYLOAD_DYLIB;
+            }
+            if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
+                inject[ninject++] = TWEAKLOADER_DYLIB;
+            }
+            break;
+    }
+    
+    if (ninject > MAX_INJECT) {
+        DEBUGLOG("too much inject, yo! (%d)", ninject);
+        goto out;
+    }
+    
+    DEBUGLOG("Inject count: %d", ninject);
+    
+    if (ninject > 0) {
+        if (!attrp) {
+            ret = posix_spawnattr_init(&attr);
+            if (ret != 0) {
+                DEBUGLOG("posix_spawnattr_init: %s", strerror(ret));
+                goto out;
+            }
+            
+            attrp = &attr;
+        }
         
-        // let's check the blacklist, we don't wanna be
-        // injecting into certain procs, yano
-        const char* called_bin = argv[1];
-        if (called_bin != NULL && is_blacklisted(called_bin)) {
-            inject_me = NULL;
-            DEBUGLOG("xpcproxy for '%s' which is in blacklist, not injecting", called_bin);
+        short flags;
+        ret = posix_spawnattr_getflags(attrp, &flags);
+        if (ret != 0) {
+            DEBUGLOG("posix_spawnattr_getflags: %s", strerror(ret));
+            goto out;
         }
-    } else if (current_process == PROCESS_XPCPROXY) {
-        if (strcmp(path, "/usr/libexec/amfid") == 0) {          /* patch amfid                     */
-            inject_me = AMFID_PAYLOAD_DYLIB;
-        } else if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {      /* if twkldr is installed, load it */
-            inject_me = TWEAKLOADER_DYLIB;
+        
+        ret = posix_spawnattr_setflags(attrp, flags | POSIX_SPAWN_START_SUSPENDED);
+        if (ret != 0) {
+            DEBUGLOG("posix_spawnattr_setflags: %s", strerror(ret));
+            goto out;
         }
-    }
-    
-    if (inject_me == NULL) {
-        DEBUGLOG("Nothing to inject.");
-        return old(pid, path, file_actions, attrp, argv, envp);
-    }
-    
-    DEBUGLOG("Injecting %s", inject_me);
-    
-    int envcount = 0;
-    char *dyld_env = NULL;
-    
-    // check if DYLD_INSERT_LIBRARIES is already set
-    // if it is, copy it into `dyld_env` and append our `inject_me`
-    // also, log out all the currently set vars
-    if (envp != NULL) {
+        
         DEBUGLOG("Env:");
-        const char **curr_env = envp;
-        
-        while (*curr_env != NULL) {
-            DEBUGLOG("\t%s", *curr_env);
-            
-            if (!strncmp(*curr_env, DYLD_INSERT, strlen(DYLD_INSERT))) {
-                dyld_env = calloc(sizeof(char), strlen(*curr_env) + 1 + strlen(inject_me) + 1);
-                strcat(dyld_env, *curr_env);
-                strcat(dyld_env, ":");
-                strcat(dyld_env, inject_me);
-                dyld_env[strlen(dyld_env)] = '\0';
+        size_t nenv = 0;
+        const char *insert = NULL;
+        for (const char **ptr = envp; *ptr != NULL; ++ptr, ++nenv) {
+            DEBUGLOG("\t%s", *ptr);
+            if (strncmp(*ptr, DYLD_INSERT, strlen(DYLD_INSERT)) == 0) {
+                insert = *ptr;
             }
+        }
+        
+        ++nenv; // NULL
+        if (!insert) ++nenv;
+        
+        newenvp = malloc(nenv * sizeof(*newenvp));
+        if (!newenvp) {
+            DEBUGLOG("malloc newenvp failed");
+            goto out;
+        }
+        
+        size_t slen = (insert ? strlen(insert) + 1 : strlen(DYLD_INSERT)) + strlen(inject[0]) + 1;
+        for (size_t i = 1; i < ninject; i++) {
+            slen += strlen(inject[i]) + 1;
+        }
+        
+        insert_str = malloc(slen);
+        if (!insert_str) {
+            DEBUGLOG("malloc insert_str failed");
+            goto out;
+        }
+        
+        insert_str[0] = '\0';
+        
+        size_t start = 0;
+        if (insert) {
+            strcat(insert_str, insert);
+            start = 0;
+        } else {
+            strcat(insert_str, DYLD_INSERT);
+            strcat(insert_str, inject[0]);
+            start = 1;
+        }
+        
+        for (size_t i = start; i < ninject; i++) {
+            strcat(insert_str, ":");
+            strcat(insert_str, inject[i]);
+        }
+        
+        nenv = 0;
+        newenvp[nenv++] = insert_str;
+        
+        for (const char **ptr = envp; *ptr != NULL; ++ptr) {
+            if (*ptr != insert) {
+                newenvp[nenv++] = (char *)*ptr;
+            }
+        }
+        newenvp[nenv++] = NULL;
+        envp = (const char **)newenvp;
+        
+        DEBUGLOG("New Env:");
+        for (const char **ptr = envp; *ptr != NULL; ++ptr) {
+            DEBUGLOG("\t%s", *ptr);
+        }
+        
+        if (current_process == PROCESS_XPCPROXY) {
+            pid_t ourpid = getpid();
+            kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, ourpid);
             
-            curr_env++;
-            envcount++;
-        }
-    }
-    
-    // if it's not set, just copy over `DYLD_INSERT_LIBRARIES=${inject_me}`
-    if (dyld_env == NULL) {
-        dyld_env = calloc(sizeof(char), strlen(DYLD_INSERT) + strlen(inject_me) + 1);
-        strcat(dyld_env, DYLD_INSERT);
-        strcat(dyld_env, inject_me);
-        dyld_env[strlen(dyld_env)] = '\0';
-    }
-    
-    // copy all the previous env vars into a new array,
-    // excluding DYLD_INSERT.. since we modify that
-    size_t env_size = (envcount + 2) * sizeof(char **);
-    char const **newenvp = (char const **)malloc(env_size);
-    bzero(newenvp, env_size);
-    
-    int j = 0;
-    for (int i = 0; i < envcount; i++) {
-        const char *env_item = envp[i];
-        if (!strncmp(env_item, DYLD_INSERT, strlen(DYLD_INSERT))) {
-            continue;
-        }
-        
-        newenvp[j] = env_item;
-        j++;
-    }
-    
-    // Append our `DYLD_INSERT...`
-    newenvp[j] = dyld_env;
-    newenvp[j + 1] = NULL;
-    
-    // log out all the env vars
-    DEBUGLOG("New Env:");
-    const char **finalenv = newenvp;
-    while (*finalenv != NULL) {
-        DEBUGLOG("\t%s", *finalenv);
-        finalenv++;
-    }
-    
-    short flags;
-    posix_spawnattr_t *newattrp = attrp;
-    
-    if (attrp) { /* add to existing attribs */
-        posix_spawnattr_getflags(attrp, &flags);
-    } else {    /* set new attribs */
-        posix_spawnattr_t attr;
-        posix_spawnattr_init(&attr);
-        newattrp = &attr;
-    }
-    flags |= POSIX_SPAWN_START_SUSPENDED;
-    posix_spawnattr_setflags(newattrp, flags);
-    
-    int origret;
-    
-    if (current_process == PROCESS_LAUNCHD) {
-        int gotpid;
-        origret = old(&gotpid, path, file_actions, newattrp, argv, newenvp);
-        
-        free(newenvp);
-        free(dyld_env);
-        
-        if (origret == 0) {
-            if (pid != NULL) *pid = gotpid;
-
-            kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, gotpid);
             if (ret != KERN_SUCCESS) {
-                DEBUGLOG("err: got %x from jbd_call(sigcont, %d)", ret, gotpid);
+                DEBUGLOG("jbd_call(xpcproxy, %d): %s", ourpid, mach_error_string(ret));
+                goto out;
             }
         }
-    } else if (current_process == PROCESS_XPCPROXY) {
-        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, getpid());
-        if (ret != KERN_SUCCESS) {
-            DEBUGLOG("err: got %x from jbd_call(xpproxy, %d)", ret, getpid());
-        }
-
-        origret = old(pid, path, file_actions, newattrp, argv, newenvp);
     }
     
-    return origret;
+    ret = old(&child, path, file_actions, attrp, argv, envp);
+    if (ret != 0) {
+        DEBUGLOG("posix_spawn: %s", strerror(ret));
+        retval = ret;
+        goto out;
+    }
+    
+    if (ninject > 0 && current_process == PROCESS_LAUNCHD) {
+        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, child);
+        if (ret != KERN_SUCCESS) {
+            DEBUGLOG("jbd_call(launchd, %d): %s", child, mach_error_string(ret));
+            goto out;
+        }
+    }
+    
+    if (pid) {
+        *pid = child;
+    }
+    
+    retval = 0;
+    
+out:;
+    if (newenvp    != NULL)  free(newenvp);
+    if (insert_str != NULL)  free(insert_str);
+    if (attrp      == &attr) posix_spawnattr_destroy(&attr);
+    
+    return retval;
 }
 
 int fake_posix_spawn(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
@@ -269,7 +301,7 @@ static void ctor(void) {
     
     if (getpid() == 1) {
         current_process = PROCESS_LAUNCHD;
-    } else if (!strcmp(pathbuf, "/usr/libexec/xpcproxy")) {
+    } else if (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0) {
         current_process = PROCESS_XPCPROXY;
     } else {
         current_process = PROCESS_OTHER;
