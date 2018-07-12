@@ -115,27 +115,6 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     return 0;
 }
 
-void *hook_funcs(void *arg) {
-    INFO(@"created new thread");
-    // This is some wicked crazy shit that needs to happen to correctly patch
-    // after amfid has been killed & launched & patched again... it's nuts.
-    // shouldn't even work. creds whoever came up w this @ ElectraTeam
-    void *libmis = dlopen("/usr/lib/libmis.dylib", RTLD_NOW);
-    old_MISValidateSignatureAndCopyInfo = dlsym(libmis, "MISValidateSignatureAndCopyInfo");
-    
-    struct rebinding rebindings[] = {
-        { "MISValidateSignatureAndCopyInfo", (void *)fake_MISValidateSignatureAndCopyInfo, (void **)&old_MISValidateSignatureAndCopyInfo_broken }
-        /*                                                                                                       you can say that again  ^^^^^^ */
-    };
-    
-    rebind_symbols(rebindings, 1);
-    
-    // touch file so Meridian know's we're alive in here
-    fclose(fopen("/var/tmp/amfid_payload.alive", "w+"));
-    
-    return NULL;
-}
-
 __attribute__ ((constructor))
 static void ctor(void) {
     INFO("preparing to fuck up amfid :)");
@@ -165,6 +144,20 @@ static void ctor(void) {
     init_kernel(kernel_base, NULL);
     init_kexecute();
     
-    pthread_t thread;
-    pthread_create(&thread, NULL, hook_funcs, NULL);
+    // This is some wicked crazy shit that needs to happen to correctly patch
+    // after amfid has been killed & launched & patched again... it's nuts.
+    // shouldn't even work. creds whoever came up w this @ ElectraTeam
+    void *libmis = dlopen("/usr/lib/libmis.dylib", RTLD_NOW);
+    old_MISValidateSignatureAndCopyInfo = dlsym(libmis, "MISValidateSignatureAndCopyInfo");
+    
+    struct rebinding rebindings[] = {
+        { "MISValidateSignatureAndCopyInfo", (void *)fake_MISValidateSignatureAndCopyInfo, (void **)&old_MISValidateSignatureAndCopyInfo_broken }
+        /*                                                                                                       you can say that again  ^^^^^^ */
+    };
+    
+    rebind_symbols(rebindings, 1);
+    NSLog(@"functions have been hooked! get fucked, codesigning :-)");
+    
+    // touch file so Meridian know's we're alive in here
+    fclose(fopen("/var/tmp/amfid_payload.alive", "w+"));
 }
