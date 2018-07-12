@@ -25,6 +25,8 @@ typedef boolean_t (*dispatch_mig_callback_t)(mach_msg_header_t *message, mach_ms
 mach_msg_return_t dispatch_mig_server(dispatch_source_t ds, size_t maxmsgsz, dispatch_mig_callback_t callback);
 kern_return_t bootstrap_check_in(mach_port_t bootstrap_port, const char *service, mach_port_t *server_port);
 
+dispatch_queue_t queue = NULL;
+
 int remove_memory_limit() {
     return memorystatus_control(MEMORYSTATUS_CMD_SET_JETSAM_TASK_LIMIT, getpid(), 0, NULL, 0);
 }
@@ -58,7 +60,6 @@ int handle_command(uint8_t command, uint32_t pid) {
         
         __block int blk_pid = pid;
         
-        dispatch_queue_t queue = dispatch_queue_create("jailbreakd.queue", NULL);
         dispatch_async(queue, ^{
             char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
             bzero(pathbuf, PROC_PIDPATHINFO_MAXSIZE);
@@ -77,7 +78,7 @@ int handle_command(uint8_t command, uint32_t pid) {
                 // gives (5,000 * 1000 microseconds) 5 seconds of total wait time
                 if (tries >= 5000) {
                     NSLog(@"failed to get pidpath for %d (%d tries)", blk_pid, tries);
-                    kill(pid, SIGCONT); // just in case
+                    kill(blk_pid, SIGCONT); // just in case
                     return;
                 }
                 
@@ -87,7 +88,6 @@ int handle_command(uint8_t command, uint32_t pid) {
             platformize(blk_pid);
             kill(blk_pid, SIGCONT);
         });
-        dispatch_release(queue);
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
@@ -141,6 +141,8 @@ int main(int argc, char **argv, char **envp) {
     }
     
     init_kexecute();
+    
+    queue = dispatch_queue_create("jailbreakd.queue", NULL);
     
     // Set up mach stuff
     mach_port_t server_port;
