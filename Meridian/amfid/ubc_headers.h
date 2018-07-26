@@ -30,9 +30,16 @@ typedef struct ucred *kauth_cred_t;
 struct vnode {
     lck_mtx_t v_lock;                    /* vnode mutex */
     struct {
+        struct uint64_t *tqe_first;
+        struct uint64_t **tqe_prev;
+    } v_freelist;
+    struct {
+        struct uint64_t *tqe_first;
+        struct uint64_t **tqe_prev;
+    } v_mntvnodes;
+    struct {
         struct uint64_t *tqh_first;
         struct uint64_t **tqh_last;
-        struct qm_trace trace;
     } v_ncchildren;
     struct {
         struct uint64_t *lh_first;
