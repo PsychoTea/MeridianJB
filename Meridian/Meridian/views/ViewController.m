@@ -79,17 +79,19 @@ bool jailbreak_has_run = false;
     }
     
     // Device is already jailbroken, but not with Meridian
-//    if (file_exists("/private/var/lib/dpkg/status") == 0 &&
-//        file_exists("/.meridian_installed") != 0) {
-//        [self writeTextPlain:@"this device has already been jailbroken with another tool. please run Cydia Eraser to wipe this device to ensure you encounter no issues with Meridian"];
-//
-//        [self.goButton setTitle:@"please erase" forState:UIControlStateNormal];
-//        [self.goButton setEnabled:NO];
-//        [self.goButton setAlpha:0.5];
-//
-//        return;
-//    }
+    if (file_exists("/private/var/lib/dpkg/status") == 0 &&
+        file_exists("/.meridian_installed")) {
+        [self writeTextPlain:@"this device has already been jailbroken with another tool. please run Cydia Eraser to wipe this device to ensure you encounter no issues with Meridian"];
+        [self writeTextPlain:@"if you have jailbroken with a Meridian Public Beta, please install the latest Public Beta and use the 'uninstall' option"];
+        
+        [self.goButton setTitle:@"please erase" forState:UIControlStateNormal];
+        [self.goButton setEnabled:NO];
+        [self.goButton setAlpha:0.5];
+
+        return;
+    }
     
+    // Credits to tihm on waiting
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
         int waitTime;
         while ((waitTime = 90 - uptime()) > 0) {
