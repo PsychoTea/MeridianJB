@@ -74,7 +74,6 @@ char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
 
 const char* xpcproxy_blacklist[] = {
     "com.apple.diagnosticd",        // syslog
-    "com.apple.WebKit",             // O_o
     "MTLCompilerService",           // ?_?
     "OTAPKIAssetTool",              // h_h
     "cfprefsd",                     // o_o
@@ -287,13 +286,6 @@ void rebind_pspawns(void) {
     rebind_symbols(rebindings, 2);
 }
 
-void *thd_func(void *arg) {
-    DEBUGLOG("in a new thread!");
-    
-    rebind_pspawns();
-    return NULL;
-}
-
 __attribute__ ((constructor))
 static void ctor(void) {
     bzero(pathbuf, sizeof(pathbuf));
@@ -318,8 +310,7 @@ static void ctor(void) {
         }
         DEBUGLOG("got jbd port: %x", jbd_port);
         
-        pthread_t thd;
-        pthread_create(&thd, NULL, thd_func, NULL);
+        rebind_pspawns();
         return;
     }
     
