@@ -176,18 +176,6 @@ int makeShitHappen(ViewController *view) {
     // touch .cydia_no_stash
     touch_file("/.cydia_no_stash");
     
-    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
-    setUpSymLinks();
-    
-    // remove Substrate's SafeMode (MobileSafety) if it's installed
-    // removing from dpkg will be handled by Cydia conflicts later
-    if (file_exists("/usr/lib/tweaks/MobileSafety.dylib") == 0) {
-        unlink("/usr/lib/tweaks/MobileSafety.dylib");
-    }
-    if (file_exists("/usr/lib/tweaks/MobileSafety.plist") == 0) {
-        unlink("/usr/lib/tweaks/MobileSafety.plist");
-    }
-    
     // extract bootstrap (if not already extracted)
     if (file_exists("/meridian/.bootstrap") != 0) {
         [view writeText:@"extracting bootstrap..."];
@@ -245,6 +233,18 @@ int makeShitHappen(ViewController *view) {
     
     // link substitute stuff
     setUpSubstitute();
+    
+    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
+    setUpSymLinks();
+    
+    // remove Substrate's SafeMode (MobileSafety) if it's installed
+    // removing from dpkg will be handled by Cydia conflicts later
+    if (file_exists("/usr/lib/tweaks/MobileSafety.dylib") == 0) {
+        unlink("/usr/lib/tweaks/MobileSafety.dylib");
+    }
+    if (file_exists("/usr/lib/tweaks/MobileSafety.plist") == 0) {
+        unlink("/usr/lib/tweaks/MobileSafety.plist");
+    }
     
     // start jailbreakd
     [view writeText:@"starting jailbreakd..."];
