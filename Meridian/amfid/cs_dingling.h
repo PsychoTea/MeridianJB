@@ -6,10 +6,10 @@
 #define INFO(str, args...)  LOG("INFO: " str, ##args)
 
 typedef struct {
-    const char* name;
+    const char *name;
     uint64_t file_off;
     int fd;
-    const void* addr;
+    const void *addr;
     size_t size;
 } img_info_t;
 
