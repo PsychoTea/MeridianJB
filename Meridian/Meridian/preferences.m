@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Preferences.h"
+#import "preferences.h"
 
 #define TweaksKey @"tweaksAreEnabled"
 #define StartLaunchDaemonsKey @"startLaunchDaemonsEnabled"
@@ -49,7 +49,7 @@ BOOL startDropbearIsEnabled(void)
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartDropbearKey];
     if (enabled)
         return [enabled boolValue];
-    return true;
+    return false;
 }
 
 void setListenPort(NSInteger portOption)

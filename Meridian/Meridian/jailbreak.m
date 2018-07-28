@@ -13,7 +13,7 @@
 #include "amfi.h"
 #include "offsetfinder.h"
 #include "jailbreak.h"
-#include "Preferences.h"
+#include "preferences.h"
 #include "ViewController.h"
 #include "patchfinder64.h"
 #include "patchfinders/offsetdump.h"
