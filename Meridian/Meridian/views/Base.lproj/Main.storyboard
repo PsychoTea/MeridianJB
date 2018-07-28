@@ -410,18 +410,21 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Start Launch Daemons" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Kpj-ds-EgO">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Enable Tweaks" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Kpj-ds-EgO">
                                                     <rect key="frame" x="56" y="0.0" width="303" height="49.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XUd-91-N00">
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XUd-91-N00" userLabel="Enable Tweaks">
                                                     <rect key="frame" x="317" y="10" width="51" height="31"/>
                                                     <color key="onTintColor" red="0.81568627450980391" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <connections>
+                                                        <action selector="tweaksEnabledValueChanged:" destination="Fud-u7-kXh" eventType="valueChanged" id="1g5-CT-5I5"/>
+                                                    </connections>
                                                 </switch>
-                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="gears" id="zCI-F8-PLb">
+                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="jail" id="zCI-F8-PLb">
                                                     <rect key="frame" x="16" y="12" width="25" height="25"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </imageView>
@@ -436,12 +439,48 @@
                                         <color key="backgroundColor" red="0.090196078431372548" green="0.090196078431372548" blue="0.090196078431372548" alpha="1" colorSpace="calibratedRGB"/>
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="Bry-U6-Qdq" imageView="vYg-Av-AHQ" style="IBUITableViewCellStyleDefault" id="qo4-93-e7I">
+                                        <rect key="frame" x="0.0" y="85" width="375" height="50"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qo4-93-e7I" id="JLd-s0-NGC">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Start Launch Daemons" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Bry-U6-Qdq">
+                                                    <rect key="frame" x="56" y="0.0" width="303" height="49.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tH8-9w-rNC">
+                                                    <rect key="frame" x="317" y="10" width="51" height="31"/>
+                                                    <color key="onTintColor" red="0.81568627449999997" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <connections>
+                                                        <action selector="startLaunchDaemonsValueChanged:" destination="Fud-u7-kXh" eventType="valueChanged" id="Ih7-d3-uJ2"/>
+                                                    </connections>
+                                                </switch>
+                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="gears" id="vYg-Av-AHQ">
+                                                    <rect key="frame" x="16" y="12" width="25" height="25"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="tH8-9w-rNC" firstAttribute="centerY" secondItem="Bry-U6-Qdq" secondAttribute="centerY" id="Ana-tC-aJG"/>
+                                                <constraint firstItem="Bry-U6-Qdq" firstAttribute="leading" secondItem="JLd-s0-NGC" secondAttribute="leading" constant="56" id="Ma8-e9-ucw"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Bry-U6-Qdq" secondAttribute="trailing" constant="16" id="aJ0-FM-aPf"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="tH8-9w-rNC" secondAttribute="trailing" constant="-7" id="e8q-CM-2NW"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" red="0.090196078430000007" green="0.090196078430000007" blue="0.090196078430000007" alpha="1" colorSpace="calibratedRGB"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="SSH Server" footerTitle="Default password for root and mobile accounts is &quot;alpine&quot;." id="gIa-7c-ynu">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="zye-au-MEe" imageView="82z-Bb-hDA" style="IBUITableViewCellStyleDefault" id="ja6-nW-bNH">
-                                        <rect key="frame" x="0.0" y="148.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="198.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ja6-nW-bNH" id="aoA-dQ-Ddr">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
@@ -457,6 +496,9 @@
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="foG-a1-YDP">
                                                     <rect key="frame" x="317" y="10" width="51" height="31"/>
                                                     <color key="onTintColor" red="0.81568627449999997" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <connections>
+                                                        <action selector="startDropbearValueChanged:" destination="Fud-u7-kXh" eventType="valueChanged" id="VEI-ql-5mn"/>
+                                                    </connections>
                                                 </switch>
                                                 <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="console" id="82z-Bb-hDA">
                                                     <rect key="frame" x="16" y="12" width="25" height="25"/>
@@ -474,7 +516,7 @@
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="7iL-eY-82B" imageView="OPW-nx-C2Y" style="IBUITableViewCellStyleDefault" id="Lau-Mv-iut">
-                                        <rect key="frame" x="0.0" y="198.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="248.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Lau-Mv-iut" id="ZQA-up-33D">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
@@ -487,7 +529,7 @@
                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="7sb-Pj-ZWb">
+                                                <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="7sb-Pj-ZWb">
                                                     <rect key="frame" x="226" y="12" width="140" height="29"/>
                                                     <segments>
                                                         <segment title="22"/>
@@ -495,6 +537,9 @@
                                                         <segment title="Both"/>
                                                     </segments>
                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <connections>
+                                                        <action selector="dropbearPortValueChanged:" destination="Fud-u7-kXh" eventType="valueChanged" id="pxH-6G-YkS"/>
+                                                    </connections>
                                                 </segmentedControl>
                                                 <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="handshake" id="OPW-nx-C2Y">
                                                     <rect key="frame" x="16" y="12" width="25" height="25"/>
@@ -514,7 +559,7 @@
                             <tableViewSection headerTitle="Support" id="AxT-7x-Web">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="yJJ-1f-zI1" imageView="Jfa-s3-8Ft" style="IBUITableViewCellStyleDefault" id="4k3-wX-Njr">
-                                        <rect key="frame" x="0.0" y="332.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="382.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="4k3-wX-Njr" id="UeG-gy-w26">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -537,7 +582,7 @@
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="XaJ-WV-s6j" imageView="qfi-xz-qXX" style="IBUITableViewCellStyleDefault" id="MTK-j0-OQD">
-                                        <rect key="frame" x="0.0" y="382.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="432.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="MTK-j0-OQD" id="FRx-vg-keQ">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -560,7 +605,7 @@
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="zdo-f3-yJ8" imageView="g0q-fx-xUU" style="IBUITableViewCellStyleDefault" id="WUk-8J-pkR">
-                                        <rect key="frame" x="0.0" y="432.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="482.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="WUk-8J-pkR" id="2IB-aX-G98">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -583,7 +628,7 @@
                                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="WLy-ZV-PYk" imageView="UWQ-su-3Pu" style="IBUITableViewCellStyleDefault" id="aKv-3e-InN">
-                                        <rect key="frame" x="0.0" y="482.5" width="375" height="50"/>
+                                        <rect key="frame" x="0.0" y="532.5" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="aKv-3e-InN" id="yJq-Fz-RZm">
                                             <rect key="frame" x="0.0" y="0.0" width="341" height="49.5"/>
@@ -621,7 +666,8 @@
                         <outlet property="psychoTwitterCell" destination="4k3-wX-Njr" id="h9u-wD-Xql"/>
                         <outlet property="sourceCodeCell" destination="aKv-3e-InN" id="KqA-c1-fdg"/>
                         <outlet property="startDropbearSwitch" destination="foG-a1-YDP" id="KPa-vR-bd4"/>
-                        <outlet property="startLaunchDaemonsSwitch" destination="XUd-91-N00" id="R1N-7e-dLO"/>
+                        <outlet property="startLaunchDaemonsSwitch" destination="tH8-9w-rNC" id="TXI-aN-Vuw"/>
+                        <outlet property="tweaksEnabledSwitch" destination="XUd-91-N00" id="zdi-PF-q6v"/>
                         <outlet property="websiteCell" destination="MTK-j0-OQD" id="gmB-8p-PM2"/>
                     </connections>
                 </tableViewController>
