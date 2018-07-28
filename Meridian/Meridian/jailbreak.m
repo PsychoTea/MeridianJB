@@ -13,6 +13,7 @@
 #include "amfi.h"
 #include "offsetfinder.h"
 #include "jailbreak.h"
+#include "Preferences.h"
 #include "ViewController.h"
 #include "patchfinder64.h"
 #include "patchfinders/offsetdump.h"
@@ -222,14 +223,16 @@ int makeShitHappen(ViewController *view) {
     }
     
     // launch dropbear
-    [view writeText:@"launching dropbear..."];
-    ret = launchDropbear();
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        [view writeTextPlain:@"exit code: %d", ret];
-        return 1;
+    if (startDropbearIsEnabled()) {
+        [view writeText:@"launching dropbear..."];
+        ret = launchDropbear();
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            [view writeTextPlain:@"exit code: %d", ret];
+            return 1;
+        }
+        [view writeText:@"done!"];
     }
-    [view writeText:@"done!"];
     
     // link substitute stuff
     setUpSubstitute();
@@ -268,13 +271,15 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // load launchdaemons
-    [view writeText:@"loading launchdaemons..."];
-    ret = loadLaunchDaemons();
-    if (ret != 0) {
-        [view writeText:@"failed!"];
-        return 1;
+    if (startLaunchDaemonsIsEnabled()) {
+        [view writeText:@"loading launchdaemons..."];
+        ret = loadLaunchDaemons();
+        if (ret != 0) {
+            [view writeText:@"failed!"];
+            return 1;
+        }
+        [view writeText:@"done!"];
     }
-    [view writeText:@"done!"];
     
     if (file_exists("/.meridian_installed") != 0) {
         touch_file("/.meridian_installed");
@@ -469,6 +474,28 @@ int defecateAmfi() {
 }
 
 int launchDropbear() {
+    NSMutableArray *args = [NSMutableArray arrayWithCapacity:11];
+    [args addObject:@"/meridian/dropbear/dropbear"];
+    switch (listenPort()) {
+        case Port22:
+            [args addObjectsFromArray:@[@"-p", @"22"]];
+            break;
+        case Port2222:
+            [args addObjectsFromArray:@[@"-p", @"2222"]];
+            break;
+        default:
+            NSLog(@"DEFAULT WTF");
+        case Port222222:
+            [args addObjectsFromArray:@[@"-p", @"22", @"-p", @"2222"]];
+            break;
+    }
+    
+    [args addObjectsFromArray:@[@"-F", @"-R", @"-E", @"-m", @"-S", @"/"]];
+    
+    NSMutableDictionary *newPrefs = [NSMutableDictionary dictionaryWithContentsOfFile:@"/meridian/dropbear/dropbear.plist"];
+    newPrefs[@"ProgramArguments"] = args;
+    [newPrefs writeToFile:@"/meridian/dropbear/dropbear.plist" atomically:false];
+
     return start_launchdaemon("/meridian/dropbear/dropbear.plist");
 }
 
@@ -515,16 +542,18 @@ int startJailbreakd() {
     
     usleep(100000);
     
-    // tell jailbreakd to platformize launchd
-    // this adds skip-lib-val to MACF slot and allows us
-    // to inject pspawn without it being in trust cache
-    // (plus FAT/multiarch in trust cache is a pain to code, i'm lazy)
-    rv = call_jailbreakd(JAILBREAKD_COMMAND_ENTITLE, 1);
-    if (rv != 0) return 2;
-    
-    // inject pspawn_hook.dylib to launchd
-    rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
-    if (rv != 0) return 3;
+    if (tweaksAreEnabled()) {
+        // tell jailbreakd to platformize launchd
+        // this adds skip-lib-val to MACF slot and allows us
+        // to inject pspawn without it being in trust cache
+        // (plus FAT/multiarch in trust cache is a pain to code, i'm lazy)
+        rv = call_jailbreakd(JAILBREAKD_COMMAND_ENTITLE, 1);
+        if (rv != 0) return 2;
+        
+        // inject pspawn_hook.dylib to launchd
+        rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
+        if (rv != 0) return 3;
+    }
     
     return 0;
 }

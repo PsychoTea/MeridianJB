@@ -7,8 +7,10 @@
 //
 
 #import "SettingsController.h"
+#import "Preferences.h"
 
 @interface SettingsController ()
+@property (weak, nonatomic) IBOutlet UISwitch *tweaksEnabledSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *startLaunchDaemonsSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *startDropbearSwitch;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *dropbearPortControl;
@@ -23,6 +25,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    _tweaksEnabledSwitch.on = tweaksAreEnabled();
+    _startLaunchDaemonsSwitch.on = startLaunchDaemonsIsEnabled();
+    _startDropbearSwitch.on = startDropbearIsEnabled();
+    _dropbearPortControl.selectedSegmentIndex = listenPort();
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -34,9 +42,23 @@
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:nil];
 }
 
+- (IBAction)tweaksEnabledValueChanged:(UISwitch *)sender {
+    setTweaksEnabled(sender.isOn);
+}
+
+- (IBAction)startLaunchDaemonsValueChanged:(UISwitch *)sender {
+    setStartLaunchDaemonsEnabled(sender.isOn);
+}
+
+- (IBAction)startDropbearValueChanged:(UISwitch *)sender {
+    setStartDropbearEnabled(sender.isOn);
+}
+
+- (IBAction)dropbearPortValueChanged:(UISegmentedControl *)sender {
+    setListenPort(sender.selectedSegmentIndex);
+}
 
 #pragma mark - Table view
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     
@@ -44,7 +66,6 @@
     
     if (cell == self.psychoTwitterCell) {
         [self openLink:@"http://www.twitter.com/iBSparkes"];
-        
     } else if (cell == self.websiteCell) {
         [self openLink:@"https://meridian.sparkes.zone"];
         
@@ -58,13 +79,5 @@
 
 
 #pragma mark - Navigation
-
-/*
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
