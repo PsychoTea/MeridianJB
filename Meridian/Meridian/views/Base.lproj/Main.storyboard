@@ -290,7 +290,7 @@
                                                     <constraint firstAttribute="height" constant="24" id="hqr-2J-nUT"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <state key="normal" title="@sbigner"/>
+                                                <state key="normal" title="@sbingner"/>
                                                 <connections>
                                                     <action selector="buttonPressed:" destination="qAG-hS-AfD" eventType="touchUpInside" id="Hg5-rr-R9K"/>
                                                 </connections>
