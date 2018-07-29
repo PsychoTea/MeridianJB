@@ -8,60 +8,47 @@
 #import <Foundation/Foundation.h>
 #import "preferences.h"
 
-#define TweaksKey @"tweaksAreEnabled"
-#define StartLaunchDaemonsKey @"startLaunchDaemonsEnabled"
-#define StartDropbearKey @"startDropbearEnabled"
-#define PortKey @"listenPortOption"
+#define TweaksKey               @"tweaksAreEnabled"
+#define StartLaunchDaemonsKey   @"startLaunchDaemonsEnabled"
+#define StartDropbearKey        @"startDropbearEnabled"
+#define PortKey                 @"listenPortOption"
 
-void setTweaksEnabled(BOOL enabled)
-{
+void setTweaksEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:TweaksKey];
 }
 
-BOOL tweaksAreEnabled(void)
-{
+BOOL tweaksAreEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:TweaksKey];
-    if (enabled)
-        return [enabled boolValue];
-    return true;
+    
+    return (enabled) ? [enabled boolValue] : true;
 }
 
-void setStartLaunchDaemonsEnabled(BOOL enabled)
-{
+void setStartLaunchDaemonsEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:StartLaunchDaemonsKey];
 }
 
-BOOL startLaunchDaemonsIsEnabled(void)
-{
+BOOL startLaunchDaemonsIsEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartLaunchDaemonsKey];
-    if (enabled)
-        return [enabled boolValue];
-    return true;
+    
+    return (enabled) ? [enabled boolValue] : true;
 }
 
-void setStartDropbearEnabled(BOOL enabled)
-{
+void setStartDropbearEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:StartDropbearKey];
 }
 
-BOOL startDropbearIsEnabled(void)
-{
+BOOL startDropbearIsEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartDropbearKey];
-    if (enabled)
-        return [enabled boolValue];
-    return false;
+    
+    return (enabled) ? [enabled boolValue] : false;
 }
 
-void setListenPort(NSInteger portOption)
-{
+void setListenPort(NSInteger portOption) {
     [[NSUserDefaults standardUserDefaults] setInteger:portOption forKey:PortKey];
 }
 
-NSInteger listenPort(void)
-{
+NSInteger listenPort(void) {
     NSNumber *portOption = [[NSUserDefaults standardUserDefaults] objectForKey:PortKey];
-    if (portOption)
-        return portOption.integerValue;
     
-    return Port222222;
+    return (portOption) ? portOption.integerValue : Port222222;
 }
