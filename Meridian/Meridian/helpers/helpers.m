@@ -12,6 +12,7 @@
 #include "untar.h"
 #include "amfi.h"
 #include "jailbreak_daemonUser.h"
+#include "iokit.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <dlfcn.h>
@@ -20,18 +21,6 @@
 #include <sys/stat.h>
 #include <sys/sysctl.h>
 #import <Foundation/Foundation.h>
-
-// too lazy to find & add IOKit headers so here we are
-typedef mach_port_t io_service_t;
-typedef mach_port_t io_connect_t;
-typedef char io_name_t[128];
-typedef char io_struct_inband_t[4096];
-extern const mach_port_t kIOMasterPortDefault;
-CFMutableDictionaryRef IOServiceMatching(const char *name) CF_RETURNS_RETAINED;
-io_service_t IOServiceGetMatchingService(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT);
-kern_return_t IOServiceOpen(io_service_t service, task_port_t owningTask, uint32_t type, io_connect_t *client);
-kern_return_t IOConnectCallAsyncStructMethod(mach_port_t connection, uint32_t selector, mach_port_t wake_port, uint64_t *reference, uint32_t referenceCnt, const void *inputStruct, size_t inputStructCnt, void *outputStruct, size_t *outputStructCnt);
-kern_return_t IORegistryEntryGetProperty(mach_port_t entry, const io_name_t propertyName, io_struct_inband_t buffer, uint32_t *size);
 
 int call_jailbreakd(int command, pid_t pid) {
     mach_port_t jbd_port;
@@ -83,24 +72,6 @@ uint32_t get_pid_for_name(char* name) {
     }
     
     return rk32(proc + 0x10);
-}
-
-const char *get_boot_nonce() {
-    int length = 1024;
-    char buf[length];
-    
-    mach_port_t nvram = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IODTNVRAM"));
-    if (!MACH_PORT_VALID(nvram)) {
-        return NULL;
-    }
-
-    kern_return_t err = IORegistryEntryGetProperty(nvram, "com.apple.System.boot-nonce", (void *)buf, &length);
-    if (err != KERN_SUCCESS) {
-        return NULL;
-    }
-
-    buf[length] = '\0';
-    return strdup(buf);
 }
 
 int uicache() {

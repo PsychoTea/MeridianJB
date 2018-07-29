@@ -23,6 +23,7 @@
 		B5370199202EAC00004E5E5C /* installer-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B5370198202EABFF004E5E5C /* installer-base.tar */; };
 		B537019B202EB4BF004E5E5C /* dpkgdb-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */; };
 		B56929D7203708030044FF60 /* jailbreak.m in Sources */ = {isa = PBXBuildFile; fileRef = B56929D6203708020044FF60 /* jailbreak.m */; };
+		B5783DB2210DDBE0004339F8 /* nonce.m in Sources */ = {isa = PBXBuildFile; fileRef = B5783DB1210DDBE0004339F8 /* nonce.m */; };
 		B578A6542007FD8100C19091 /* v0rtex.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B7C2B51FF353970087619A /* v0rtex.m */; };
 		B57A06EA202CEDF500ACDB9D /* cydia-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E6202CEDF500ACDB9D /* cydia-base.tar */; };
 		B57A06EB202CEDF500ACDB9D /* optional-base.tar in Resources */ = {isa = PBXBuildFile; fileRef = B57A06E7202CEDF500ACDB9D /* optional-base.tar */; };
@@ -97,6 +98,9 @@
 		B537019A202EB4BF004E5E5C /* dpkgdb-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "dpkgdb-base.tar"; sourceTree = "<group>"; };
 		B56929D6203708020044FF60 /* jailbreak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jailbreak.m; sourceTree = "<group>"; };
 		B56929D82037080D0044FF60 /* jailbreak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jailbreak.h; sourceTree = "<group>"; };
+		B5783DB1210DDBE0004339F8 /* nonce.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = nonce.m; sourceTree = "<group>"; };
+		B5783DB3210DDC79004339F8 /* iokit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iokit.h; sourceTree = "<group>"; };
+		B5783DB4210DDE62004339F8 /* nonce.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nonce.h; sourceTree = "<group>"; };
 		B57A06C2202CDC8B00ACDB9D /* create-meridian-bootstrap.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "create-meridian-bootstrap.sh"; sourceTree = "<group>"; };
 		B57A06E4202CDF9100ACDB9D /* meridian-bootstrap */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "meridian-bootstrap"; sourceTree = "<group>"; };
 		B57A06E6202CEDF500ACDB9D /* cydia-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "cydia-base.tar"; sourceTree = "<group>"; };
@@ -305,6 +309,9 @@
 				B50F794F1FF2248C000D6015 /* kernel.m */,
 				B585494920A64F8F00107CF2 /* nvpatch.h */,
 				B585494A20A64F8F00107CF2 /* nvpatch.c */,
+				B5783DB4210DDE62004339F8 /* nonce.h */,
+				B5783DB1210DDBE0004339F8 /* nonce.m */,
+				B5783DB3210DDC79004339F8 /* iokit.h */,
 			);
 			path = helpers;
 			sourceTree = "<group>";
@@ -479,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
+				B5783DB2210DDBE0004339F8 /* nonce.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
 				B584C54A20376BCB00BF4118 /* untar.m in Sources */,
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
