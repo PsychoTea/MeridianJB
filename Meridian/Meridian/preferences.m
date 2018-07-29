@@ -10,8 +10,11 @@
 
 #define TweaksKey               @"tweaksAreEnabled"
 #define StartLaunchDaemonsKey   @"startLaunchDaemonsEnabled"
+#define BootNonceKey            @"bootNonce"
 #define StartDropbearKey        @"startDropbearEnabled"
 #define PortKey                 @"listenPortOption"
+
+#define ELECTRA_GENERATOR       0xbd34a880be0b53f3
 
 void setTweaksEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:TweaksKey];
@@ -31,6 +34,16 @@ BOOL startLaunchDaemonsIsEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartLaunchDaemonsKey];
     
     return (enabled) ? [enabled boolValue] : true;
+}
+
+void setBootNonceValue(uint64_t bootNonce) {
+    [[NSUserDefaults standardUserDefaults] setInteger:bootNonce forKey:BootNonceKey];
+}
+
+uint64_t getBootNonceValue() {
+    NSInteger integer = [[NSUserDefaults standardUserDefaults] integerForKey:BootNonceKey];
+    
+    return (integer != 0x0) ? integer : ELECTRA_GENERATOR;
 }
 
 void setStartDropbearEnabled(BOOL enabled) {

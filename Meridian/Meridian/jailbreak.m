@@ -270,6 +270,44 @@ int makeShitHappen(ViewController *view) {
     }
     [view writeText:@"done!"];
     
+    const char *boot_nonce = get_boot_nonce();
+    
+    if (boot_nonce == NULL)
+    {
+        NSLog(@"current boot nonce is null");
+        
+        char nonceRaw[19];
+        sprintf(nonceRaw, "0x%016llx", getBootNonceValue());
+        nonceRaw[18] = '\0';
+
+        NSLog(@"theoretically setting to %s nonce", nonceRaw);
+//        NSString *nonceString = [NSString stringWithFormat:@"com.apple.System.boot-nonce=%s", nonceRaw];
+//        execprog("/usr/sbin/nvram", (const char **)&(const char[]) {
+//            "/usr/sbin/nvram",
+//            [nonceString UTF8String],
+//            NULL
+//        });
+    }
+    else
+    {
+        NSLog(@"current nonce: %s", boot_nonce);
+        NSLog(@"current nonce: %s", boot_nonce);
+        NSLog(@"current nonce: %s", boot_nonce);
+        NSLog(@"current nonce: %s", boot_nonce);
+        NSLog(@"current nonce: %s", boot_nonce);
+        NSLog(@"current nonce: %s", boot_nonce);
+        
+        char nonceRaw[19];
+        sprintf(nonceRaw, "0x%016llx", getBootNonceValue());
+        nonceRaw[18] = '\0';
+        
+        if (strcmp(boot_nonce, nonceRaw) == 0) {
+            NSLog(@"nonce is matching! nonce: %s", nonceRaw);
+        } else {
+            NSLog(@"nonce is not matching! kern: '%s', uland: '%s'", boot_nonce, nonceRaw);
+        }
+    }
+    
     // load launchdaemons
     if (startLaunchDaemonsIsEnabled()) {
         [view writeText:@"loading launchdaemons..."];

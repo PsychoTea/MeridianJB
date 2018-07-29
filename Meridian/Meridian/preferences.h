@@ -18,6 +18,8 @@ void setTweaksEnabled(BOOL enabled);
 BOOL tweaksAreEnabled(void);
 void setStartLaunchDaemonsEnabled(BOOL enabled);
 BOOL startLaunchDaemonsIsEnabled(void);
+void setBootNonceValue(uint64_t bootNonce);
+uint64_t getBootNonceValue(void);
 void setStartDropbearEnabled(BOOL enabled);
 BOOL startDropbearIsEnabled(void);
 void setListenPort(NSInteger portOption);

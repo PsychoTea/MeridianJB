@@ -26,6 +26,7 @@ int call_jailbreakd(int command, pid_t pid);
 uint64_t find_proc_by_name(char* name);
 uint64_t find_proc_by_pid(uint32_t pid);
 uint32_t get_pid_for_name(char* name);
+const char *get_boot_nonce();
 int uicache(void);
 int start_launchdaemon(const char *path);
 int respring(void);
