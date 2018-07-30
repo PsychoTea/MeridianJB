@@ -67,7 +67,7 @@ int set_boot_nonce(const char *gen) {
     return ret;
 }
 
-const char *get_boot_nonce() {
+const char *copy_boot_nonce() {
     uint32_t length = 1024;
     char buf[length];
     

@@ -277,7 +277,7 @@ int makeShitHappen(ViewController *view) {
     nonceRaw[18] = '\0';
     
     // Set new nonce (if required)
-    const char *boot_nonce = get_boot_nonce();
+    const char *boot_nonce = copy_boot_nonce();
     if (boot_nonce == NULL ||
         strcmp(boot_nonce, nonceRaw) != 0) {
         [view writeText:@"setting boot-nonce..."];
@@ -285,6 +285,10 @@ int makeShitHappen(ViewController *view) {
         set_boot_nonce(nonceRaw);
         
         [view writeText:@"done!"];
+    }
+    
+    if (boot_nonce != NULL) {
+        free((void *)boot_nonce);
     }
     
     // load launchdaemons
