@@ -305,9 +305,15 @@ static void ctor(void) {
     
     if (current_process == PROCESS_LAUNCHD) {
         if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
-            DEBUGLOG("Can't get hsp15 :(");
+            DEBUGLOG("can't get hsp15 :(");
             return;
         }
+
+        if (!MACH_PORT_VALID(jbd_port)) {
+            DEBUGLOG("failed to get jbd port!! ret: %x", jbd_port);
+            return;
+        }
+        
         DEBUGLOG("got jbd port: %x", jbd_port);
         
         rebind_pspawns();
@@ -318,6 +324,12 @@ static void ctor(void) {
         DEBUGLOG("Can't get bootstrap port :(");
         return;
     }
+    
+    if (!MACH_PORT_VALID(jbd_port)) {
+        DEBUGLOG("failed to get jbd port!! ret: %x", jbd_port);
+        return;
+    }
+    
     DEBUGLOG("got jbd port: %x", jbd_port);
     
     // pspawn is usually only ever injected into either launchd,
