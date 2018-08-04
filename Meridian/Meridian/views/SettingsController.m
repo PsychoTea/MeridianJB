@@ -120,12 +120,10 @@
         [self openLink:@"http://www.twitter.com/iBSparkes"];
     } else if (cell == self.websiteCell) {
         [self openLink:@"https://meridian.sparkes.zone"];
-        
-    } else if (cell == self.sourceCodeCell) {
-        [self openLink:@"https://github.com/PsychoTea/MeridianJB"];
-        
     } else if (cell == self.issueTrackerCell) {
         [self openLink:@"https://github.com/PsychoTea/MeridianJB/issues"];
+    } else if (cell == self.sourceCodeCell) {
+        [self openLink:@"https://github.com/PsychoTea/MeridianJB"];
     }
 }
 

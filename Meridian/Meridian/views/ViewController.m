@@ -21,7 +21,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: Internal Beta 7";
+NSString *Version = @"Meridian: v0.9 Pre-Release";
 NSOperatingSystemVersion osVersion;
 
 id thisClass;
@@ -39,10 +39,14 @@ bool jailbreak_has_run = false;
     [self.creditsButton.layer setCornerRadius:5];
     [self.websiteButton.layer setCornerRadius:5];
     
-    NSString *buildDate = [NSString stringWithContentsOfFile:[NSString stringWithFormat:@"%s", bundled_file("build_time")]
-                                                    encoding:NSUTF8StringEncoding
-                                                       error:nil];
-    [self.versionLabel setText:[NSString stringWithFormat:@"%@: %@", Version, buildDate]];
+    if ([Version containsString:@"Internal"]) {
+        NSString *buildDate = [NSString stringWithContentsOfFile:[NSString stringWithFormat:@"%s", bundled_file("build_time")]
+                                                        encoding:NSUTF8StringEncoding
+                                                           error:nil];
+        [self.versionLabel setText:[NSString stringWithFormat:@"%@: %@", Version, buildDate]];
+    } else {
+        [self.versionLabel setText:[NSString stringWithFormat:@"%@", Version]];
+    }
     
     jailbreak_has_run = check_for_jailbreak();
     
