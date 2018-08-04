@@ -8,17 +8,17 @@
 
 #include "root-rw.h"
 #include "kernel.h"
-#include "offsets.h"
 #include "patchfinder64.h"
 #include "helpers.h"
 #include "ViewController.h"
+#include "offsetfinder.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-#define MOUNT_MNT_FLAG    0x71
+#define MOUNT_MNT_FLAG    0x70
 #define VNODE_V_UN        0xd8
 #define VNODE_V_UN_OTHER  0xd0
 
@@ -30,7 +30,7 @@ const unsigned OFF_IPC_SPACE__IS_TABLE = 0x20;
 const unsigned SIZ_IPC_ENTRY_T = 0x18;
 const unsigned OFF_TASK__ITK_SPACE = 0x300;
 
-#define rkbuffer(w, p, s) tfp0_kread(w, p, s);
+#define rkbuffer(w, p, s) kread(w, p, s);
 #define wkbuffer(w, p, s) kwrite(w, p, s);
 
 typedef mach_port_t io_service_t;
@@ -56,12 +56,16 @@ bool fix_root_iswriteprotected() {
     uint64_t varp_iswp_addr = varp_kaddr + OFF_LWVMPART__ISWP;
     
     // Check we found the right values
-    if (rk64(varp_iswp_addr) != 0) {
-        NSLog(@"rk64(varp_iswp_addr) != 0!");
+    uint64_t varp_iswp = rk64(varp_iswp_addr);
+    if (varp_iswp != 0) {
+        NSLog(@"rk64(varp_iswp_addr) != 0! val: %llx", varp_iswp);
         return false;
     }
-    if (rk64(rootp_iswp_addr) != 1) {
-        NSLog(@"rk64(rootp_iswp_addr) != 1!");
+    
+    uint64_t rootp_iswp = rk64(rootp_iswp_addr);
+    if (rootp_iswp != 1) {
+        NSLog(@"rk64(rootp_iswp_addr) != 1! val: %llx", rootp_iswp);
+        return false;
     }
     
     wk64(rootp_iswp_addr, 0);
@@ -106,14 +110,16 @@ bool fake_rootedramdisk(void) {
 }
 
 // props to xerub for the original '/' r/w remount code
-int remount_root(uint64_t kslide) {
-    uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
+int remount_root(uint64_t kslide, uint64_t root_vnode) {
+    int ret;
     
-    NSLog(@"offset = %llx", OFFSET_ROOTVNODE);
+    uint64_t _rootnode = root_vnode + kslide;
+    
     NSLog(@"_rootnode = %llx", _rootnode);
     
-    // uint64_t _rootnode = OFFSET_ROOTVNODE + kslide;
     uint64_t rootfs_vnode = rk64(_rootnode);
+    
+    NSLog(@"roofs_vnode = %llx", rootfs_vnode);
     
     uint64_t off = VNODE_V_UN;
     struct utsname uts;
@@ -126,23 +132,36 @@ int remount_root(uint64_t kslide) {
     uint64_t v_mount = rk64(rootfs_vnode + off);
     uint32_t v_flag = rk32(v_mount + MOUNT_MNT_FLAG);
     
+    NSLog(@"original flags = %x", v_flag);
+    
     // unset rootfs flag
-    wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~(MNT_ROOTFS >> 8));
+    wk32(v_mount + MOUNT_MNT_FLAG, v_flag & ~MNT_ROOTFS);
     
     // remount
     char *nmz = strdup("/dev/disk0s1s1");
-    kern_return_t rv = mount("hfs", "/", MNT_UPDATE, (void *)&nmz);
-    NSLog(@"remounting: %d", rv);
+    ret = mount("hfs", "/", MNT_UPDATE | MNT_NOATIME, (void *)&nmz);
+    NSLog(@"remounting: %d", ret);
     
-    // set original flags back
+    // read back the new flags set by `mount`
     v_mount = rk64(rootfs_vnode + off);
+    v_flag = rk32(v_mount + MOUNT_MNT_FLAG);
+    
+    NSLog(@"post-mount flags = %x", v_flag);
+    
+    // set back rootfs & unset nosuid
+    v_flag = v_flag |  MNT_ROOTFS;
+    v_flag = v_flag & ~MNT_NOSUID;
+    
     wk32(v_mount + MOUNT_MNT_FLAG, v_flag);
     
-    return rv;
+    NSLog(@"final flags = %x", v_flag);
+    
+    return ret;
 }
 
-int mount_root(uint64_t kslide, int pre130) {
-    if (pre130) {
+int mount_root(uint64_t kslide, uint64_t root_vnode, int pre130) {
+    if (pre130 == 1) {
+        // further patches are requried on <10.3
         NSLog(@"pre-10.3 detected: patching lwvm...");
         if (!fix_root_iswriteprotected()) {
             NSLog(@"fix_root_iswriteprotected failed!");
@@ -154,9 +173,5 @@ int mount_root(uint64_t kslide, int pre130) {
         }
     }
     
-    return remount_root(kslide);
-}
-
-int can_write_root() {
-    return access("/", W_OK);
+    return remount_root(kslide, root_vnode);
 }

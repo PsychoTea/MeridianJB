@@ -1,5 +1,10 @@
 .DS_Store
-*.DS_Store
 xcuserdata
 *.xcuserstate
-*.xcuserstate
+.theos
+obj
+build_time
+**/bin
+
+!**/meridian-bootstrap/**/*
+

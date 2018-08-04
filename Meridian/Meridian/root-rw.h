@@ -9,5 +9,4 @@
 #include <mach/mach.h>
 #include <sys/mount.h>
 
-int mount_root(uint64_t kslide, int pre130);
-int can_write_root(void);
+int mount_root(uint64_t kslide, uint64_t root_vnode, int pre130);
