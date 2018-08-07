@@ -21,7 +21,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: v0.9 Pre-Release";
+NSString *Version = @"Meridian: v0.9-001 Pre-Release";
 NSOperatingSystemVersion osVersion;
 
 id thisClass;
