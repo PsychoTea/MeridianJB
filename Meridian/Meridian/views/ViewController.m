@@ -21,7 +21,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *versionLabel;
 @end
 
-NSString *Version = @"Meridian: v0.9-001 Pre-Release";
+NSString *Version = @"Meridian: v0.9-002 Pre-Release";
 NSOperatingSystemVersion osVersion;
 
 id thisClass;
@@ -50,7 +50,7 @@ bool jailbreak_has_run = false;
     
     jailbreak_has_run = check_for_jailbreak();
     
-    [self doUpdateCheck];
+//    [self doUpdateCheck];
     
     // Log current device and version info
     osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
@@ -238,6 +238,7 @@ bool jailbreak_has_run = false;
 - (void)doUpdateCheck {
     // skip the version check if we're running an internal build
     if ([Version containsString:@"Internal"]) {
+        NSLog(@"internal build detected, skipping");
         return;
     }
     
@@ -251,6 +252,7 @@ bool jailbreak_has_run = false;
                                               }
                                               
                                               NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                              NSLog(@"got response '%@', Version '%@'", response, Version);
                                               if (response != Version) {
                                                   [self doUpdatePopup:response];
                                               }
