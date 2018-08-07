@@ -430,6 +430,9 @@ int extractBootstrap(int *exitCode) {
     }
     
     if (file_exists("/private/var/lib/dpkg/status") != 0) {
+        [fileMgr removeItemAtPath:@"/private/var/lib/dpkg" error:nil];
+        [fileMgr removeItemAtPath:@"/Library/dpkg"         error:nil];
+        
         rv = extract_bundle_tar("dpkgdb-base.tar");
         if (rv != 0) {
             *exitCode = rv;
