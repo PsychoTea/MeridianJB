@@ -133,11 +133,10 @@ bool jailbreak_has_run = false;
         
         // ldrestart restarts all launch daemons,
         // allowing shit to be injected into 'em
-//        int rv = execprog("/meridian/ldrestart", NULL);
         int rv = execprog("/bin/bash", (const char **)&(const char*[]) {
             "/bin/bash",
             "-c",
-            "/meridian/ldrestart",
+            "/usr/bin/nohup /meridian/ldrestart 2>&1 >/dev/null &",
             NULL
         });
         if (rv != 0) {
