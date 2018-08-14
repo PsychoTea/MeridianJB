@@ -43,10 +43,6 @@ typedef struct
     kptr_t sha1_init;
     kptr_t sha1_update;
     kptr_t sha1_final;
-    // Extra
-    kptr_t proc_find;
-    kptr_t proc_name;
-    kptr_t proc_rele;
 } offsets_t;
 
 typedef kern_return_t (*v0rtex_cb_t)(task_t tfp0, kptr_t kbase, void *cb_data);

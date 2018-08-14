@@ -13,7 +13,7 @@
 #include "patchfinder64.h"
 #include "kmem.h"
 #include "offsetof.h"
-#include "../kern_utils.h"
+#include "kern_utils.h"
 
 #define CACHED_FIND_UINT64(name) CACHED_FIND(uint64_t, name)
 

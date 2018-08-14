@@ -1,3 +1,4 @@
+
 #define OSDictionary_ItemCount(dict) rk32(dict+20)
 #define OSDictionary_ItemBuffer(dict) rk64(dict+32)
 #define OSDictionary_ItemKey(buffer, idx) rk64(buffer+16*idx)

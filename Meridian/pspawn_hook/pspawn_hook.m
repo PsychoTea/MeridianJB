@@ -1,19 +1,12 @@
+#import <Foundation/Foundation.h>
+
 #include <dlfcn.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <spawn.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <sys/sysctl.h>
-#include <dlfcn.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
+
 #include <mach/mach.h>
-#include <pthread.h>
+
 #include "fishhook.h"
-#include "mach/jailbreak_daemonUser.h"
+#include "jailbreak_daemonUser.h"
 
 #define LAUNCHD_LOG_PATH    "/var/log/pspawn_hook_launchd.log"
 #define XPCPROXY_LOG_PATH   "/var/log/pspawn_hook_xpcproxy.log"
@@ -55,30 +48,29 @@ enum CurrentProcess {
     PROCESS_XPCPROXY,
     PROCESS_OTHER
 };
-
 int current_process = PROCESS_OTHER;
 
 kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port_t *server_port);
 
 mach_port_t jbd_port;
 
-char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-
-#define DYLD_INSERT "DYLD_INSERT_LIBRARIES="
-#define MAX_INJECT  2
+#define DYLD_INSERT             "DYLD_INSERT_LIBRARIES="
+#define MAX_INJECT              2
 
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
-#define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
 #define LIBJAILBREAK_DYLIB      "/usr/lib/libjailbreak.dylib"
+#define AMFID_PAYLOAD_DYLIB     "/meridian/amfid_payload.dylib"
 
-const char* xpcproxy_blacklist[] = {
-    "com.apple.diagnosticd",        // syslog
-    "MTLCompilerService",           // ?_?
-    "OTAPKIAssetTool",              // h_h
-    "cfprefsd",                     // o_o
-    "FileProvider",                 // seems to crash from oosb r/w etc 
-    "jailbreakd",                   // don't inject into jbd since we'd have to call to it
+const char *xpcproxy_blacklist[] = {
+    "com.apple.diagnosticd",    // syslog
+    "MTLCompilerService",
+    "com.apple.notifyd",        // fuck this daemon and everything it stands for
+    "OTAPKIAssetTool",
+    "FileProvider",             // seems to crash from oosb r/w etc
+    "jailbreakd",               // gotta call to this
+    "dropbear",
+    "cfprefsd",
     NULL
 };
 
@@ -96,11 +88,22 @@ bool is_blacklisted(const char *proc) {
     return false;
 }
 
-typedef int (*pspawn_t)(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]);
+typedef int (*pspawn_t)(pid_t *pid,
+                        const char *path,
+                        const posix_spawn_file_actions_t *file_actions,
+                        posix_spawnattr_t *attrp,
+                        const char *argv[],
+                        const char *envp[]);
 
 pspawn_t old_pspawn, old_pspawnp;
 
-int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[], pspawn_t old) {
+int fake_posix_spawn_common(pid_t *pid,
+                            const char *path,
+                            const posix_spawn_file_actions_t *file_actions,
+                            posix_spawnattr_t *attrp,
+                            const char *argv[],
+                            const char *envp[],
+                            pspawn_t old) {
     int retval = -1, ret = 0, ninject = 0;
     const char *inject[MAX_INJECT] = { NULL };
     
@@ -109,11 +112,15 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
     char *insert_str = NULL;
     posix_spawnattr_t attr;
     
-    DEBUGLOG("fake_posix_spawn_common: %s", path);
-    
     if (!path || !argv || !envp) {
         DEBUGLOG("got some bullshit args: %p, %p, %p", path, argv, envp);
         goto out;
+    }
+    
+    if (argv[1]) {
+        DEBUGLOG("fake_posix_spawn_common: %s (arg1: %s)", path, argv[1]);
+    } else {
+        DEBUGLOG("fake_posix_spawn_common: %s", path);
     }
     
     switch (current_process) {
@@ -121,6 +128,7 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
             if (strcmp(path, "/usr/libexec/xpcproxy") == 0 &&
                 argv[0] &&
                 argv[1] &&
+                !is_blacklisted(path) &&
                 !is_blacklisted(argv[1])) {
                 inject[ninject++] = PSPAWN_HOOK_DYLIB;
             }
@@ -235,28 +243,28 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
             
             if (ret != KERN_SUCCESS) {
                 DEBUGLOG("jbd_call(xpcproxy, %d): %s", ourpid, mach_error_string(ret));
-                goto out;
             }
         }
     }
     
+    // Note: xpcproxy won't return from this call
     ret = old(&child, path, file_actions, attrp, argv, envp);
     if (ret != 0) {
         DEBUGLOG("posix_spawn: %s", strerror(ret));
         retval = ret;
         goto out;
     }
-    
-    if (ninject > 0 && current_process == PROCESS_LAUNCHD) {
-        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, child);
-        if (ret != KERN_SUCCESS) {
-            DEBUGLOG("jbd_call(launchd, %d): %s", child, mach_error_string(ret));
-            goto out;
-        }
-    }
+    DEBUGLOG("Spawned with pid: %d", child);
     
     if (pid) {
         *pid = child;
+    }
+    
+     if (ninject > 0 && current_process == PROCESS_LAUNCHD) {
+        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, child);
+        if (ret != KERN_SUCCESS) {
+            DEBUGLOG("jbd_call(launchd, %d): %s", child, mach_error_string(ret));
+        }
     }
     
     retval = 0;
@@ -269,17 +277,27 @@ out:;
     return retval;
 }
 
-int fake_posix_spawn(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
+int fake_posix_spawn(pid_t *pid,
+                     const char *file,
+                     const posix_spawn_file_actions_t *file_actions,
+                     posix_spawnattr_t *attrp,
+                     const char *argv[],
+                     const char *envp[]) {
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawn);
 }
 
-int fake_posix_spawnp(pid_t *pid, const char *file, const posix_spawn_file_actions_t *file_actions, posix_spawnattr_t *attrp, const char *argv[], const char *envp[]) {
+int fake_posix_spawnp(pid_t *pid,
+                      const char *file,
+                      const posix_spawn_file_actions_t *file_actions,
+                      posix_spawnattr_t *attrp,
+                      const char *argv[],
+                      const char *envp[]) {
     return fake_posix_spawn_common(pid, file, file_actions, attrp, argv, envp, old_pspawnp);
 }
 
 void rebind_pspawns(void) {
     struct rebinding rebindings[] = {
-        { "posix_spawn", (void *)fake_posix_spawn, (void **)&old_pspawn },
+        { "posix_spawn",  (void *)fake_posix_spawn,  (void **)&old_pspawn },
         { "posix_spawnp", (void *)fake_posix_spawnp, (void **)&old_pspawnp }
     };
     
@@ -288,6 +306,7 @@ void rebind_pspawns(void) {
 
 __attribute__ ((constructor))
 static void ctor(void) {
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
     bzero(pathbuf, sizeof(pathbuf));
     proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
     
@@ -336,17 +355,25 @@ static void ctor(void) {
     // or xpcproxy. this is here in case you want to manually inject it into
     // another process, in order to have it call to jbd. consider this
     // testing-only.
-    // example (in shell): "> DYLD_INSERT_LIBRARIES=/usr/lib/libjailbreak.dylib ./cydo"
-    // this will have cydo call to jbd in order to platformize
+    // example (in shell): "> DYLD_INSERT_LIBRARIES=/usr/lib/pspawn_hook.dylib binary"
+    // this will have <binary> call to jbd in order to platformize
     if (current_process == PROCESS_OTHER) {
-        if (access(LIBJAILBREAK_DYLIB, F_OK) == 0) {
-            void *handle = dlopen(LIBJAILBREAK_DYLIB, RTLD_LAZY);
-            if (handle) {
-                typedef int (*fix_ent)(pid_t pid, uint32_t flags);
-                fix_ent fixentptr = (fix_ent)dlsym(handle, "jb_oneshot_entitle_now");
-                fixentptr(getpid(), FLAG_PLATFORMIZE);
-            }
+        if (access(LIBJAILBREAK_DYLIB, F_OK) != 0) {
+            printf("[!] " LIBJAILBREAK_DYLIB " was not found!\n");
+            return;
         }
+        
+        void *handle = dlopen(LIBJAILBREAK_DYLIB, RTLD_LAZY);
+        if (handle == NULL) {
+            printf("[!] Failed to open libjailbreak.dylib: %s\n", dlerror());
+            return;
+        }
+        
+        typedef int (*entitle_t)(pid_t pid, uint32_t flags);
+        entitle_t entitle_ptr = (entitle_t)dlsym(handle, "jb_oneshot_entitle_now");
+        entitle_ptr(getpid(), FLAG_PLATFORMIZE);
+        printf("[!] Platformized.\n");
+        return;
     }
     
     rebind_pspawns();

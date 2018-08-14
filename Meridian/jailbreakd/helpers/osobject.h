@@ -1,3 +1,4 @@
+
 #define OSDictionary_ItemCount(dict) rk32(dict+20)
 #define OSDictionary_ItemBuffer(dict) rk64(dict+32)
 #define OSDictionary_ItemKey(buffer, idx) rk64(buffer+16*idx)
@@ -14,7 +15,7 @@ int OSDictionary_Merge(uint64_t dict, uint64_t aDict);
 void OSArray_RemoveObject(uint64_t array, unsigned int idx);
 uint64_t OSArray_GetObject(uint64_t array, unsigned int idx);
 int OSArray_Merge(uint64_t array, uint64_t aArray);
-uint64_t OSUnserializeXML(const char* buffer);
+uint64_t OSUnserializeXML(const char *buffer);
 
 void OSObject_Release(uint64_t osobject);
 void OSObject_Retain(uint64_t osobject);

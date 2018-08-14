@@ -2,7 +2,7 @@
 #include <Foundation/Foundation.h>
 #include "kmem.h"
 #include "kexecute.h"
-#include "../kern_utils.h"
+#include "kern_utils.h"
 #include "offsetof.h"
 #include "patchfinder64.h"
 
