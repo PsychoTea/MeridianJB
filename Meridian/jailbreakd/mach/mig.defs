@@ -1,6 +1,6 @@
 // mig -sheader jailbreak_daemonServer.h -header jailbreak_daemonUser.h mig.defs
 
-subsystem jailbreak_daemon 1337;
+subsystem jailbreak_daemon 500;
 userprefix jbd_;
 serverprefix jbd_;
 

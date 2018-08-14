@@ -173,7 +173,7 @@ union __ReplyUnion__jbd_jailbreak_daemon_subsystem {
 
 #ifndef subsystem_to_name_map_jailbreak_daemon
 #define subsystem_to_name_map_jailbreak_daemon \
-    { "call", 1337 }
+    { "call", 500 }
 #endif
 
 #ifdef __AfterMigUserHeader
