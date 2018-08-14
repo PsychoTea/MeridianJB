@@ -73,6 +73,10 @@ const char* xpcproxy_blacklist[] = {
     "jailbreakd",               // gotta call to this
     "dropbear",
     "cfprefsd",
+    "com.apple.coreduetd",
+    "com.apple.configd",
+    "com.apple.notifyd",
+    "dropbear",
     NULL
 };
 
