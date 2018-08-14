@@ -134,18 +134,18 @@ uint64_t get_exception_osarray(void) {
 static const char *exc_key = "com.apple.security.exception.files.absolute-path.read-only";
 
 void set_sandbox_extensions(uint64_t proc) {
-    DEBUGLOG("set_sandbox_extensions called for %llx", proc);
+    DEBUGLOG(false, "set_sandbox_extensions called for %llx", proc);
     uint64_t proc_ucred = rk64(proc + 0x100);
     uint64_t sandbox = rk64(rk64(proc_ucred + 0x78) + 0x8 + 0x8);
-    DEBUGLOG("sandbox: %llx", sandbox);
+    DEBUGLOG(false, "sandbox: %llx", sandbox);
     
     if (sandbox == 0) {
-        fprintf(stdout, "no sandbox, skipping (proc: %llx)\n", proc);
+        DEBUGLOG(false, "no sandbox, skipping (proc: %llx)", proc);
         return;
     }
 
     if (has_file_extension(sandbox, abs_path_exceptions[0])) {
-        fprintf(stdout, "already has '%s', skipping \n", abs_path_exceptions[0]);
+        DEBUGLOG(false, "already has '%s', skipping", abs_path_exceptions[0]);
         return;
     }
 
@@ -154,8 +154,7 @@ void set_sandbox_extensions(uint64_t proc) {
     while (*path != NULL) {
         ext = extension_create_file(*path, ext);
         if (ext == 0) {
-            fprintf(stdout, "extension_create_file(%s) failed, panic! \n", *path);
-            DEBUGLOG("extension_create_file(%s) failed, panic!", *path);
+            DEBUGLOG(false "extension_create_file(%s) failed, panic!", *path);
         }
         ++path;
     }
@@ -173,63 +172,63 @@ void set_amfi_entitlements(uint64_t proc) {
     
     rv = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", offset_osboolean_true);
     if (rv != 1) {
-        DEBUGLOG("failed to set get-task-allow within amfi_entitlements!");;
+        DEBUGLOG(false, "failed to set get-task-allow within amfi_entitlements!");;
     }
     
     rv = OSDictionary_SetItem(amfi_entitlements, "com.apple.private.skip-library-validation", offset_osboolean_true);
     if (rv != 1) {
-        DEBUGLOG("failed to set com.apple.private.skip-library-validation within amfi_entitlements!");
+        DEBUGLOG(false, "failed to set com.apple.private.skip-library-validation within amfi_entitlements!");
     }
     
-//    uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
-//
-//    if (present == 0) {
-//        rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
-//    } else if (present != get_exception_osarray()) {
-//        unsigned int itemCount = OSArray_ItemCount(present);
-//        fprintf(stdout, "got item count: %d\n", itemCount);
-//
-//        BOOL foundEntitlements = NO;
-//
-//        uint64_t itemBuffer = OSArray_ItemBuffer(present);
-//
-//        for (int i = 0; i < itemCount; i++) {
-//            uint64_t item = rk64(itemBuffer + (i * sizeof(void *)));
-//            char *entitlementString = OSString_CopyString(item);
-//            fprintf(stdout, "found ent string: %s\n", entitlementString);
-//            if (strcmp(entitlementString, "/Library/") == 0) {
-//                foundEntitlements = YES;
-//                free(entitlementString);
-//                break;
-//            }
-//            free(entitlementString);
-//        }
-//
-//        if (!foundEntitlements){
-//            rv = OSArray_Merge(present, get_exception_osarray());
-//        } else {
-//            rv = 1;
-//        }
-//    } else {
-//        rv = 1;
-//    }
-//
-//    if (rv != 1) {
-//        DEBUGLOG("Setting exc FAILED! amfi_entitlements: 0x%llx present: 0x%llx\n", amfi_entitlements, present);
-//    }
+    uint64_t present = OSDictionary_GetItem(amfi_entitlements, exc_key);
+
+    if (present == 0) {
+        rv = OSDictionary_SetItem(amfi_entitlements, exc_key, get_exception_osarray());
+    } else if (present != get_exception_osarray()) {
+        unsigned int itemCount = OSArray_ItemCount(present);
+        DEBUGLOG(false, "got item count: %d", itemCount);
+
+        BOOL foundEntitlements = NO;
+
+        uint64_t itemBuffer = OSArray_ItemBuffer(present);
+
+        for (int i = 0; i < itemCount; i++) {
+            uint64_t item = rk64(itemBuffer + (i * sizeof(void *)));
+            char *entitlementString = OSString_CopyString(item);
+            DEBUGLOG(false, "found ent string: %s", entitlementString);
+            if (strcmp(entitlementString, "/Library/") == 0) {
+                foundEntitlements = YES;
+                free(entitlementString);
+                break;
+            }
+            free(entitlementString);
+        }
+
+        if (!foundEntitlements){
+            rv = OSArray_Merge(present, get_exception_osarray());
+        } else {
+            rv = 1;
+        }
+    } else {
+        rv = 1;
+    }
+
+    if (rv != 1) {
+        DEBUGLOG(false, "Setting exc FAILED! amfi_entitlements: 0x%llx present: 0x%llx\n", amfi_entitlements, present);
+    }
 }
 
 void platformize(int pd) {
     uint64_t proc = proc_find(pd);
     if (proc == 0) {
-        DEBUGLOG("failed to find proc for pid %d!", pd);
+        DEBUGLOG(true, "failed to find proc for pid %d!", pd);
         return;
     }
     
-    DEBUGLOG("platformize called for %d (proc: %llx)", pd, proc);
+    DEBUGLOG(true, "platformize called for %d (proc: %llx)", pd, proc);
     
     set_csflags(proc);
     set_amfi_entitlements(proc);
-//    set_sandbox_extensions(proc);
+    set_sandbox_extensions(proc);
     set_csblob(proc);
 }

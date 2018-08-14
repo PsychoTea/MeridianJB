@@ -1,8 +1,8 @@
 
-#define DEBUGLOG(fmt, args ...)          \
-    fprintf(stdout, fmt "\n", ##args);   \
-    fflush(stdout);
-//    NSLog(@fmt, ##args);                 \
+#define DEBUGLOG(syslog, fmt, args ...)     \
+    fprintf(stdout, fmt "\n", ##args);      \
+    fflush(stdout);                         \
+    if (syslog) NSLog(@fmt, ##args)
 
 #define CACHED_FIND(type, name) \
     type __##name(void);                \

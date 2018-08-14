@@ -36,23 +36,23 @@ int is_valid_command(uint8_t command) {
 
 int handle_command(uint8_t command, uint32_t pid) {
     if (!is_valid_command(command)) {
-        DEBUGLOG("Invalid command recieved.");
+        DEBUGLOG(true, "Invalid command recieved.");
         return 1;
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE) {
-        DEBUGLOG("JAILBREAKD_COMMAND_ENTITLE PID: %d", pid);
+        DEBUGLOG(true, "JAILBREAKD_COMMAND_ENTITLE PID: %d", pid);
         platformize(pid);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT) {
-        DEBUGLOG("JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", pid);
+        DEBUGLOG(true, "JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT PID: %d", pid);
         platformize(pid);
         kill(pid, SIGCONT);
     }
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
-        DEBUGLOG("JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", pid);
+        DEBUGLOG(true, "JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", pid);
         
         dispatch_async(queue, ^{
             char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
@@ -63,7 +63,7 @@ int handle_command(uint8_t command, uint32_t pid) {
             do {
                 err = proc_pidpath(pid, pathbuf, PROC_PIDPATHINFO_MAXSIZE);
                 if (err <= 0) {
-                    DEBUGLOG("failed to get pidpath for %d", pid);
+                    DEBUGLOG(true, "failed to get pidpath for %d", pid);
                     kill(pid, SIGCONT); // just in case
                     return;
                 }
@@ -71,7 +71,7 @@ int handle_command(uint8_t command, uint32_t pid) {
                 tries++;
                 // gives (1,000 * 1,000 microseconds) 1 seconds of total wait time
                 if (tries >= 1000) {
-                    DEBUGLOG("failed to get pidpath for %d (%d tries)", pid, tries);
+                    DEBUGLOG(true, "failed to get pidpath for %d (%d tries)", pid, tries);
                     kill(pid, SIGCONT); // just in case
                     return;
                 }
@@ -79,34 +79,34 @@ int handle_command(uint8_t command, uint32_t pid) {
                 usleep(1000);
             } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
             
-            DEBUGLOG("xpcproxy has morphed to: %s", pathbuf);
+            DEBUGLOG(true, "xpcproxy has morphed to: %s", pathbuf);
             platformize(pid);
             kill(pid, SIGCONT);
         });
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
-        DEBUGLOG("JAILBREAKD_FIXUP_SETUID PID: %d (ignored)", pid);
+        DEBUGLOG(true, "JAILBREAKD_FIXUP_SETUID PID: %d (ignored)", pid);
     }
     
     return 0;
 }
 
 kern_return_t jbd_call(mach_port_t server_port, uint8_t command, uint32_t pid) {
-    DEBUGLOG("jbd_call: %x, %x, %d", server_port, command, pid);
+    DEBUGLOG(false, "jbd_call: %x, %x, %d", server_port, command, pid);
     return (handle_command(command, pid) == 0) ? KERN_SUCCESS : KERN_FAILURE;
 }
 
 int main(int argc, char **argv, char **envp) {
     kern_return_t err;
     
-    DEBUGLOG("the fun and games shall begin! (applying lube...)");
+    DEBUGLOG(true, "the fun and games shall begin! (applying lube...)");
     unlink("/var/tmp/jailbreakd.pid");
     
     // Parse offsets from env var's
     kernel_base             = strtoull(getenv("KernelBase"),        NULL, 16);
     kernel_slide            = kernel_base - 0xFFFFFFF007004000;
-    DEBUGLOG("kern base: %llx, slide: %llx", kernel_base, kernel_slide);
+    DEBUGLOG(true, "kern base: %llx, slide: %llx", kernel_base, kernel_slide);
     
     kernprocaddr            = strtoull(getenv("KernProcAddr"),      NULL, 16);
     offset_zonemap          = strtoull(getenv("ZoneMapOffset"),     NULL, 16);
@@ -120,10 +120,10 @@ int main(int argc, char **argv, char **envp) {
     // tfp0, patchfinder, kexecute
     err = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
     if (err != KERN_SUCCESS) {
-        DEBUGLOG("host_get_special_port 4: %s", mach_error_string(err));
+        DEBUGLOG(true, "host_get_special_port 4: %s", mach_error_string(err));
         return -1;
     }
-    DEBUGLOG("tfp0: %x", tfp0);
+    DEBUGLOG(true, "tfp0: %x", tfp0);
     
     init_kexecute();
     
@@ -132,7 +132,7 @@ int main(int argc, char **argv, char **envp) {
     // Set up mach stuff
     mach_port_t server_port;
     if ((err = bootstrap_check_in(bootstrap_port, "zone.sparkes.jailbreakd", &server_port))) {
-        DEBUGLOG("Failed to check in: %s", mach_error_string(err));
+        DEBUGLOG(true, "Failed to check in: %s", mach_error_string(err));
         return -1;
     }
     
@@ -143,7 +143,7 @@ int main(int argc, char **argv, char **envp) {
     dispatch_resume(server);
     
     // Now ready for connections!
-    DEBUGLOG("mach server now running!");
+    DEBUGLOG(true, "mach server now running!");
     
     FILE *fd = fopen("/var/tmp/jailbreakd.pid", "w");
     fprintf(fd, "%d\n", getpid());
