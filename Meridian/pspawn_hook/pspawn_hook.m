@@ -242,9 +242,11 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
             if (ret != KERN_SUCCESS) {
                 DEBUGLOG("jbd_call(xpcproxy, %d): %s", ourpid, mach_error_string(ret));
             }
+            DEBUGLOG("jbd_call has returned: %d", ret);
         }
     }
     
+    DEBUGLOG("Calling old posix_spawn...");
     ret = old(&child, path, file_actions, attrp, argv, envp);
     if (ret != 0) {
         DEBUGLOG("posix_spawn: %s", strerror(ret));
@@ -252,6 +254,10 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
         goto out;
     }
     DEBUGLOG("Spawned with pid: %d", child);
+    
+    if (pid) {
+        *pid = child;
+    }
     
      if (ninject > 0 && current_process == PROCESS_LAUNCHD) {
 //        dispatch_group_async(grp, queue, ^{
@@ -266,10 +272,6 @@ int fake_posix_spawn_common(pid_t *pid, const char *path, const posix_spawn_file
 //             NSLog(@"Reached timeout uh oh: %ld (pid: %d)", result, pid);
 //             // kill(child, SIGCONT);
 //         }
-    }
-    
-    if (pid) {
-        *pid = child;
     }
     
     retval = 0;
@@ -318,6 +320,12 @@ static void ctor(void) {
     DEBUGLOG("========================");
     DEBUGLOG("hello from pid %d", getpid());
     DEBUGLOG("my path: %s", pathbuf);
+    DEBUGLOG("process type: %d", current_process);
+    DEBUGLOG("DYLD_INSERT_LIBRARIES=%s", getenv("DYLD_INSERT_LIBRARIES"));
+    
+    if (current_process == PROCESS_OTHER) {
+        return;
+    }
     
     if (current_process == PROCESS_LAUNCHD) {
         if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
