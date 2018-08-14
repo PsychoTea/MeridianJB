@@ -141,8 +141,10 @@ bool jailbreak_has_run = false;
         });
         if (rv != 0) {
             [self writeTextPlain:@"failed to run ldrestart."];
+            return;
         }
         
+        [self.goButton setHidden:YES];
         return;
     }
     
