@@ -130,13 +130,15 @@ bool jailbreak_has_run = false;
     if (jailbreak_has_run) {
         chown("/meridian/ldrestart", 0, 0);
         chmod("/meridian/ldrestart", 0755);
+        chown("/meridian/nohup", 0, 0);
+        chmod("/meridian/nohup", 0755);
         
         // ldrestart restarts all launch daemons,
         // allowing shit to be injected into 'em
         int rv = execprog("/bin/bash", (const char **)&(const char*[]) {
             "/bin/bash",
             "-c",
-            "/usr/bin/nohup /meridian/ldrestart 2>&1 >/dev/null &",
+            "/meridian/nohup /meridian/ldrestart 2>&1 >/dev/null &",
             NULL
         });
         if (rv != 0) {
