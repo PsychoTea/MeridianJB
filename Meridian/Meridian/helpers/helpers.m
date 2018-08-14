@@ -31,7 +31,7 @@ int call_jailbreakd(int command, pid_t pid) {
     return jbd_call(jbd_port, command, pid);
 }
 
-uint64_t find_proc_by_name(char* name) {
+uint64_t find_proc_by_name(char *name) {
     uint64_t proc = rk64(kernprocaddr + 0x08);
     
     while (proc) {

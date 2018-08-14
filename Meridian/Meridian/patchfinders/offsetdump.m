@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#include "patchfinder64.h"
 #include "v0rtex.h"
 
 void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel_slide) {
@@ -60,10 +62,6 @@ void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel
     off_file[@"SHA1Init"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_init];
     off_file[@"SHA1Update"]                     = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_update];
     off_file[@"SHA1Final"]                      = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_final];
-    
-    off_file[@"ProcFind"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->proc_find];
-    off_file[@"ProcName"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->proc_name];
-    off_file[@"ProcRele"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->proc_rele];
     
     [off_file writeToFile:@"/meridian/offsets.plist" atomically:YES];
 }

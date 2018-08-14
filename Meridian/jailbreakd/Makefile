@@ -5,6 +5,7 @@ SRC     = $(wildcard *.c) $(wildcard *.m) $(wildcard */*.c) $(wildcard */*.m)
 CC      = xcrun -sdk iphoneos gcc -arch arm64
 LDID    = ldid
 CHMOD   = chmod
+CFLAGS  = -I. -I./helpers -I./mach -framework Foundation -framework IOKit
 
 all: $(OUTDIR)/$(TARGET)
 
@@ -12,7 +13,7 @@ $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
 $(OUTDIR)/$(TARGET): $(SRC) | $(OUTDIR)
-	$(CC) -framework Foundation -framework IOKit -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 	$(LDID) -Sentitlements.xml $@
 	$(CHMOD) 755 $@
 

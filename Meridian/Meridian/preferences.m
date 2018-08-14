@@ -53,7 +53,8 @@ void setStartDropbearEnabled(BOOL enabled) {
 BOOL startDropbearIsEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartDropbearKey];
     
-    return (enabled) ? [enabled boolValue] : false;
+//    return (enabled) ? [enabled boolValue] : false;
+    return (enabled) ? [enabled boolValue] : true;
 }
 
 void setListenPort(NSInteger portOption) {

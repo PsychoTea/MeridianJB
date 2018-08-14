@@ -1,8 +1,8 @@
 #include <pthread.h>
-#include "kmem.h"
+
+#include "kern_utils.h"
 #include "kexecute.h"
-#include "../kern_utils.h"
-#include "patchfinder64.h"
+#include "kmem.h"
 #include "offsetof.h"
 
 mach_port_t prepare_user_client() {
@@ -71,7 +71,7 @@ void init_kexecute() {
     // Now the userclient port we have will look into our fake user client rather than the old one
     
     // Replace IOUserClient::getExternalTrapForIndex with our ROP gadget (add x0, x0, #0x40; ret;)
-    wk64(fake_vtable+8*0xB7, find_add_x0_x0_0x40_ret());
+    wk64(fake_vtable+8*0xB7, offset_add_ret_gadget);
     
     pthread_mutex_init(&kexecute_lock, NULL);
 }

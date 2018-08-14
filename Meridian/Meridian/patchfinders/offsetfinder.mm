@@ -68,11 +68,6 @@ extern "C" offsets_t *get_offsets() {
         off.sha1_final                          = (kptr_t)fi.find_sym("_SHA1Final");
         NSLog(@"[OFFSET] grabbed amfi offsets");
         
-        off.proc_find                           = (kptr_t)fi.find_sym("_proc_find");
-        off.proc_name                           = (kptr_t)fi.find_sym("_proc_name");
-        off.proc_rele                           = (kptr_t)fi.find_sym("_proc_rele");
-        NSLog(@"[OFFSET] grabbed extra offsets");
-        
         NSLog(@"[OFFSET] sizeof_task = 0x%llx", off.sizeof_task);
         NSLog(@"[OFFSET] task_itk_self = 0x%llx", off.task_itk_self);
         NSLog(@"[OFFSET] task_itk_registered = 0x%llx", off.task_itk_registered);

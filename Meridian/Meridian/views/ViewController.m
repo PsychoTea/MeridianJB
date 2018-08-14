@@ -7,9 +7,13 @@
 //
 
 #import "ViewController.h"
-#import "helpers.h"
-#import "jailbreak.h"
-#import <sys/utsname.h>
+
+#include "helpers.h"
+#include "jailbreak.h"
+
+#include <sys/utsname.h>
+#include <sys/stat.h>
+
 #import <Foundation/Foundation.h>
 
 @interface ViewController ()
@@ -124,10 +128,22 @@ bool jailbreak_has_run = false;
     // when jailbreak runs, 'go' button is
     // turned to 'respring'
     if (jailbreak_has_run) {
-        int rv = respring();
+        chown("/meridian/ldrestart", 0, 0);
+        chmod("/meridian/ldrestart", 0755);
+        
+        // ldrestart restarts all launch daemons,
+        // allowing shit to be injected into 'em
+//        int rv = execprog("/meridian/ldrestart", NULL);
+        int rv = execprog("/bin/bash", (const char **)&(const char*[]) {
+            "/bin/bash",
+            "-c",
+            "/meridian/ldrestart",
+            NULL
+        });
         if (rv != 0) {
-            [self writeTextPlain:@"failed to respring."];
+            [self writeTextPlain:@"failed to run ldrestart."];
         }
+        
         return;
     }
     

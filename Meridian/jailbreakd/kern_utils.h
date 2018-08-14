@@ -101,13 +101,14 @@ uint64_t kernel_slide;
 uint64_t kernprocaddr;
 uint64_t offset_zonemap;
 
-uint64_t offset_proc_find;
-uint64_t offset_proc_name;
-uint64_t offset_proc_rele;
+uint64_t offset_add_ret_gadget;
+uint64_t offset_osboolean_true;
+uint64_t offset_osboolean_false;
+uint64_t offset_osunserializexml;
+uint64_t offset_smalloc;
 
 uint64_t find_port(mach_port_name_t port);
 
 uint64_t proc_find(int pd);
-void proc_release(uint64_t proc);
 
 void platformize(int pd);

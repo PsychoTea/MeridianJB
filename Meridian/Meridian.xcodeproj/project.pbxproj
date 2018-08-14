@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B50D4C0F2122500800F61B82 /* offsetdump.m in Sources */ = {isa = PBXBuildFile; fileRef = B50D4C0E2122500800F61B82 /* offsetdump.m */; };
 		B50F79571FF2248D000D6015 /* patchfinder64.c in Sources */ = {isa = PBXBuildFile; fileRef = B50F79401FF2248B000D6015 /* patchfinder64.c */; };
 		B50F795C1FF2248D000D6015 /* root-rw.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F79461FF2248B000D6015 /* root-rw.m */; };
 		B50F79601FF2248D000D6015 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F794A1FF2248B000D6015 /* AppDelegate.m */; };
@@ -43,7 +44,6 @@
 		B5DF1AC020597A120090B4B5 /* liboffsetfinder64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1ABF20597A120090B4B5 /* liboffsetfinder64.a */; };
 		B5DF1AC22059C0E20090B4B5 /* libmerged.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC12059C0E20090B4B5 /* libmerged.a */; };
 		B5DF1AC42059C14E0090B4B5 /* libcompression.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */; };
-		B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */ = {isa = PBXBuildFile; fileRef = B5FDF8EA206EF1260074A075 /* offsetdump.m */; };
 		EE45BD8F20C2DEDE00D627C0 /* CreditsController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE45BD8E20C2DEDE00D627C0 /* CreditsController.m */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +72,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B50D4C0E2122500800F61B82 /* offsetdump.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = offsetdump.m; sourceTree = "<group>"; };
 		B50F793B1FF2248A000D6015 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B50F79401FF2248B000D6015 /* patchfinder64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = patchfinder64.c; sourceTree = "<group>"; };
 		B50F79461FF2248B000D6015 /* root-rw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "root-rw.m"; sourceTree = "<group>"; };
@@ -109,8 +110,8 @@
 		B57A06E9202CEDF500ACDB9D /* meridian-base.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "meridian-base.tar"; sourceTree = "<group>"; };
 		B57A06EE202CF4F300ACDB9D /* tar.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = tar.tar; sourceTree = "<group>"; };
 		B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jailbreak_daemonUser.c; sourceTree = "<group>"; };
-		B57CBF61205DA3DF00EEDA20 /* jailbreak_daemonUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jailbreak_daemonUser.h; sourceTree = "<group>"; };
 		B57CBF65205DB35F00EEDA20 /* fishhook */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fishhook; sourceTree = "<group>"; };
+		B57F7853212149FE008A3DEF /* jailbreak_daemonUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jailbreak_daemonUser.h; sourceTree = "<group>"; };
 		B582405D1FF75A4000D96DB5 /* helpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		B582405E1FF75A4000D96DB5 /* helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		B584C54920376BCA00BF4118 /* untar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = untar.m; sourceTree = "<group>"; };
@@ -141,7 +142,6 @@
 		B5DF1AC12059C0E20090B4B5 /* libmerged.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmerged.a; sourceTree = "<group>"; };
 		B5DF1AC32059C14E0090B4B5 /* libcompression.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcompression.tbd; path = usr/lib/libcompression.tbd; sourceTree = SDKROOT; };
 		B5F7CCCF204A29320051F4A7 /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
-		B5FDF8EA206EF1260074A075 /* offsetdump.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = offsetdump.m; sourceTree = "<group>"; };
 		B5FDF8EC206EF4880074A075 /* offsetdump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = offsetdump.h; sourceTree = "<group>"; };
 		EE45BD8D20C2DEDE00D627C0 /* CreditsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditsController.h; sourceTree = "<group>"; };
 		EE45BD8E20C2DEDE00D627C0 /* CreditsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CreditsController.m; sourceTree = "<group>"; };
@@ -236,12 +236,12 @@
 			isa = PBXGroup;
 			children = (
 				B585F414205198DF0049C703 /* liboffsetfinder64.hpp */,
+				B5FDF8EC206EF4880074A075 /* offsetdump.h */,
+				B50D4C0E2122500800F61B82 /* offsetdump.m */,
 				B585F41920519B7E0049C703 /* offsetfinder.h */,
 				B585F4172051993E0049C703 /* offsetfinder.mm */,
 				B50F794C1FF2248C000D6015 /* patchfinder64.h */,
 				B50F79401FF2248B000D6015 /* patchfinder64.c */,
-				B5FDF8EA206EF1260074A075 /* offsetdump.m */,
-				B5FDF8EC206EF4880074A075 /* offsetdump.h */,
 			);
 			path = patchfinders;
 			sourceTree = "<group>";
@@ -265,8 +265,8 @@
 		B57CBF5F205DA3DF00EEDA20 /* mach */ = {
 			isa = PBXGroup;
 			children = (
+				B57F7853212149FE008A3DEF /* jailbreak_daemonUser.h */,
 				B57CBF60205DA3DF00EEDA20 /* jailbreak_daemonUser.c */,
-				B57CBF61205DA3DF00EEDA20 /* jailbreak_daemonUser.h */,
 			);
 			path = mach;
 			sourceTree = "<group>";
@@ -485,6 +485,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B50D4C0F2122500800F61B82 /* offsetdump.m in Sources */,
 				B578A6542007FD8100C19091 /* v0rtex.m in Sources */,
 				B5783DB2210DDBE0004339F8 /* nonce.m in Sources */,
 				B582405F1FF75A4000D96DB5 /* helpers.m in Sources */,
@@ -492,7 +493,6 @@
 				B56929D7203708030044FF60 /* jailbreak.m in Sources */,
 				B5C4FBDC2052E67700F82D43 /* SettingsController.m in Sources */,
 				B5B7C2A01FF2BA100087619A /* main.m in Sources */,
-				B5FDF8EB206EF1260074A075 /* offsetdump.m in Sources */,
 				B50F79641FF2248D000D6015 /* amfi.m in Sources */,
 				B52F29282051F10800F4EB57 /* fucksigningservices.m in Sources */,
 				B50F79631FF2248D000D6015 /* kernel.m in Sources */,
@@ -665,7 +665,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6EKJWC698P;
+				DEVELOPMENT_TEAM = V7798YDA5P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
@@ -678,7 +678,7 @@
 					"$(PROJECT_DIR)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -694,7 +694,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6EKJWC698P;
+				DEVELOPMENT_TEAM = V7798YDA5P;
 				ENABLE_BITCODE = NO;
 				GCC_NO_COMMON_BLOCKS = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Meridian/views/Info.plist";
@@ -706,7 +706,7 @@
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/IOKit.framework/Versions/A",
 					"$(PROJECT_DIR)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB1;
+				PRODUCT_BUNDLE_IDENTIFIER = zone.sparkes.MeridianJB2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;

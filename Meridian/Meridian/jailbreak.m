@@ -539,12 +539,14 @@ int startJailbreakd() {
     NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
     NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
     
-    job[@"EnvironmentVariables"][@"KernelBase"]     = [NSString stringWithFormat:@"0x%16llx", kernel_base];
-    job[@"EnvironmentVariables"][@"KernProcAddr"]   = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
-    job[@"EnvironmentVariables"][@"ZoneMapOffset"]  = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
-    job[@"EnvironmentVariables"][@"ProcFind"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_find];
-    job[@"EnvironmentVariables"][@"ProcName"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_name];
-    job[@"EnvironmentVariables"][@"ProcRele"]       = [NSString stringWithFormat:@"0x%16llx", offsets.proc_rele];
+    job[@"EnvironmentVariables"][@"KernelBase"]         = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+    job[@"EnvironmentVariables"][@"KernProcAddr"]       = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+    job[@"EnvironmentVariables"][@"ZoneMapOffset"]      = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
+    job[@"EnvironmentVariables"][@"AddRetGadget"]       = [NSString stringWithFormat:@"0x%16llx", find_add_x0_x0_0x40_ret()];
+    job[@"EnvironmentVariables"][@"OSBooleanTrue"]      = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_True()];
+    job[@"EnvironmentVariables"][@"OSBooleanFalse"]     = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_False()];
+    job[@"EnvironmentVariables"][@"OSUnserializeXML"]   = [NSString stringWithFormat:@"0x%16llx", find_OSUnserializeXML()];
+    job[@"EnvironmentVariables"][@"Smalloc"]            = [NSString stringWithFormat:@"0x%16llx", find_smalloc()];
     [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
     chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
     chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);

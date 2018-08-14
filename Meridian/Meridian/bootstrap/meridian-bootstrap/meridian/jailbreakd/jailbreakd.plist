@@ -8,15 +8,21 @@
 	<string>/meridian/jailbreakd/jailbreakd</string>
 	<key>EnvironmentVariables</key>
 	<dict>
-		<key>ProcName</key>
-		<string>0x0000000000000000</string>
-		<key>ProcFind</key>
-		<string>0x0000000000000000</string>
-		<key>ZoneMapOffset</key>
+		<key>KernelBase</key>
 		<string>0x0000000000000000</string>
 		<key>KernProcAddr</key>
 		<string>0x0000000000000000</string>
-		<key>KernelBase</key>
+		<key>ZoneMapOffset</key>
+		<string>0x0000000000000000</string>
+		<key>AddRetGadget</key>
+		<string>0x0000000000000000</string>
+		<key>OSBooleanTrue</key>
+		<string>0x0000000000000000</string>
+		<key>OSBooleanFalse</key>
+		<string>0x0000000000000000</string>
+		<key>OSUnserializeXML</key>
+		<string>0x0000000000000000</string>
+		<key>Smalloc</key>
 		<string>0x0000000000000000</string>
 	</dict>
 	<key>UserName</key>

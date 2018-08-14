@@ -1,7 +1,8 @@
 #include <stdlib.h>
+
+#include "kern_utils.h"
 #include "kexecute.h"
 #include "kmem.h"
-#include "patchfinder64.h"
 #include "osobject.h"
 
 // offsets in vtable:
@@ -109,7 +110,7 @@ void OSArray_RemoveObject(uint64_t array, unsigned int idx){
 }
 
 // XXX error handling just for fun? :)
-uint64_t _OSUnserializeXML(const char* buffer) {
+uint64_t _OSUnserializeXML(const char *buffer) {
 	size_t len = strlen(buffer) + 1;
 
 	uint64_t ks = kalloc(len);
@@ -117,13 +118,13 @@ uint64_t _OSUnserializeXML(const char* buffer) {
 
 	uint64_t errorptr = 0;
 
-	uint64_t rv = kexecute(find_osunserializexml(), ks, errorptr, 0, 0, 0, 0, 0);
+	uint64_t rv = kexecute(offset_osunserializexml, ks, errorptr, 0, 0, 0, 0, 0);
 	kfree(ks, len);
 
 	return rv;
 }
 
-uint64_t OSUnserializeXML(const char* buffer) {
+uint64_t OSUnserializeXML(const char *buffer) {
 	uint64_t ret = _OSUnserializeXML(buffer);
 	
 	if (ret != 0) {
