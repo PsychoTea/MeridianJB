@@ -154,7 +154,7 @@ void set_sandbox_extensions(uint64_t proc) {
     while (*path != NULL) {
         ext = extension_create_file(*path, ext);
         if (ext == 0) {
-            DEBUGLOG(false "extension_create_file(%s) failed, panic!", *path);
+            DEBUGLOG(false, "extension_create_file(%s) failed, panic!", *path);
         }
         ++path;
     }
