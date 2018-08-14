@@ -36,7 +36,7 @@ int is_valid_command(uint8_t command) {
 
 int handle_command(uint8_t command, uint32_t pid) {
     if (!is_valid_command(command)) {
-        NSLog(@"Invalid command recieved.");
+        DEBUGLOG("Invalid command recieved.");
         return 1;
     }
     
@@ -53,38 +53,36 @@ int handle_command(uint8_t command, uint32_t pid) {
     
     if (command == JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY) {
         DEBUGLOG("JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY PID: %d", pid);
-        kill(pid, SIGCONT);
         
-//        __block int blk_pid = pid;
-//
-//        dispatch_async(queue, ^{
-//            char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-//            bzero(pathbuf, PROC_PIDPATHINFO_MAXSIZE);
-//
-//            int err = 0, tries = 0;
-//
-//            do {
-//                err = proc_pidpath(blk_pid, pathbuf, PROC_PIDPATHINFO_MAXSIZE);
-//                if (err <= 0) {
-//                    DEBUGLOG("failed to get pidpath for %d", blk_pid);
-//                    kill(blk_pid, SIGCONT); // just in case
-//                    return;
-//                }
-//
-//                tries++;
-//                // gives (1,000 * 1000 microseconds) 1 seconds of total wait time
-//                if (tries >= 1000) {
-//                    DEBUGLOG("failed to get pidpath for %d (%d tries)", blk_pid, tries);
-//                    kill(blk_pid, SIGCONT); // just in case
-//                    return;
-//                }
-//
-//                usleep(1000);
-//            } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
-//
-//            platformize(blk_pid);
-//            kill(blk_pid, SIGCONT);
-//        });
+        dispatch_async(queue, ^{
+            char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+            bzero(pathbuf, PROC_PIDPATHINFO_MAXSIZE);
+
+            int err = 0, tries = 0;
+            
+            do {
+                err = proc_pidpath(pid, pathbuf, PROC_PIDPATHINFO_MAXSIZE);
+                if (err <= 0) {
+                    DEBUGLOG("failed to get pidpath for %d", pid);
+                    kill(pid, SIGCONT); // just in case
+                    return;
+                }
+                
+                tries++;
+                // gives (1,000 * 1,000 microseconds) 1 seconds of total wait time
+                if (tries >= 1000) {
+                    DEBUGLOG("failed to get pidpath for %d (%d tries)", pid, tries);
+                    kill(pid, SIGCONT); // just in case
+                    return;
+                }
+                
+                usleep(1000);
+            } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
+
+            DEBUGLOG("path has morphed to: %s", pathbuf);
+            platformize(pid);
+            kill(pid, SIGCONT);
+        });
     }
     
     if (command == JAILBREAKD_COMMAND_FIXUP_SETUID) {
@@ -129,7 +127,7 @@ int main(int argc, char **argv, char **envp) {
     
     init_kexecute();
     
-    queue = dispatch_queue_create("jailbreakd.queue", DISPATCH_QUEUE_CONCURRENT);
+    queue = dispatch_queue_create("jailbreakd.queue", NULL);
     
     // Set up mach stuff
     mach_port_t server_port;
@@ -138,16 +136,9 @@ int main(int argc, char **argv, char **envp) {
         return -1;
     }
     
-    dispatch_queue_t main_queue = dispatch_queue_create("mach.jailbreakd.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_queue_t indv_queue = dispatch_queue_create("indv.jailbreakd.queue", DISPATCH_QUEUE_CONCURRENT);
-    
-    dispatch_source_t server = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, server_port, 0, main_queue);
+    dispatch_source_t server = dispatch_source_create(DISPATCH_SOURCE_TYPE_MACH_RECV, server_port, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(server, ^{
-        dispatch_async(indv_queue, ^{
-            DEBUGLOG("dispatch_mig_server calling...");
-            dispatch_mig_server(server, jbd_jailbreak_daemon_subsystem.maxsize, jailbreak_daemon_server);
-            DEBUGLOG("dispatch_mig_server returned.");
-        });
+        dispatch_mig_server(server, jbd_jailbreak_daemon_subsystem.maxsize, jailbreak_daemon_server);
     });
     dispatch_resume(server);
     
