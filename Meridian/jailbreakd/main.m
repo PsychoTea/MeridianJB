@@ -78,8 +78,8 @@ int handle_command(uint8_t command, uint32_t pid) {
                 
                 usleep(1000);
             } while (strcmp(pathbuf, "/usr/libexec/xpcproxy") == 0);
-
-            DEBUGLOG("path has morphed to: %s", pathbuf);
+            
+            DEBUGLOG("xpcproxy has morphed to: %s", pathbuf);
             platformize(pid);
             kill(pid, SIGCONT);
         });
