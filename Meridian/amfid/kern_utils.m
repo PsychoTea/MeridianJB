@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Foundation/Foundation.h>
-#include "helpers/kmem.h"
-#include "helpers/offsetof.h"
-#include "helpers/patchfinder64.h"
+#include "kmem.h"
+#include "offsetof.h"
+#include "patchfinder64.h"
 #include "kern_utils.h"
 
 uint64_t proc_find(int pd, int tries) {

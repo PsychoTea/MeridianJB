@@ -19,11 +19,11 @@
 #include <pthread.h>
 #include <Foundation/Foundation.h>
 #include <CommonCrypto/CommonDigest.h>
-#include "helpers/fishhook.h"
+#include "fishhook.h"
 #include "kern_utils.h"
-#include "helpers/kexecute.h"
-#include "helpers/kmem.h"
-#include "helpers/patchfinder64.h"
+#include "kexecute.h"
+#include "kmem.h"
+#include "patchfinder64.h"
 #include "ent_patching.h"
 
 int (*old_MISValidateSignatureAndCopyInfo)(NSString* file, NSDictionary* options, NSMutableDictionary** info);

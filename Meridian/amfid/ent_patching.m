@@ -2,10 +2,10 @@
 #include <stddef.h>
 #include <Foundation/Foundation.h>
 #include "cs_dingling.h"
-#include "helpers/kexecute.h"
-#include "helpers/kmem.h"
-#include "helpers/osobject.h"
-#include "helpers/patchfinder64.h"
+#include "kexecute.h"
+#include "kmem.h"
+#include "osobject.h"
+#include "patchfinder64.h"
 #include "ubc_headers.h"
 #include "kern_utils.h"
 
@@ -338,7 +338,7 @@ int fixup_platform_application(const char *path,
         CS_GenericBlob *entitlements_blob = (CS_GenericBlob *)malloc(size);
         entitlements_blob->magic = CSMAGIC_EMBEDDED_ENTITLEMENTS;
         entitlements_blob->length = 8 + strlen(cstring);
-        stpcpy(entitlements_blob->data, cstring);
+        strncpy(entitlements_blob->data, cstring, strlen(cstring) + 1);
         
         // Copy the data into kernel, and write to the csb_entitlements_blob field
         uint64_t entptr = kalloc(size);

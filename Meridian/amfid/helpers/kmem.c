@@ -1,4 +1,4 @@
-#import "../kern_utils.h"
+#import "kern_utils.h"
 #import "kmem.h"
 
 #define MAX_CHUNK_SIZE 0xFFF
