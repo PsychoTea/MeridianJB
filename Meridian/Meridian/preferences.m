@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "preferences.h"
 
 #define TweaksKey               @"tweaksAreEnabled"
@@ -18,6 +19,7 @@
 
 void setTweaksEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:TweaksKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 BOOL tweaksAreEnabled() {
@@ -28,6 +30,7 @@ BOOL tweaksAreEnabled() {
 
 void setStartLaunchDaemonsEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:StartLaunchDaemonsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 BOOL startLaunchDaemonsIsEnabled() {
@@ -38,6 +41,7 @@ BOOL startLaunchDaemonsIsEnabled() {
 
 void setBootNonceValue(uint64_t bootNonce) {
     [[NSUserDefaults standardUserDefaults] setInteger:bootNonce forKey:BootNonceKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 uint64_t getBootNonceValue() {
@@ -48,17 +52,18 @@ uint64_t getBootNonceValue() {
 
 void setStartDropbearEnabled(BOOL enabled) {
     [[NSUserDefaults standardUserDefaults] setBool:enabled forKey:StartDropbearKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 BOOL startDropbearIsEnabled() {
     NSNumber *enabled = [[NSUserDefaults standardUserDefaults] objectForKey:StartDropbearKey];
     
-//    return (enabled) ? [enabled boolValue] : false;
-    return (enabled) ? [enabled boolValue] : true;
+    return (enabled) ? [enabled boolValue] : false;
 }
 
 void setListenPort(NSInteger portOption) {
     [[NSUserDefaults standardUserDefaults] setInteger:portOption forKey:PortKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 NSInteger listenPort(void) {
