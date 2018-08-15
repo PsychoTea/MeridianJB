@@ -58,6 +58,7 @@ void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel
     off_file[@"VfsContextCurrent"]              = [NSString stringWithFormat:@"0x%016llx", offsets->vfs_context_current];
     off_file[@"VnodeGetFromFD"]                 = [NSString stringWithFormat:@"0x%016llx", offsets->vnode_getfromfd];
     off_file[@"VnodeGetAttr"]                   = [NSString stringWithFormat:@"0x%016llx", offsets->vnode_getattr];
+    off_file[@"VnodePut"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->vnode_put];
     off_file[@"CSBlobEntDictSet"]               = [NSString stringWithFormat:@"0x%016llx", offsets->csblob_ent_dict_set];
     off_file[@"SHA1Init"]                       = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_init];
     off_file[@"SHA1Update"]                     = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_update];

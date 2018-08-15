@@ -39,6 +39,7 @@ typedef struct
     kptr_t vfs_context_current;
     kptr_t vnode_getfromfd;
     kptr_t vnode_getattr;
+    kptr_t vnode_put;
     kptr_t csblob_ent_dict_set;
     kptr_t sha1_init;
     kptr_t sha1_update;
