@@ -392,6 +392,13 @@ int fixup_platform_application(const char *path,
         wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
     
+    ret = vnode_put(vnode);
+    if (ret != 0) {
+        NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
+        ret = 12;
+        goto out;
+    }
+    
     ret = 0;
     
 out:
