@@ -9,6 +9,9 @@
 #include "ubc_headers.h"
 #include "kern_utils.h"
 
+// You don't wanna know why this exists :-)
+int added_offset = -1;
+
 uint64_t get_vfs_context() {
     // vfs_context_t vfs_context_current(void)
     uint64_t vfs_context = kexecute(offset_vfs_context_current, 1, 0, 0, 0, 0, 0, 0);
@@ -29,15 +32,36 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     return 0;
 }
 
+int vnode_put(uint64_t vnode) {
+    return kexecute(offset_vnode_put, vnode, 0, 0, 0, 0, 0, 0);
+}
+
+int calculate_added_offset(uint64_t vnode) {
+    int32_t possibly_iocount = rk32(vnode + offsetof(struct vnode, v_iocount));
+    NSLog(@"possibly_iocount value: %d", possibly_iocount);
+    
+    // Since we've just called vnode_getfromfd, the iocount of this vnode cannot
+    // be 0. It also cannot be a negative number, as this would be an invalid
+    // iocount. However, if this is the case, we are actually looking at the
+    // v_owner field due to mismatched offsets, dictating that this device is
+    // running an older version of xnu with an 8 byte smaller vnode struct.
+    return (possibly_iocount <= 0) ? -8 : 0;
+}
+
 int check_vtype(uint64_t vnode) {
     /*
          struct vnode { // `vnode`
             ...
             uint16_t `v_type`;
      */
-    uint16_t v_type = rk16(vnode + offsetof(struct vnode, v_type));
+    uint16_t v_type = rk16(vnode + offsetof(struct vnode, v_type) + added_offset);
     
-    return (v_type == VREG) ? 0 : 1;
+    if (v_type != VREG) {
+        NSLog(@"got weird vtype for vnode (0x%llx): %d", vnode, v_type);
+        return 1;
+    }
+    
+    return 0;
 }
 
 uint64_t get_vu_ubcinfo(uint64_t vnode) {
@@ -48,7 +72,7 @@ uint64_t get_vu_ubcinfo(uint64_t vnode) {
                 struct ubc_info *vu_ubcinfo;
             } v_un;
      */
-    return rk64(vnode + offsetof(struct vnode, v_un));
+    return rk64(vnode + offsetof(struct vnode, v_un) + added_offset);
 }
 
 uint64_t get_csblobs(uint64_t vu_ubcinfo) {
@@ -241,6 +265,11 @@ int fixup_platform_application(const char *path,
     if (vnode == 0) {
         ret = -4;
         goto out;
+    }
+    
+    if (added_offset == -1) {
+        added_offset = calculate_added_offset(vnode);
+        NSLog(@"added_offset was set to: %d", added_offset);
     }
     
     ret = check_vtype(vnode);
