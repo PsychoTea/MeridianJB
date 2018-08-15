@@ -135,10 +135,12 @@ static void ctor(void) {
     offset_vfs_context_current  = strtoull([off_file[@"VfsContextCurrent"]    UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getfromfd      = strtoull([off_file[@"VnodeGetFromFD"]       UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getattr        = strtoull([off_file[@"VnodeGetAttr"]         UTF8String], NULL, 16) + kernel_slide;
+    offset_vnode_put            = strtoull([off_file[@"VnodePut"]             UTF8String], NULL, 16) + kernel_slide;
     offset_csblob_ent_dict_set  = strtoull([off_file[@"CSBlobEntDictSet"]     UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_init            = strtoull([off_file[@"SHA1Init"]             UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_update          = strtoull([off_file[@"SHA1Update"]           UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_final           = strtoull([off_file[@"SHA1Final"]            UTF8String], NULL, 16) + kernel_slide;
+    
     INFO(@"grabbed all offsets! eg: %llx, %llx, slide: %llx", offset_kernel_task, offset_sha1_final, kernel_slide);
     
     init_kernel(kernel_base, NULL);
