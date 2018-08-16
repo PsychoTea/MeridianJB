@@ -12,6 +12,22 @@
 // You don't wanna know why this exists :-)
 int added_offset = -1;
 
+// Default entitlements to be granted
+const char *default_ents =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                            "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+                            "<plist version=\"1.0\">"
+                                "<dict>"
+                                    "<key>platform-application</key>"                         // escape container restriction
+                                    "<true/>"
+                                    "<key>com.apple.private.security.no-container</key>"      // no container
+                                    "<true/>"
+                                    "<key>get-task-allow</key>"                               // task_for_pid
+                                    "<true/>"
+                                    "<key>com.apple.private.skip-library-validation</key>"    // allow invalid libs
+                                    "<true/>"
+                                "</dict>"
+                            "</plist>";
+
 uint64_t get_vfs_context() {
     // vfs_context_t vfs_context_current(void)
     uint64_t vfs_context = kexecute(offset_vfs_context_current, 1, 0, 0, 0, 0, 0, 0);
@@ -158,79 +174,107 @@ uint64_t find_csb_hashtype(uint32_t hashType) {
 }
 
 uint64_t construct_cs_blob(const void *cs,
-                           uint32_t cs_length,
-                           uint8_t cd_hash[20],
-                           uint32_t chosen_off,
-                           uint64_t macho_offset) {
+                       uint32_t cs_length,
+                       uint8_t cd_hash[20],
+                       uint32_t chosen_off,
+                       uint64_t macho_offset) {
     uint64_t entire_csdir = kalloc(cs_length);
     if (entire_csdir == 0) {
         NSLog(@"error!! failed to kalloc %d bytes!! (construct_cs_blob)", cs_length);
         return 0;
     }
-    
     kwrite(entire_csdir, cs, cs_length);
     
     const CS_CodeDirectory *blob = (const CS_CodeDirectory *)((uintptr_t)cs + chosen_off);
     
-    uint64_t cs_blob = kalloc(sizeof(struct cs_blob));
-    wk64(cs_blob + offsetof(struct cs_blob, csb_next), 0);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_cpu_type), -1); // kern will update this for us :-)
+    struct cs_blob *cs_blob = malloc(sizeof(struct cs_blob));
+    bzero(cs_blob, sizeof(struct cs_blob));
     
-    uint32_t csb_flags = (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED;
-    wk32(cs_blob + offsetof(struct cs_blob, csb_flags), csb_flags);
-
-    wk64(cs_blob + offsetof(struct cs_blob, csb_base_offset), macho_offset);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_start_offset), 0);
-    if (ntohl(blob->version) >= CS_SUPPORTSSCATTER && (ntohl(blob->scatterOffset))) {
+    cs_blob->csb_next = 0;
+    cs_blob->csb_cpu_type = -1;
+    
+    cs_blob->csb_flags = (ntohl(blob->flags) & CS_ALLOWED_MACHO) | CS_VALID | CS_SIGNED;
+    
+    cs_blob->csb_base_offset = macho_offset;
+    cs_blob->csb_start_offset = 0;
+    
+    if (ntohl(blob->version) >= CS_SUPPORTSSCATTER && ntohl(blob->scatterOffset) != 0) {
         const SC_Scatter *scatter = (const SC_Scatter *)((const char *)blob + ntohl(blob->scatterOffset));
-        wk64(cs_blob + offsetof(struct cs_blob, csb_start_offset), ((off_t)ntohl(scatter->base)) * (1U << blob->pageSize));
+        cs_blob->csb_start_offset = ((off_t)ntohl(scatter->base)) * (1U << blob->pageSize);
     }
-    wk64(cs_blob + offsetof(struct cs_blob, csb_end_offset), ((vm_offset_t)ntohl(blob->codeLimit) +
-                                                              ((1U << blob->pageSize) - 1) &
-                                                                ~((vm_offset_t)((1U << blob->pageSize) - 1))));
     
-    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_size), cs_length);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_mem_offset), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_mem_kaddr), entire_csdir);
+    cs_blob->csb_mem_size = cs_length;
+    cs_blob->csb_mem_offset = 0;
+    cs_blob->csb_mem_kaddr = entire_csdir;
     
-    kwrite(cs_blob + offsetof(struct cs_blob, csb_cdhash), cd_hash, CS_CDHASH_LEN);
+    memcpy(cs_blob->csb_cdhash, cd_hash, CS_CDHASH_LEN);
     
     uint64_t csb_hashtype = find_csb_hashtype(blob->hashType);
     if (csb_hashtype == 0) {
         NSLog(@"failed to get csb_hashtype!! (construct_cs_blob)");
         return 0;
     }
-    wk64(cs_blob + offsetof(struct cs_blob, csb_hashtype), csb_hashtype);
+    cs_blob->csb_hashtype = (const struct cs_hash *)csb_hashtype;
     
-    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pagesize), (1U << blob->pageSize));
-    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pagemask), (1U << blob->pageSize) - 1);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_pageshift), blob->pageSize);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_hash_firstlevel_pagesize), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_cd), entire_csdir + chosen_off);
+    cs_blob->csb_hash_pagesize = (1U << blob->pageSize);
+    cs_blob->csb_hash_pagemask = (1U << blob->pageSize) - 1;
+    cs_blob->csb_hash_pageshift = blob->pageSize;
     
-    wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements_blob), 0);
-    wk64(cs_blob + offsetof(struct cs_blob, csb_entitlements), 0); /* we'll update this later */
-    wk32(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 0);
-    wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), 0);
+    cs_blob->csb_end_offset = ntohl(blob->codeLimit) + cs_blob->csb_hash_pagemask & ~cs_blob->csb_hash_pagemask;
     
-    if (csb_flags & CS_PLATFORM_BINARY) {
-        wk32(cs_blob + offsetof(struct cs_blob, csb_platform_binary), 1);
-        wk32(cs_blob + offsetof(struct cs_blob, csb_platform_path), !!(csb_flags & CS_PLATFORM_PATH));
+    cs_blob->csb_hash_firstlevel_pagesize = 0;
+    cs_blob->csb_cd = (const CS_CodeDirectory *)(entire_csdir + chosen_off);
+    
+    if (cs_blob->csb_flags & CS_PLATFORM_BINARY) {
+        cs_blob->csb_platform_binary = 1;
+        cs_blob->csb_platform_path = !!(cs_blob->csb_flags & CS_PLATFORM_PATH);
     } else if ((ntohl(blob->version) >= CS_SUPPORTSTEAMID) &&
                (blob->teamOffset > 0)) {
         const char *name = ((const char *)blob) + ntohl(blob->teamOffset);
-        uint64_t teamid_addr = kalloc(strlen(name));
+        int length = strlen(name) + 1;
+        
+        uint64_t teamid_addr = kalloc(length);
+        
         if (teamid_addr == 0) {
-            NSLog(@"failed to kalloc %lu bytes!! (construct_cs_blob)", strlen(name));
+            NSLog(@"failed to kalloc %d bytes!! (construct_cs_blob)", length);
             return 0;
         }
         
-        kwrite(teamid_addr, name, strlen(name));
-        wk64(cs_blob + offsetof(struct cs_blob, csb_teamid), teamid_addr);
+        kwrite(teamid_addr, name, length);
+        cs_blob->csb_teamid = (const char *)teamid_addr;
     }
     
-    return cs_blob;
+    uint64_t kernel_blob = kalloc(sizeof(struct cs_blob));
+    kwrite(kernel_blob, cs_blob, sizeof(struct cs_blob));
+    
+    free(cs_blob);
+    
+    return kernel_blob;
+}
+
+uint64_t fresh_entitlements_blob = 0;
+uint64_t get_fresh_entitlements_blob() {
+    if (fresh_entitlements_blob == 0) {
+        int size = 8 + strlen(default_ents);
+        CS_GenericBlob *entitlements_blob = (CS_GenericBlob *)malloc(size);
+        bzero(entitlements_blob, size);
+        
+        entitlements_blob->magic = CSMAGIC_EMBEDDED_ENTITLEMENTS;
+        entitlements_blob->length = size;
+        strncpy(entitlements_blob->data, default_ents, strlen(default_ents) + 1);
+        
+        // Copy the data into kernel, and write to the csb_entitlements_blob field
+        uint64_t fresh_entitlements_blob = kalloc(size);
+        if (fresh_entitlements_blob == 0) {
+            NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
+            return -1;
+        }
+        
+        kwrite(fresh_entitlements_blob, entitlements_blob, size);
+        free(entitlements_blob);
+    }
+    
+    return fresh_entitlements_blob;
 }
 
 int fixup_platform_application(const char *path,
@@ -254,14 +298,16 @@ int fixup_platform_application(const char *path,
         goto out;
     }
     
-    uint64_t *vpp = malloc(sizeof(vnode_t *));
-    ret = get_vnode_fromfd(vfs_context, fd, vpp);
+    uint64_t vpp;
+    ret = get_vnode_fromfd(vfs_context, fd, &vpp);
     if (ret != 0) {
         ret = -3;
         goto out;
     }
     
-    uint64_t vnode = rk64(*vpp);
+    close(fd);
+    
+    uint64_t vnode = rk64(vpp);
     if (vnode == 0) {
         ret = -4;
         goto out;
@@ -284,75 +330,28 @@ int fixup_platform_application(const char *path,
         goto out;
     }
     
+    bool is_new_cs_blob = false;
     uint64_t cs_blobs = get_csblobs(vu_ubcinfo);
     if (cs_blobs == 0) {
-        uint64_t new_cs_blob = construct_cs_blob(blob,
+        is_new_cs_blob = true;
+        cs_blobs = construct_cs_blob(blob,
                                                  cs_length,
                                                  cd_hash,
                                                  csdir_offset,
                                                  macho_offset);
-        if (new_cs_blob == 0) {
+        if (cs_blobs == 0) {
             NSLog(@"failed to construct csblob");
             ret = -7;
             goto out;
         }
         
-        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs), new_cs_blob);
-        cs_blobs = rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs));
-        
-        // we now need to update a few other bits and bobs
-        
-        // memory_object_signed
-        // uip->ui_control->moc_object->code_signed = 1
-        ret = set_memory_object_code_signed(vu_ubcinfo);
-        if (ret != 0) {
-            ret = -8;
-            goto out;
-        }
-        
-        // disabled for now... causes panics on 2nd run of the binary
-        // something to do with a mutex lock.. i don't care to figure out what
-        // set generation count
-//        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen), 1);
-//        NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
-
-        // Update the cs_mtime field in ubc_info struct
-        uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_supported), 0);
-        wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
-        wk32(vnode_attr + offsetof(struct vnode_attr, va_vaflags), 0);
-        
-        // int vnode_getattr(vnode_t vp, struct vnode_attr *vap, vfs_context_t ctx)
-        ret = kexecute(offset_vnode_getattr, vnode, vnode_attr, vfs_context, 0, 0, 0, 0);
-        if (ret != 0) {
-            NSLog(@"vnode_attr failed - ret value: %d", ret);
-        } else {
-            uint64_t mtime = rk64(vnode_attr + offsetof(struct vnode_attr, va_modify_time));
-            if (mtime != 0) {
-                wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_mtime), mtime);
-            }
-        }
+        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs), cs_blobs);
     }
     
     if (entitlements == NULL) {
         // generate some new entitlements
         // this is all we're here to do, really :-)
-        const char *cstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                              "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-                              "<plist version=\"1.0\">"
-                              "<dict>"
-                                  "<key>platform-application</key>"                         // escape container restriction
-                                  "<true/>"
-                                  "<key>com.apple.private.security.no-container</key>"      // no container
-                                  "<true/>"
-                                  "<key>get-task-allow</key>"                               // task_for_pid
-                                  "<true/>"
-                                  "<key>com.apple.private.skip-library-validation</key>"    // allow invalid libs
-                                  "<true/>"
-                              "</dict>"
-                              "</plist>";
-        
-        uint64_t dict = OSUnserializeXML(cstring);
+        uint64_t dict = OSUnserializeXML(default_ents);
         if (dict == 0) {
             NSLog(@"failed to call OSUnserializeXML in ent_patching!!");
             ret = -9;
@@ -362,25 +361,8 @@ int fixup_platform_application(const char *path,
         csblob_ent_dict_set(cs_blobs, dict);
         csblob_update_csflags(dict, CS_GET_TASK_ALLOW);
         
-        // Update csb_entitlements_blob
-        int size = 8 + strlen(cstring);
-        CS_GenericBlob *entitlements_blob = (CS_GenericBlob *)malloc(size);
-        entitlements_blob->magic = CSMAGIC_EMBEDDED_ENTITLEMENTS;
-        entitlements_blob->length = 8 + strlen(cstring);
-        strncpy(entitlements_blob->data, cstring, strlen(cstring) + 1);
-        
-        // Copy the data into kernel, and write to the csb_entitlements_blob field
-        uint64_t entptr = kalloc(size);
-        if (entptr == 0) {
-            NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
-            ret = -10;
-            goto out;
-        }
-        
-        kwrite(entptr, entitlements_blob, size);
-        free(entitlements_blob);
-        
-        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
+        // Update csb_entitlements_blob with a blob based on `default_ents`
+        wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), get_fresh_entitlements_blob());
     } else {
         // there are some entitlements, let's parse them, update the osdict w/
         // platform-application (true), and write them into kern
@@ -392,15 +374,13 @@ int fixup_platform_application(const char *path,
         // know about the manually added entitlement, and therefore this flag won't be set
         // (assuming it wasn't already in the existing entitlements)
         ret = OSDictionary_GetItem(dict, "get-task-allow");
-        if (ret != 0) {
-            csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
-        }
+        if (ret) csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
         
-        OSDictionary_SetItem(dict, "platform-application", find_OSBoolean_True());
-        OSDictionary_SetItem(dict, "com.apple.private.security.no-container", find_OSBoolean_True());
-        OSDictionary_SetItem(dict, "get-task-allow", find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "platform-application",                      find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "com.apple.private.security.no-container",   find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "get-task-allow",                            find_OSBoolean_True());
         OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", find_OSBoolean_True());
-
+        
         csblob_ent_dict_set(cs_blobs, dict);
         
         // map the genblob up to csb_entitlements_blob
@@ -421,6 +401,39 @@ int fixup_platform_application(const char *path,
         wk64(cs_blobs + offsetof(struct cs_blob, csb_entitlements_blob), entptr);
     }
     
+    if (is_new_cs_blob) {
+        // memory_object_signed
+        // uip->ui_control->moc_object->code_signed = 1
+        ret = set_memory_object_code_signed(vu_ubcinfo);
+        if (ret != 0) {
+            ret = -8;
+            goto out;
+        }
+        
+        // TODO: Update global cs_* vars
+        
+        // disabled for now... causes panics on 2nd run of the binary
+        // something to do with a mutex lock.. i don't care to figure out what
+        // set generation count
+//        wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen), 1);
+//        NSLog(@"cs_add_gen: %llx", rk64(vu_ubcinfo + offsetof(struct ubc_info, cs_add_gen)));
+        
+        // Update the cs_mtime field in ubc_info struct
+        uint64_t vnode_attr = kalloc(sizeof(struct vnode_attr));
+        wk64(vnode_attr + offsetof(struct vnode_attr, va_active), 1LL << 14);
+        
+        // int vnode_getattr(vnode_t vp, struct vnode_attr *vap, vfs_context_t ctx)
+        ret = kexecute(offset_vnode_getattr, vnode, vnode_attr, vfs_context, 0, 0, 0, 0);
+        if (ret != 0) {
+            NSLog(@"vnode_attr failed - ret value: %d", ret);
+        } else {
+            uint64_t mtime = rk64(vnode_attr + offsetof(struct vnode_attr, va_modify_time));
+            if (mtime != 0) {
+                wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_mtime), mtime);
+            }
+        }
+    }
+    
     ret = vnode_put(vnode);
     if (ret != 0) {
         NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
@@ -431,7 +444,5 @@ int fixup_platform_application(const char *path,
     ret = 0;
     
 out:
-    if (fd >= 0)
-        close(fd);
     return ret;
 }
