@@ -40,12 +40,11 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     
     // int vnode_getfromfd(vfs_context_t cfx, int fd, vnode_t vpp)
     int ret = kexecute(offset_vnode_getfromfd, vfs_context, fd, vnode, 0, 0, 0, 0);
-    if (ret != 0) {
-        return -1;
-    }
     
-    *vpp = vnode;
-    return 0;
+    *vpp = rk64(vnode);
+    kfree(vnode);
+    
+    return ret;
 }
 
 int vnode_put(uint64_t vnode) {
@@ -296,18 +295,13 @@ int fixup_platform_application(const char *path,
         return -2
     }
     
-    uint64_t vpp;
-    ret = get_vnode_fromfd(vfs_context, fd, &vpp);
-    if (ret != 0) {
-        return -3;
-    }
+    uint64_t vnode;
+    ret = get_vnode_fromfd(vfs_context, fd, &vnode);
     
     close(fd);
     
-    uint64_t vnode = rk64(vpp);
-    if (vnode == 0) {
-        return -4;
-    }
+    if (ret   != 0) return -3;
+    if (vnode == 0) return -4;
     
     if (added_offset == -1) {
         added_offset = calculate_added_offset(vnode);
@@ -329,10 +323,10 @@ int fixup_platform_application(const char *path,
     if (cs_blobs == 0) {
         is_new_cs_blob = true;
         cs_blobs = construct_cs_blob(blob,
-                                                 cs_length,
-                                                 cd_hash,
-                                                 csdir_offset,
-                                                 macho_offset);
+                                     cs_length,
+                                     cd_hash,
+                                     csdir_offset,
+                                     macho_offset);
         if (cs_blobs == 0) {
             NSLog(@"failed to construct csblob");
             return -7;
@@ -427,7 +421,7 @@ int fixup_platform_application(const char *path,
     ret = vnode_put(vnode);
     if (ret != 0) {
         NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
-        return -12;
+        return -11;
     }
     
     return 0;
