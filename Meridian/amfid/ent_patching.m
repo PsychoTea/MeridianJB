@@ -288,29 +288,25 @@ int fixup_platform_application(const char *path,
     
     uint64_t vfs_context = get_vfs_context();
     if (vfs_context == 0) {
-        ret = -1;
-        goto out;
+        return -1;
     }
     
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        ret = -2;
-        goto out;
+        return -2
     }
     
     uint64_t vpp;
     ret = get_vnode_fromfd(vfs_context, fd, &vpp);
     if (ret != 0) {
-        ret = -3;
-        goto out;
+        return -3;
     }
     
     close(fd);
     
     uint64_t vnode = rk64(vpp);
     if (vnode == 0) {
-        ret = -4;
-        goto out;
+        return -4;
     }
     
     if (added_offset == -1) {
@@ -320,14 +316,12 @@ int fixup_platform_application(const char *path,
     
     ret = check_vtype(vnode);
     if (ret != 0) {
-        ret = -5;
-        goto out;
+        return -5;
     }
     
     uint64_t vu_ubcinfo = get_vu_ubcinfo(vnode);
     if (vu_ubcinfo == 0) {
-        ret = -6;
-        goto out;
+        return -6;
     }
     
     bool is_new_cs_blob = false;
@@ -341,8 +335,7 @@ int fixup_platform_application(const char *path,
                                                  macho_offset);
         if (cs_blobs == 0) {
             NSLog(@"failed to construct csblob");
-            ret = -7;
-            goto out;
+            return -7;
         }
         
         wk64(vu_ubcinfo + offsetof(struct ubc_info, cs_blobs), cs_blobs);
@@ -354,8 +347,7 @@ int fixup_platform_application(const char *path,
         uint64_t dict = OSUnserializeXML(default_ents);
         if (dict == 0) {
             NSLog(@"failed to call OSUnserializeXML in ent_patching!!");
-            ret = -9;
-            goto out;
+            return -8;
         }
         
         csblob_ent_dict_set(cs_blobs, dict);
@@ -393,8 +385,7 @@ int fixup_platform_application(const char *path,
         uint64_t entptr = kalloc(size);
         if (entptr == 0) {
             NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
-            ret = -11;
-            goto out;
+            return -9;
         }
         
         kwrite(entptr, entitlements, size);
@@ -406,8 +397,7 @@ int fixup_platform_application(const char *path,
         // uip->ui_control->moc_object->code_signed = 1
         ret = set_memory_object_code_signed(vu_ubcinfo);
         if (ret != 0) {
-            ret = -8;
-            goto out;
+            return -10;
         }
         
         // TODO: Update global cs_* vars
@@ -437,12 +427,8 @@ int fixup_platform_application(const char *path,
     ret = vnode_put(vnode);
     if (ret != 0) {
         NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
-        ret = 12;
-        goto out;
+        return -12;
     }
     
-    ret = 0;
-    
-out:
-    return ret;
+    return 0;
 }
