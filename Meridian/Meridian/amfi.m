@@ -69,8 +69,6 @@ int inject_trust(const char *path) {
     
     int is_swap = (magic == MH_CIGAM || magic == MH_CIGAM_64 || magic == FAT_CIGAM || magic == FAT_CIGAM_64);
     
-    NSLog(@"got magic (main): %x (%x)", magic, is_swap);
-    
     if (magic == MH_MAGIC || magic == MH_MAGIC_64 ||
         magic == MH_CIGAM || magic == MH_CIGAM_64)
     {
@@ -82,7 +80,6 @@ int inject_trust(const char *path) {
         if (cd_hash != NULL)
         {
             num_found_hashes++;
-            NSLog(@"got hash (def) %d", num_found_hashes);
             hash_array = realloc(hash_array, num_found_hashes * CS_CDHASH_LEN);
             memcpy(hash_array + ((num_found_hashes - 1) * CS_CDHASH_LEN), cd_hash, CS_CDHASH_LEN);
         }
@@ -107,8 +104,6 @@ int inject_trust(const char *path) {
             uint32_t magic;
             fread(&magic, sizeof(magic), 1, fd);
             
-            NSLog(@"[amfi] got magic (FAT): %x", magic);
-            
             if (magic == MH_MAGIC || magic == MH_MAGIC_64 ||
                 magic == MH_CIGAM || magic == MH_CIGAM_64)
             {
@@ -117,7 +112,6 @@ int inject_trust(const char *path) {
                 if (cd_hash != NULL)
                 {
                     num_found_hashes++;
-                    NSLog(@"got hash %d", num_found_hashes);
                     hash_array = realloc(hash_array, num_found_hashes * CS_CDHASH_LEN);
                     memcpy(hash_array + ((num_found_hashes - 1) * CS_CDHASH_LEN), cd_hash, CS_CDHASH_LEN);
                 }
