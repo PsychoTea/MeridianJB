@@ -100,6 +100,11 @@ extern uint64_t offset_csblob_ent_dict_set;
 extern uint64_t offset_sha1_init;
 extern uint64_t offset_sha1_update;
 extern uint64_t offset_sha1_final;
+extern uint64_t offset_add_x0_x0_0x40_ret;
+extern uint64_t offset_osboolean_true;
+extern uint64_t offset_osboolean_false;
+extern uint64_t offset_osunserialize_xml;
+extern uint64_t offset_cs_find_md;
 
 uint64_t proc_find(int pid, int tries);
 uint64_t find_port(mach_port_name_t port);

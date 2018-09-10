@@ -92,8 +92,6 @@ void set_csblob(uint64_t proc) {
     uint64_t textvp = rk64(proc + offsetof_p_textvp); // vnode of executable
     if (textvp == 0) return;
     
-    uint64_t textoff = rk64(proc + offsetof_p_textoff);
-
     uint16_t vnode_type = rk16(textvp + offsetof_v_type);
     if (vnode_type != 1) return; // 1 = VREG
     

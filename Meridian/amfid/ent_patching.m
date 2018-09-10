@@ -5,7 +5,6 @@
 #include "kexecute.h"
 #include "kmem.h"
 #include "osobject.h"
-#include "patchfinder64.h"
 #include "ubc_headers.h"
 #include "kern_utils.h"
 
@@ -42,7 +41,7 @@ int get_vnode_fromfd(uint64_t vfs_context, int fd, uint64_t *vpp) {
     int ret = kexecute(offset_vnode_getfromfd, vfs_context, fd, vnode, 0, 0, 0, 0);
     
     *vpp = rk64(vnode);
-    kfree(vnode);
+    kfree(vnode, sizeof(vnode_t *));
     
     return ret;
 }
@@ -161,20 +160,19 @@ uint64_t find_csb_hashtype(uint32_t hashType) {
         }
     }
     
-    uint64_t cs_find_md = find_cs_find_md();
-    if (cs_find_md == 0) {
+    if (offset_cs_find_md == 0) {
         // Dammit :( If the hash isn't SHA1 it now won't run,
         // but if we return 0 it will just KP. I'd rather a Killed: 9
         NSLog(@"FATAL ERROR! Unable to find 'cs_find_md'!!");
         return cs_hash_ptr;
     }
     
-    return rk64(cs_find_md + ((hashType - 1) * 0x8));
+    return rk64(offset_cs_find_md + ((hashType - 1) * 0x8));
 }
 
 uint64_t construct_cs_blob(const void *cs,
                        uint32_t cs_length,
-                       uint8_t cd_hash[20],
+                       uint8_t cd_hash[CS_CDHASH_LEN],
                        uint32_t chosen_off,
                        uint64_t macho_offset) {
     uint64_t entire_csdir = kalloc(cs_length);
@@ -262,7 +260,7 @@ uint64_t get_fresh_entitlements_blob() {
         entitlements_blob->length = size;
         strncpy(entitlements_blob->data, default_ents, strlen(default_ents) + 1);
         
-        // Copy the data into kernel, and write to the csb_entitlements_blob field
+        // Copy the data into kernel
         uint64_t fresh_entitlements_blob = kalloc(size);
         if (fresh_entitlements_blob == 0) {
             NSLog(@"failed to allocate %d bytes!! in ent_patching", size);
@@ -292,13 +290,11 @@ int fixup_platform_application(const char *path,
     
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        return -2
+        return -2;
     }
     
-    uint64_t vnode;
+    uint64_t vnode = 0;
     ret = get_vnode_fromfd(vfs_context, fd, &vnode);
-    
-    close(fd);
     
     if (ret   != 0) return -3;
     if (vnode == 0) return -4;
@@ -362,10 +358,10 @@ int fixup_platform_application(const char *path,
         ret = OSDictionary_GetItem(dict, "get-task-allow");
         if (ret) csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
         
-        OSDictionary_SetItem(dict, "platform-application",                      find_OSBoolean_True());
-        OSDictionary_SetItem(dict, "com.apple.private.security.no-container",   find_OSBoolean_True());
-        OSDictionary_SetItem(dict, "get-task-allow",                            find_OSBoolean_True());
-        OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", find_OSBoolean_True());
+        OSDictionary_SetItem(dict, "platform-application",                      offset_osboolean_true);
+        OSDictionary_SetItem(dict, "com.apple.private.security.no-container",   offset_osboolean_true);
+        OSDictionary_SetItem(dict, "get-task-allow",                            offset_osboolean_true);
+        OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", offset_osboolean_true);
         
         csblob_ent_dict_set(cs_blobs, dict);
         
@@ -418,11 +414,13 @@ int fixup_platform_application(const char *path,
         }
     }
     
-    ret = vnode_put(vnode);
-    if (ret != 0) {
-        NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
-        return -11;
-    }
+//    ret = vnode_put(vnode);
+//    if (ret != 0) {
+//        NSLog(@"failed vnode_put(%llx)! ret: %d", vnode, ret);
+//        return -11;
+//    }
+    
+    close(fd);
     
     return 0;
 }

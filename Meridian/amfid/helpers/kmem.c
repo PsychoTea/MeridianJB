@@ -92,7 +92,7 @@ uint64_t kalloc(vm_size_t size){
 }
 
 void kfree(mach_vm_address_t address, vm_size_t size){
-  mach_vm_deallocate(tfp0, address, size);
+    mach_vm_deallocate(tfp0, address, size);
 }
 
 uint16_t rk16(uint64_t kaddr) {

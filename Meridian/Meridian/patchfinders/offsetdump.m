@@ -64,5 +64,14 @@ void dumpOffsetsToFile(offsets_t *offsets, uint64_t kernel_base, uint64_t kernel
     off_file[@"SHA1Update"]                     = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_update];
     off_file[@"SHA1Final"]                      = [NSString stringWithFormat:@"0x%016llx", offsets->sha1_final];
     
+    off_file[@"AddGadgetRet"]                   = [NSString stringWithFormat:@"0x%016llx", find_add_x0_x0_0x40_ret()];
+    off_file[@"OSBooleanTrue"]                  = [NSString stringWithFormat:@"0x%016llx", find_OSBoolean_True()];
+    off_file[@"OSBooleanFalse"]                 = [NSString stringWithFormat:@"0x%016llx", find_OSBoolean_False()];
+    off_file[@"OSUnserializeXML"]               = [NSString stringWithFormat:@"0x%016llx", find_OSUnserializeXML()];
+    off_file[@"Smalloc"]                        = [NSString stringWithFormat:@"0x%016llx", find_smalloc()];
+    off_file[@"CSFindMD"]                       = [NSString stringWithFormat:@"0x%016llx", find_cs_find_md(offsets->sha1_init + kernel_slide,
+                                                                                                           offsets->sha1_update + kernel_slide,
+                                                                                                           offsets->sha1_final + kernel_slide)];
+    
     [off_file writeToFile:@"/meridian/offsets.plist" atomically:YES];
 }

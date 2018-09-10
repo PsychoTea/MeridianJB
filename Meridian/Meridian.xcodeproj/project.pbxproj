@@ -220,6 +220,7 @@
 				B57CBF5F205DA3DF00EEDA20 /* mach */,
 				B50F794E1FF2248C000D6015 /* amfi.h */,
 				B50F79531FF2248D000D6015 /* amfi.m */,
+				B50F793B1FF2248A000D6015 /* common.h */,
 				B56929D82037080D0044FF60 /* jailbreak.h */,
 				B56929D6203708020044FF60 /* jailbreak.m */,
 				B5A034FC210D162900C0E52E /* preferences.m */,
@@ -297,21 +298,20 @@
 		B5E98535205B4CE500AD1FEC /* helpers */ = {
 			isa = PBXGroup;
 			children = (
-				B5B7C29F1FF2BA100087619A /* main.m */,
-				B584C54B20376BD200BF4118 /* untar.h */,
-				B584C54920376BCA00BF4118 /* untar.m */,
-				B50F793B1FF2248A000D6015 /* common.h */,
 				B52F29262051F10800F4EB57 /* fucksigningservices.h */,
 				B52F29272051F10800F4EB57 /* fucksigningservices.m */,
 				B582405D1FF75A4000D96DB5 /* helpers.h */,
 				B582405E1FF75A4000D96DB5 /* helpers.m */,
+				B5783DB3210DDC79004339F8 /* iokit.h */,
 				B50F79511FF2248C000D6015 /* kernel.h */,
 				B50F794F1FF2248C000D6015 /* kernel.m */,
-				B585494920A64F8F00107CF2 /* nvpatch.h */,
-				B585494A20A64F8F00107CF2 /* nvpatch.c */,
+				B5B7C29F1FF2BA100087619A /* main.m */,
 				B5783DB4210DDE62004339F8 /* nonce.h */,
 				B5783DB1210DDBE0004339F8 /* nonce.m */,
-				B5783DB3210DDC79004339F8 /* iokit.h */,
+				B585494920A64F8F00107CF2 /* nvpatch.h */,
+				B585494A20A64F8F00107CF2 /* nvpatch.c */,
+				B584C54B20376BD200BF4118 /* untar.h */,
+				B584C54920376BCA00BF4118 /* untar.m */,
 			);
 			path = helpers;
 			sourceTree = "<group>";
@@ -321,7 +321,7 @@
 /* Begin PBXLegacyTarget section */
 		B5555EA6205438CA00D62F57 /* amfid */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
+			buildArgumentsString = "$(ACTION)";
 			buildConfigurationList = B5555EA7205438CA00D62F57 /* Build configuration list for PBXLegacyTarget "amfid" */;
 			buildPhases = (
 			);
@@ -335,7 +335,7 @@
 		};
 		B5555EAE205438F300D62F57 /* pspawn_hook */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
+			buildArgumentsString = "$(ACTION)";
 			buildConfigurationList = B5555EAF205438F300D62F57 /* Build configuration list for PBXLegacyTarget "pspawn_hook" */;
 			buildPhases = (
 			);
@@ -349,7 +349,7 @@
 		};
 		B5555EB22054390100D62F57 /* jailbreakd */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
+			buildArgumentsString = "$(ACTION)";
 			buildConfigurationList = B5555EB32054390100D62F57 /* Build configuration list for PBXLegacyTarget "jailbreakd" */;
 			buildPhases = (
 			);
