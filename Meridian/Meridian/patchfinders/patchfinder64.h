@@ -26,5 +26,6 @@ uint64_t find_OSBoolean_True(void);
 uint64_t find_OSBoolean_False(void);
 uint64_t find_OSUnserializeXML(void);
 uint64_t find_smalloc(void);
+uint64_t find_cs_find_md(uint64_t sha1_init, uint64_t sha1_update, uint64_t sha1_final);
 
 #endif

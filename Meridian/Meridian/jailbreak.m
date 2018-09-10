@@ -25,7 +25,7 @@
 
 NSFileManager *fileMgr;
 
-offsets_t offsets;
+offsets_t *offsets;
 
 BOOL great_success = FALSE;
 
@@ -161,7 +161,7 @@ int makeShitHappen(ViewController *view) {
     [view writeText:@"done!"];
     
     // dump offsets to file for later use (/meridian/offsets.plist)
-    dumpOffsetsToFile(&offsets, kernel_base, kslide);
+    dumpOffsetsToFile(offsets, kernel_base, kslide);
     
     // patch amfid
     [view writeText:@"patching amfid..."];
@@ -320,19 +320,17 @@ kern_return_t callback(task_t kern_task, kptr_t kbase, void *cb_data) {
 }
 
 int runV0rtex() {
-    offsets_t *offs = get_offsets();
+    offsets = get_offsets();
     
-    if (offs == NULL) {
+    if (offsets == NULL) {
         return -420;
     }
     
-    offsets = *offs;
+    int ret = v0rtex(offsets, &callback, NULL);
     
-    int ret = v0rtex(&offsets, &callback, NULL);
-    
-    uint64_t kernel_task_addr = rk64(offs->kernel_task + kslide);
-    kernprocaddr = rk64(kernel_task_addr + offs->task_bsd_info);
-    kern_ucred = rk64(kernprocaddr + offs->proc_ucred);
+    uint64_t kernel_task_addr = rk64(offsets->kernel_task + kslide);
+    kernprocaddr = rk64(kernel_task_addr + offsets->task_bsd_info);
+    kern_ucred = rk64(kernprocaddr + offsets->proc_ucred);
     
     if (ret == 0) {
         NSLog(@"tfp0: 0x%x", tfp0);
@@ -360,7 +358,7 @@ int remountRootFs() {
     NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
     int pre130 = osVersion.minorVersion < 3 ? 1 : 0;
     
-    int rv = mount_root(kslide, offsets.root_vnode, pre130);
+    int rv = mount_root(kslide, offsets->root_vnode, pre130);
     if (rv != 0) {
         return 1;
     }
@@ -541,7 +539,7 @@ int startJailbreakd() {
     
     job[@"EnvironmentVariables"][@"KernelBase"]         = [NSString stringWithFormat:@"0x%16llx", kernel_base];
     job[@"EnvironmentVariables"][@"KernProcAddr"]       = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
-    job[@"EnvironmentVariables"][@"ZoneMapOffset"]      = [NSString stringWithFormat:@"0x%16llx", offsets.zone_map];
+    job[@"EnvironmentVariables"][@"ZoneMapOffset"]      = [NSString stringWithFormat:@"0x%16llx", offsets->zone_map];
     job[@"EnvironmentVariables"][@"AddRetGadget"]       = [NSString stringWithFormat:@"0x%16llx", find_add_x0_x0_0x40_ret()];
     job[@"EnvironmentVariables"][@"OSBooleanTrue"]      = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_True()];
     job[@"EnvironmentVariables"][@"OSBooleanFalse"]     = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_False()];
@@ -566,14 +564,10 @@ int startJailbreakd() {
         }
     }
     
-    usleep(100000);
-    
     if (tweaksAreEnabled()) {
-        // tell jailbreakd to platformize launchd
-        // this adds skip-lib-val to MACF slot and allows us
-        // to inject pspawn without it being in trust cache
-        // (plus FAT/multiarch in trust cache is a pain to code, i'm lazy)
-        rv = call_jailbreakd(JAILBREAKD_COMMAND_ENTITLE, 1);
+        sleep(2);
+        
+        rv = inject_trust("/usr/lib/pspawn_hook.dylib");
         if (rv != 0) return 2;
         
         // inject pspawn_hook.dylib to launchd

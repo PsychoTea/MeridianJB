@@ -13,7 +13,7 @@ typedef struct {
     size_t size;
 } img_info_t;
 
-const uint8_t *find_code_signature(img_info_t *info, uint32_t *cs_size);
+const void *find_code_signature(img_info_t *info, uint32_t *cs_size);
 
 int find_best_codedir(const void *csblob,
                       uint32_t csblob_size,

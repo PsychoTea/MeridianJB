@@ -435,6 +435,10 @@ static addr_t cstring_base = 0;
 static addr_t cstring_size = 0;
 static addr_t pstring_base = 0;
 static addr_t pstring_size = 0;
+static addr_t data_base = 0;
+static addr_t data_size = 0;
+static addr_t data_const_base = 0;
+static addr_t data_const_size = 0;
 static addr_t kerndumpbase = -1;
 static addr_t kernel_entry = 0;
 static void *kernel_mh = 0;
@@ -521,6 +525,25 @@ init_patchfinder(const char *filename)
                         pstring_base = sec[j].addr;
                         pstring_size = sec[j].size;
                     }
+                }
+            }
+            if (!strcmp(seg->segname, "__LINKEDIT")) {
+                kernel_delta = seg->vmaddr - min - seg->fileoff;
+            }
+            if (!strcmp(seg->segname, "__DATA")) {
+                const struct section_64 *sec = (struct section_64 *)(seg + 1);
+                for (j = 0; j < seg->nsects; j++) {
+                    if (!strcmp(sec[j].sectname, "__data")) {
+                        data_base = sec[j].addr;
+                        data_size = sec[j].size;
+                    }
+                }
+            }
+            if (!strcmp(seg->segname, "__DATA_CONST")) {
+                const struct section_64 *sec = (struct section_64 *)(seg + 1);
+                for (j = 0; j < seg->nsects; j++) {
+                    data_const_base = sec[j].addr;
+                    data_const_size = sec[j].size;
                 }
             }
         }
@@ -879,4 +902,37 @@ addr_t find_smalloc(void) {
     ref -= kerndumpbase;
     uint64_t start = bof64(kernel, prelink_base, ref);
     return start + kerndumpbase;
+}
+
+addr_t find_cs_find_md(uint64_t sha1_init, uint64_t sha1_update, uint64_t sha1_final) {
+    addr_t match[6] = { 1, 0x14, 0x14, sha1_init, sha1_update, sha1_final };
+    
+    addr_t ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_const_base - kerndumpbase), data_const_size, (unsigned char*)match, sizeof(match));
+    
+    if (ref == 0) ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_base - kerndumpbase), data_size, (unsigned char*)match, sizeof(match));
+    
+    if (ref == 0) return 0;
+    
+    addr_t *testing = (addr_t *)ref;
+    ref = ref - (addr_t)kernel + kerndumpbase;
+    
+    if (*(testing - 6) == 2 && *(testing + 6) != 2) {
+        match[0] = ref;
+        match[1] = ref - 0x30;
+        match[2] = ref - 0x30 * 2;
+        match[3] = ref - 0x30 * 3;
+    } else if (*(testing - 6) != 2 && *(testing + 6) == 2) {
+        match[0] = ref;
+        match[1] = ref + 0x30;
+        match[2] = ref + 0x30 * 2;
+        match[3] = ref + 0x30 * 3;
+    } else {
+        return 0;
+    }
+    
+    ref = (addr_t)boyermoore_horspool_memmem(kernel + (data_const_base - kerndumpbase), data_const_size, (unsigned char*)match, 8*4);
+    
+    if (ref != 0) return ref - (addr_t)kernel + kerndumpbase;
+    
+    return 0;
 }

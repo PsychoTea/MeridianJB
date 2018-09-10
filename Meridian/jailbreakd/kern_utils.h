@@ -94,18 +94,18 @@ kern_return_t mach_vm_deallocate(vm_map_t target, mach_vm_address_t address, mac
 #define CS_SIGNED                       0x20000000  /* process has a signature (may have gone invalid) */
 #define CS_DEV_CODE                     0x40000000  /* code is dev signed, cannot be loaded into prod signed code */
 
-mach_port_t tfp0;
-uint64_t kernel_base;
-uint64_t kernel_slide;
+extern mach_port_t tfp0;
+extern uint64_t kernel_base;
+extern uint64_t kernel_slide;
 
-uint64_t kernprocaddr;
-uint64_t offset_zonemap;
+extern uint64_t kernprocaddr;
+extern uint64_t offset_zonemap;
 
-uint64_t offset_add_ret_gadget;
-uint64_t offset_osboolean_true;
-uint64_t offset_osboolean_false;
-uint64_t offset_osunserializexml;
-uint64_t offset_smalloc;
+extern uint64_t offset_add_ret_gadget;
+extern uint64_t offset_osboolean_true;
+extern uint64_t offset_osboolean_false;
+extern uint64_t offset_osunserializexml;
+extern uint64_t offset_smalloc;
 
 uint64_t find_port(mach_port_name_t port);
 

@@ -1,10 +1,31 @@
+#import <Foundation/Foundation.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <Foundation/Foundation.h>
+
+#include "common.h"
+#include "kern_utils.h"
 #include "kmem.h"
 #include "offsetof.h"
-#include "patchfinder64.h"
-#include "kern_utils.h"
+
+mach_port_t tfp0;
+uint64_t kernel_base;
+uint64_t kernel_slide;
+uint64_t offset_zonemap;
+uint64_t offset_kernel_task;
+uint64_t offset_vfs_context_current;
+uint64_t offset_vnode_getfromfd;
+uint64_t offset_vnode_getattr;
+uint64_t offset_vnode_put;
+uint64_t offset_csblob_ent_dict_set;
+uint64_t offset_sha1_init;
+uint64_t offset_sha1_update;
+uint64_t offset_sha1_final;
+uint64_t offset_add_x0_x0_0x40_ret;
+uint64_t offset_osboolean_true;
+uint64_t offset_osboolean_false;
+uint64_t offset_osunserialize_xml;
+uint64_t offset_cs_find_md;
 
 uint64_t proc_find(int pd, int tries) {
     while (tries-- > 0) {

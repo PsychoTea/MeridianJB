@@ -23,7 +23,6 @@
 #include "kern_utils.h"
 #include "kexecute.h"
 #include "kmem.h"
-#include "patchfinder64.h"
 #include "ent_patching.h"
 
 int (*old_MISValidateSignatureAndCopyInfo)(NSString* file, NSDictionary* options, NSMutableDictionary** info);
@@ -66,8 +65,8 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     }
     
     uint32_t cs_length;
-    const uint8_t *cs = find_code_signature(&img, &cs_length);
-    if (cs == NULL) {
+    const void *code_signature = find_code_signature(&img, &cs_length);
+    if (code_signature == NULL) {
         ERROR(@"can't find code signature: %@", file);
         close_img(&img);
         return 0;
@@ -76,7 +75,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     const CS_CodeDirectory *chosen_csdir = NULL;
     uint32_t cdir_offset = 0;
     const CS_GenericBlob *entitlements = NULL; // may be NULL for no entitlements
-    int ret = find_best_codedir(cs, cs_length, &chosen_csdir, &cdir_offset, &entitlements);
+    int ret = find_best_codedir(code_signature, cs_length, &chosen_csdir, &cdir_offset, &entitlements);
     if (ret != 0) {
         ERROR(@"failed to find the best code directory");
         close_img(&img);
@@ -92,7 +91,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     }
     
     NSData *ns_cdhash = [[NSData alloc] initWithBytes:cd_hash length:sizeof(cd_hash)];
-    [*info setValue: ns_cdhash forKey:@"CdHash"];
+    [*info setValue:ns_cdhash forKey:@"CdHash"];
 
     const char *hash_name = get_hash_name(chosen_csdir->hashType);
     
@@ -101,7 +100,7 @@ int fake_MISValidateSignatureAndCopyInfo(NSString* file, NSDictionary* options, 
     // let's check entitlements, add platform-application if necessary
     ret = fixup_platform_application(file.UTF8String,
                                      file_off,
-                                     cs,
+                                     code_signature,
                                      cs_length,
                                      cd_hash,
                                      cdir_offset,
@@ -121,12 +120,16 @@ static void ctor(void) {
     
     kern_return_t ret = host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 4, &tfp0);
     if (ret != KERN_SUCCESS || tfp0 == MACH_PORT_NULL) {
-        INFO("failed to get tfp0!");
+        ERROR("failed to get tfp0!");
         return;
     }
     INFO("got tfp0: %x", tfp0);
     
     NSDictionary *off_file = [NSDictionary dictionaryWithContentsOfFile:@"/meridian/offsets.plist"];
+    if (off_file == NULL) {
+        ERROR("failed to find the offsets file!");
+        return;
+    }
     
     kernel_base                 = strtoull([off_file[@"KernelBase"]           UTF8String], NULL, 16);
     kernel_slide                = strtoull([off_file[@"KernelSlide"]          UTF8String], NULL, 16);
@@ -135,13 +138,19 @@ static void ctor(void) {
     offset_vfs_context_current  = strtoull([off_file[@"VfsContextCurrent"]    UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getfromfd      = strtoull([off_file[@"VnodeGetFromFD"]       UTF8String], NULL, 16) + kernel_slide;
     offset_vnode_getattr        = strtoull([off_file[@"VnodeGetAttr"]         UTF8String], NULL, 16) + kernel_slide;
+    offset_vnode_put            = strtoull([off_file[@"VnodePut"]             UTF8String], NULL, 16) + kernel_slide;
     offset_csblob_ent_dict_set  = strtoull([off_file[@"CSBlobEntDictSet"]     UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_init            = strtoull([off_file[@"SHA1Init"]             UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_update          = strtoull([off_file[@"SHA1Update"]           UTF8String], NULL, 16) + kernel_slide;
     offset_sha1_final           = strtoull([off_file[@"SHA1Final"]            UTF8String], NULL, 16) + kernel_slide;
-    INFO(@"grabbed all offsets! eg: %llx, %llx, slide: %llx", offset_kernel_task, offset_sha1_final, kernel_slide);
+    offset_add_x0_x0_0x40_ret   = strtoull([off_file[@"AddGadgetRet"]         UTF8String], NULL, 16);
+    offset_osboolean_true       = strtoull([off_file[@"OSBooleanTrue"]        UTF8String], NULL, 16);
+    offset_osboolean_false      = strtoull([off_file[@"OSBooleanFalse"]       UTF8String], NULL, 16);
+    offset_osunserialize_xml    = strtoull([off_file[@"OSUnserializeXML"]     UTF8String], NULL, 16);
+    offset_cs_find_md           = strtoull([off_file[@"CSFindMD"]             UTF8String], NULL, 16);
     
-    init_kernel(kernel_base, NULL);
+    INFO("grabbed all offsets! eg: %llx, %llx, slide: %llx", offset_kernel_task, offset_sha1_final, kernel_slide);
+    
     init_kexecute();
     
     // This is some wicked crazy shit that needs to happen to correctly patch
@@ -156,7 +165,7 @@ static void ctor(void) {
     };
     
     rebind_symbols(rebindings, 1);
-    NSLog(@"functions have been hooked! get fucked, codesigning :-)");
+    INFO("functions have been hooked! get fucked, codesigning :-)");
     
     // touch file so Meridian know's we're alive in here
     fclose(fopen("/var/tmp/amfid_payload.alive", "w+"));

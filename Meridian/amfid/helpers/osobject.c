@@ -1,7 +1,8 @@
 #include <stdlib.h>
+
+#include "kern_utils.h"
 #include "kexecute.h"
 #include "kmem.h"
-#include "patchfinder64.h"
 #include "osobject.h"
 
 // offsets in vtable:
@@ -117,7 +118,7 @@ uint64_t _OSUnserializeXML(const char* buffer) {
 
 	uint64_t errorptr = 0;
 
-	uint64_t rv = kexecute(find_osunserializexml(), ks, errorptr, 0, 0, 0, 0, 0);
+	uint64_t rv = kexecute(offset_osunserialize_xml, ks, errorptr, 0, 0, 0, 0, 0);
 	kfree(ks, len);
 
 	return rv;

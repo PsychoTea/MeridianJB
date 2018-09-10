@@ -55,7 +55,7 @@ kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port
 mach_port_t jbd_port;
 
 #define DYLD_INSERT             "DYLD_INSERT_LIBRARIES="
-#define MAX_INJECT              2
+#define MAX_INJECT              1
 
 #define PSPAWN_HOOK_DYLIB       "/usr/lib/pspawn_hook.dylib"
 #define TWEAKLOADER_DYLIB       "/usr/lib/TweakLoader.dylib"
@@ -136,6 +136,7 @@ int fake_posix_spawn_common(pid_t *pid,
         case PROCESS_XPCPROXY:
             if (strcmp(path, "/usr/libexec/amfid") == 0) {
                 inject[ninject++] = AMFID_PAYLOAD_DYLIB;
+                break;
             }
             if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
                 inject[ninject++] = TWEAKLOADER_DYLIB;

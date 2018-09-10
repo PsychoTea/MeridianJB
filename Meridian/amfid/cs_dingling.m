@@ -7,7 +7,7 @@
 #import <CommonCrypto/CommonDigest.h>
 
 // Finds the LC_CODE_SIGNATURE load command
-const uint8_t *find_code_signature(img_info_t *info, uint32_t *cs_size) {
+const void *find_code_signature(img_info_t *info, uint32_t *cs_size) {
 #define _LOG_ERROR(str, args...) ERROR("(%s) " str, info->name, ##args)
     if (info == NULL || info->addr == NULL) {
         return NULL;

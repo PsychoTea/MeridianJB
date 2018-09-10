@@ -17,5 +17,7 @@ $(OUTDIR)/$(TARGET): $(SRC) | $(OUTDIR)
 	$(LDID) -Sentitlements.xml $@
 	$(CHMOD) 755 $@
 
+install: all
+
 clean:
 	rm -rf $(OUTDIR)

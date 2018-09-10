@@ -87,18 +87,24 @@ kern_return_t mach_vm_write(vm_map_t target_task, mach_vm_address_t address, vm_
 kern_return_t mach_vm_allocate(vm_map_t target, mach_vm_address_t *address, mach_vm_size_t size, int flags);
 kern_return_t mach_vm_deallocate(vm_map_t target, mach_vm_address_t address, mach_vm_size_t size);
 
+extern mach_port_t tfp0;
+extern uint64_t kernel_base;
+extern uint64_t kernel_slide;
+extern uint64_t offset_zonemap;
+extern uint64_t offset_kernel_task;
+extern uint64_t offset_vfs_context_current;
+extern uint64_t offset_vnode_getfromfd;
+extern uint64_t offset_vnode_getattr;
+extern uint64_t offset_vnode_put;
+extern uint64_t offset_csblob_ent_dict_set;
+extern uint64_t offset_sha1_init;
+extern uint64_t offset_sha1_update;
+extern uint64_t offset_sha1_final;
+extern uint64_t offset_add_x0_x0_0x40_ret;
+extern uint64_t offset_osboolean_true;
+extern uint64_t offset_osboolean_false;
+extern uint64_t offset_osunserialize_xml;
+extern uint64_t offset_cs_find_md;
+
 uint64_t proc_find(int pid, int tries);
 uint64_t find_port(mach_port_name_t port);
-
-mach_port_t tfp0;
-uint64_t kernel_base;
-uint64_t kernel_slide;
-uint64_t offset_zonemap;
-uint64_t offset_kernel_task;
-uint64_t offset_vfs_context_current;
-uint64_t offset_vnode_getfromfd;
-uint64_t offset_vnode_getattr;
-uint64_t offset_csblob_ent_dict_set;
-uint64_t offset_sha1_init;
-uint64_t offset_sha1_update;
-uint64_t offset_sha1_final;

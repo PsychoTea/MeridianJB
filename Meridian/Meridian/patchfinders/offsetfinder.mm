@@ -62,6 +62,7 @@ extern "C" offsets_t *get_offsets() {
         off.vfs_context_current                 = (kptr_t)fi.find_sym("_vfs_context_current");
         off.vnode_getfromfd                     = (kptr_t)fi.find_sym("_vnode_getfromfd");
         off.vnode_getattr                       = (kptr_t)fi.find_sym("_vnode_getattr");
+        off.vnode_put                           = (kptr_t)fi.find_sym("_vnode_put");
         off.csblob_ent_dict_set                 = (kptr_t)fi.find_sym("_csblob_entitlements_dictionary_set");
         off.sha1_init                           = (kptr_t)fi.find_sym("_SHA1Init");
         off.sha1_update                         = (kptr_t)fi.find_sym("_SHA1Update");
