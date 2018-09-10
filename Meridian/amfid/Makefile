@@ -15,5 +15,7 @@ $(OUTDIR)/$(TARGET): $(SRC) | $(OUTDIR)
 	$(CC) $(CFLAGS) -o $@ $^
 	$(LDID) -S $@
 
+install: all
+
 clean:
 	rm -rf $(OUTDIR)
