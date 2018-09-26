@@ -54,6 +54,8 @@ kern_return_t bootstrap_look_up(mach_port_t port, const char *service, mach_port
 
 mach_port_t jbd_port;
 
+dispatch_queue_t queue = NULL;
+
 #define DYLD_INSERT             "DYLD_INSERT_LIBRARIES="
 #define MAX_INJECT              1
 
@@ -243,7 +245,7 @@ int fake_posix_spawn_common(pid_t *pid,
             kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, ourpid);
             
             if (ret != KERN_SUCCESS) {
-                DEBUGLOG("jbd_call(xpcproxy, %d): %s", ourpid, mach_error_string(ret));
+                DEBUGLOG("jbd_call(xpcproxy, %d): %x (%s)", ourpid, ret, mach_error_string(ret));
             }
         }
     }
@@ -261,12 +263,12 @@ int fake_posix_spawn_common(pid_t *pid,
         *pid = child;
     }
     
-     if (ninject > 0 && current_process == PROCESS_LAUNCHD) {
+    dispatch_async(queue, ^{
         kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, child);
         if (ret != KERN_SUCCESS) {
-            DEBUGLOG("jbd_call(launchd, %d): %s", child, mach_error_string(ret));
+            DEBUGLOG("jbd_call(launchd, %d): %x (%s)", child, ret, mach_error_string(ret));
         }
-    }
+    });
     
     retval = 0;
     
@@ -307,6 +309,8 @@ void rebind_pspawns(void) {
 
 __attribute__ ((constructor))
 static void ctor(void) {
+    queue = dispatch_queue_create("pspawn.queue", NULL);
+    
     char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
     bzero(pathbuf, sizeof(pathbuf));
     proc_pidpath(getpid(), pathbuf, sizeof(pathbuf));
