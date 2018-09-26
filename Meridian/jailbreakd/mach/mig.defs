@@ -4,6 +4,8 @@ subsystem jailbreak_daemon 500;
 userprefix jbd_;
 serverprefix jbd_;
 
+WaitTime 2500;
+
 #include <mach/std_types.defs>
 #include <mach/mach_types.defs>
 
