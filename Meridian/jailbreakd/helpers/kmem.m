@@ -1,5 +1,7 @@
-#import "kern_utils.h"
-#import "kmem.h"
+#include "kern_utils.h"
+#include "kmem.h"
+
+#import <Foundation/Foundation.h>
 
 #define MAX_CHUNK_SIZE 0xFFF
 
@@ -88,32 +90,28 @@ typedef struct {
 } kmap_hdr_t;
 
 uint64_t zm_fix_addr(uint64_t addr) {
-  static kmap_hdr_t zm_hdr = {0, 0, 0, 0};
-  if (zm_hdr.start == 0) {
-    // xxx rk64(0) ?!
-      // uint64_t zone_map_ref = find_zone_map_ref();
-      fprintf(stderr, "offset_zonemap = %llx \n", offset_zonemap);
-      fprintf(stderr, "zone_map_ref: %llx \n", offset_zonemap + kernel_slide);
-    uint64_t zone_map = rk64(offset_zonemap + kernel_slide);
-      fprintf(stderr, "zone_map: %llx \n", zone_map);
-    // hdr is at offset 0x10, mutexes at start
-    size_t r = kread(zone_map + 0x10, &zm_hdr, sizeof(zm_hdr));
-    fprintf(stderr, "zm_range: 0x%llx - 0x%llx (read 0x%zx, exp 0x%zx)\n", zm_hdr.start, zm_hdr.end, r, sizeof(zm_hdr));
+    static kmap_hdr_t zm_hdr = {0, 0, 0, 0};
+  
+    if (zm_hdr.start == 0) {
+        uint64_t zone_map = rk64(offset_zonemap + kernel_slide);
+        
+        // hdr is at offset 0x10, mutexes at start
+        size_t r = kread(zone_map + 0x10, &zm_hdr, sizeof(zm_hdr));
+        
+        if (r != sizeof(zm_hdr) || zm_hdr.start == 0 || zm_hdr.end == 0) {
+            NSLog(@"kread of zone_map failed!");
+            return 0;
+        }
 
-    if (r != sizeof(zm_hdr) || zm_hdr.start == 0 || zm_hdr.end == 0) {
-      fprintf(stderr, "kread of zone_map failed!\n");
-      exit(1);
+        if (zm_hdr.end - zm_hdr.start > 0x100000000) {
+            NSLog(@"zone_map is too big, sorry.\n");
+            return 0;
+        }
     }
 
-    if (zm_hdr.end - zm_hdr.start > 0x100000000) {
-        fprintf(stderr, "zone_map is too big, sorry.\n");
-        exit(1);
-    }
-  }
+    uint64_t zm_tmp = (zm_hdr.start & 0xffffffff00000000) | ((addr) & 0xffffffff);
 
-  uint64_t zm_tmp = (zm_hdr.start & 0xffffffff00000000) | ((addr) & 0xffffffff);
-
-  return zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp;
+    return zm_tmp < zm_hdr.start ? zm_tmp + 0x100000000 : zm_tmp;
 }
 
 int kstrcmp(uint64_t kstr, const char *str) {
