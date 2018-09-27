@@ -42,9 +42,6 @@ uint64_t proc_find(int pd) {
 }
 
 CACHED_FIND(uint64_t, our_task_addr) {
-    // proc_find won't work as it requires kexecute, which
-    // is not yet set up when this is called. we will just
-    // manually walk the proc list instead
     uint64_t proc = rk64(kernprocaddr + 0x8);
     
     while (proc) {
