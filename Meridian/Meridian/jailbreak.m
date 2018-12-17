@@ -236,31 +236,64 @@ int makeShitHappen(ViewController *view) {
     }
     
     // link substitute stuff
-    setUpSubstitute();
+//    setUpSubstitute();
     
     // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
-    setUpSymLinks();
+//    setUpSymLinks();
     
     // remove Substrate's SafeMode (MobileSafety) if it's installed
     // removing from dpkg will be handled by Cydia conflicts later
-    if (file_exists("/usr/lib/tweaks/MobileSafety.dylib") == 0) {
-        unlink("/usr/lib/tweaks/MobileSafety.dylib");
-    }
-    if (file_exists("/usr/lib/tweaks/MobileSafety.plist") == 0) {
-        unlink("/usr/lib/tweaks/MobileSafety.plist");
-    }
+//    if (file_exists("/usr/lib/tweaks/MobileSafety.dylib") == 0) {
+//        unlink("/usr/lib/tweaks/MobileSafety.dylib");
+//    }
+//    if (file_exists("/usr/lib/tweaks/MobileSafety.plist") == 0) {
+//        unlink("/usr/lib/tweaks/MobileSafety.plist");
+//    }
     
     // start jailbreakd
-    [view writeText:@"starting jailbreakd..."];
-    ret = startJailbreakd();
-    if (ret != 0) {
-        [view writeText:@"failed"];
-        if (ret > 1) {
-            [view writeTextPlain:@"failed to launch - %d tries", ret];
+//    [view writeText:@"starting jailbreakd..."];
+//    ret = startJailbreakd();
+//    if (ret != 0) {
+//        [view writeText:@"failed"];
+//        if (ret > 1) {
+//            [view writeTextPlain:@"failed to launch - %d tries", ret];
+//        }
+//        return 1;
+//    }
+//    [view writeText:@"done!"];
+    
+    {
+        // remove substitute related spelunking 
+        
+        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0)
+        {
+            unlink("/Library/MobileSubstrate/DynamicLibraries");
         }
-        return 1;
+        
+        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0)
+        {
+            mkdir("/Library/MobileSubstrate/DynamicLibraries", 0755);
+        }
+        
+        // Move all tweaks back into /Library/MobileSubstrate/DynamicLibraries
+        if (file_exists("/usr/lib/tweaks") != 0)
+        {
+            NSString *tweaks_path = @"/usr/lib/tweaks";
+            NSArray *items = [fileMgr contentsOfDirectoryAtPath:tweaks_path error:nil];
+            
+            for (NSString *file_name in items)
+            {
+                NSString *full_item_path = [NSString stringWithFormat:@"%@/%@", tweaks_path, file_name];
+                NSString *new_item_path = [NSString stringWithFormat:@"/Library/MobileSubstrate/DynamicLibraries/%@", file_name];
+                
+                [fileMgr moveItemAtPath:full_item_path toPath:new_item_path error:nil];
+            }
+        }
+        
+        [fileMgr removeItemAtPath:@"/usr/lib/tweaks" error:nil];
+        
+        // TODO: clean up header files/framework sym linking
     }
-    [view writeText:@"done!"];
     
     // patch com.apple.System.boot-nonce
     [view writeText:@"patching boot-nonce..."];
@@ -566,10 +599,10 @@ int startJailbreakd() {
     
     if (tweaksAreEnabled()) {
         sleep(2);
-        
+
         rv = inject_trust("/usr/lib/pspawn_hook.dylib");
         if (rv != 0) return 2;
-        
+
         // inject pspawn_hook.dylib to launchd
         rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
         if (rv != 0) return 3;
