@@ -11,6 +11,24 @@
 #include "helpers.h"
 #include <mach/mach.h>
 
+uint64_t kalloc(size_t size)
+{
+    mach_vm_address_t addr = 0x0;
+    kern_return_t ret = mach_vm_allocate(tfp0, &addr, size, VM_FLAGS_ANYWHERE);
+
+    if (ret != KERN_SUCCESS)
+    {
+        return 0x0;
+    }
+    
+    return addr;
+}
+
+void kfree(uint64_t addr, uint64_t size)
+{
+    mach_vm_deallocate(tfp0, addr, size);
+}
+
 size_t kread(uint64_t where, void *p, size_t size)
 {
     int rv;
