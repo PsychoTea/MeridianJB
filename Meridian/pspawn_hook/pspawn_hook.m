@@ -125,24 +125,35 @@ int fake_posix_spawn_common(pid_t *pid,
         DEBUGLOG("fake_posix_spawn_common: %s", path);
     }
     
+    int arg_c = 0;
+    while (argv[arg_c] != NULL)
+    {
+        DEBUGLOG("arg[%d] = %s", arg_c, argv[arg_c]);
+        
+        arg_c++;
+    }
+    
+    DEBUGLOG("got %d args", arg_c);
+    
     switch (current_process) {
         case PROCESS_LAUNCHD:
             if (strcmp(path, "/usr/libexec/xpcproxy") == 0 &&
                 argv[0] &&
                 argv[1] &&
-                !is_blacklisted(path) &&
-                !is_blacklisted(argv[1])) {
+                strcmp(argv[1], "com.apple.MobileFileIntegrity") == 0 /* we're only interested in amfid */)
+            {
                 inject[ninject++] = PSPAWN_HOOK_DYLIB;
             }
             break;
         case PROCESS_XPCPROXY:
-            if (strcmp(path, "/usr/libexec/amfid") == 0) {
+            if (strcmp(path, "/usr/libexec/amfid") == 0)
+            {
                 inject[ninject++] = AMFID_PAYLOAD_DYLIB;
                 break;
             }
-            if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
-                inject[ninject++] = TWEAKLOADER_DYLIB;
-            }
+//            if (access(TWEAKLOADER_DYLIB, F_OK) == 0) {
+//                inject[ninject++] = TWEAKLOADER_DYLIB;
+//            }
             break;
     }
     
@@ -171,7 +182,7 @@ int fake_posix_spawn_common(pid_t *pid,
             goto out;
         }
         
-        ret = posix_spawnattr_setflags(attrp, flags | POSIX_SPAWN_START_SUSPENDED);
+        ret = posix_spawnattr_setflags(attrp, flags);
         if (ret != 0) {
             DEBUGLOG("posix_spawnattr_setflags: %s", strerror(ret));
             goto out;
@@ -239,15 +250,6 @@ int fake_posix_spawn_common(pid_t *pid,
         for (const char **ptr = envp; *ptr != NULL; ++ptr) {
             DEBUGLOG("\t%s", *ptr);
         }
-        
-        if (current_process == PROCESS_XPCPROXY) {
-            pid_t ourpid = getpid();
-            kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT_FROM_XPCPROXY, ourpid);
-            
-            if (ret != KERN_SUCCESS) {
-                DEBUGLOG("jbd_call(xpcproxy, %d): %x (%s)", ourpid, ret, mach_error_string(ret));
-            }
-        }
     }
     
     // Note: xpcproxy won't return from this call
@@ -262,13 +264,6 @@ int fake_posix_spawn_common(pid_t *pid,
     if (pid) {
         *pid = child;
     }
-    
-    dispatch_async(queue, ^{
-        kern_return_t ret = jbd_call(jbd_port, JAILBREAKD_COMMAND_ENTITLE_AND_SIGCONT, child);
-        if (ret != KERN_SUCCESS) {
-            DEBUGLOG("jbd_call(launchd, %d): %x (%s)", child, ret, mach_error_string(ret));
-        }
-    });
     
     retval = 0;
     
@@ -326,60 +321,6 @@ static void ctor(void) {
     DEBUGLOG("========================");
     DEBUGLOG("hello from pid %d", getpid());
     DEBUGLOG("my path: %s", pathbuf);
-    
-    if (current_process == PROCESS_LAUNCHD) {
-        if (host_get_special_port(mach_host_self(), HOST_LOCAL_NODE, 15, &jbd_port)) {
-            DEBUGLOG("can't get hsp15 :(");
-            return;
-        }
-
-        if (!MACH_PORT_VALID(jbd_port)) {
-            DEBUGLOG("failed to get jbd port!! ret: %x", jbd_port);
-            return;
-        }
-        
-        DEBUGLOG("got jbd port: %x", jbd_port);
-        
-        rebind_pspawns();
-        return;
-    }
-    
-    if (bootstrap_look_up(bootstrap_port, "zone.sparkes.jailbreakd", &jbd_port)) {
-        DEBUGLOG("Can't get bootstrap port :(");
-        return;
-    }
-    
-    if (!MACH_PORT_VALID(jbd_port)) {
-        DEBUGLOG("failed to get jbd port!! ret: %x", jbd_port);
-        return;
-    }
-    
-    DEBUGLOG("got jbd port: %x", jbd_port);
-    
-    // pspawn is usually only ever injected into either launchd,
-    // or xpcproxy. this is here in case you want to manually inject it into
-    // another process, in order to have it call to jbd. consider this
-    // testing-only.
-    // example (in shell): "> DYLD_INSERT_LIBRARIES=/usr/lib/pspawn_hook.dylib binary"
-    // this will have <binary> call to jbd in order to platformize
-    if (current_process == PROCESS_OTHER) {
-        if (access(LIBJAILBREAK_DYLIB, F_OK) != 0) {
-            printf("[!] " LIBJAILBREAK_DYLIB " was not found!\n");
-            return;
-        }
-        
-        void *handle = dlopen(LIBJAILBREAK_DYLIB, RTLD_LAZY);
-        if (handle == NULL) {
-            printf("[!] Failed to open libjailbreak.dylib: %s\n", dlerror());
-            return;
-        }
-        
-        typedef int (*entitle_t)(pid_t pid, uint32_t flags);
-        entitle_t entitle_ptr = (entitle_t)dlsym(handle, "jb_oneshot_entitle_now");
-        entitle_ptr(getpid(), FLAG_PLATFORMIZE);
-        printf("[!] Platformized.\n");
-        return;
-    }
     
     rebind_pspawns();
 }
