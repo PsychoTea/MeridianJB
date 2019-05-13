@@ -13,6 +13,9 @@ cp $meridianDir/pspawn_hook/bin/* $baseDir/usr/lib/
 # jailbreakd
 cp $meridianDir/jailbreakd/bin/* $baseDir/meridian/jailbreakd/
 
+# Unrestrict.dylib
+cp $meridianDir/unrestrict/bin/* $baseDir/Library/MobileSubstrate/ServerPlugins/
+
 # remove all .DS_Store files
 find $baseDir -name '.DS_Store' -delete
 
