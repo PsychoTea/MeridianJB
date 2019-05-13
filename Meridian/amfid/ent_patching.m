@@ -24,6 +24,8 @@ const char *default_ents =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                                     "<true/>"
                                     "<key>com.apple.private.skip-library-validation</key>"    // allow invalid libs
                                     "<true/>"
+                                    "<key>com.apple.private.security.container-required</key>"
+                                    "<false/>"
                                 "</dict>"
                             "</plist>";
 
@@ -358,10 +360,11 @@ int fixup_platform_application(const char *path,
         ret = OSDictionary_GetItem(dict, "get-task-allow");
         if (ret) csblob_update_csflags(cs_blobs, CS_GET_TASK_ALLOW);
         
-        OSDictionary_SetItem(dict, "platform-application",                      offset_osboolean_true);
-        OSDictionary_SetItem(dict, "com.apple.private.security.no-container",   offset_osboolean_true);
-        OSDictionary_SetItem(dict, "get-task-allow",                            offset_osboolean_true);
-        OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation", offset_osboolean_true);
+        OSDictionary_SetItem(dict, "platform-application",                          offset_osboolean_true);
+        OSDictionary_SetItem(dict, "com.apple.private.security.no-container",       offset_osboolean_true);
+//        OSDictionary_SetItem(dict, "com.apple.private.security.container-required", offset_osboolean_false);
+        OSDictionary_SetItem(dict, "get-task-allow",                                offset_osboolean_true);
+        OSDictionary_SetItem(dict, "com.apple.private.skip-library-validation",     offset_osboolean_true);
         
         csblob_ent_dict_set(cs_blobs, dict);
         
