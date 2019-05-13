@@ -48,6 +48,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B52043F22288C77300404CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B52043EE2288C76100404CCD;
+			remoteInfo = unrestrict;
+		};
 		B5555EBA20543A4100D62F57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B514CC6E1FECD787005F4E6B /* Project object */;
@@ -92,6 +99,7 @@
 		B514CC851FECD788005F4E6B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B514CC871FECD788005F4E6B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514CC8F1FECDC71005F4E6B /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		B52043ED2288C72200404CCD /* unrestrict */ = {isa = PBXFileReference; lastKnownFileType = folder; path = unrestrict; sourceTree = "<group>"; };
 		B52F29232051E33500F4EB57 /* Working_with_libjailbreak.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = Working_with_libjailbreak.md; path = ../Working_with_libjailbreak.md; sourceTree = "<group>"; };
 		B52F29262051F10800F4EB57 /* fucksigningservices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fucksigningservices.h; sourceTree = "<group>"; };
 		B52F29272051F10800F4EB57 /* fucksigningservices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = fucksigningservices.m; sourceTree = "<group>"; };
@@ -195,6 +203,7 @@
 				B57CBF65205DB35F00EEDA20 /* fishhook */,
 				B589518C201D4018002E0EAD /* jailbreakd */,
 				B5895186201D15E7002E0EAD /* pspawn_hook */,
+				B52043ED2288C72200404CCD /* unrestrict */,
 				B514CC781FECD788005F4E6B /* Meridian */,
 				B514CC771FECD788005F4E6B /* Products */,
 				B5C368AD1FF2B80400D7724F /* Recovered References */,
@@ -319,6 +328,20 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
+		B52043EE2288C76100404CCD /* unrestrict */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = B52043EF2288C76100404CCD /* Build configuration list for PBXLegacyTarget "unrestrict" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = $SRCROOT/unrestrict;
+			dependencies = (
+			);
+			name = unrestrict;
+			passBuildSettingsInEnvironment = 1;
+			productName = unrestrict;
+		};
 		B5555EA6205438CA00D62F57 /* amfid */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "$(ACTION)";
@@ -377,6 +400,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B52043F32288C77300404CCD /* PBXTargetDependency */,
 				B5555EBB20543A4100D62F57 /* PBXTargetDependency */,
 				B5555EC120543A4100D62F57 /* PBXTargetDependency */,
 				B5555EBF20543A4100D62F57 /* PBXTargetDependency */,
@@ -394,6 +418,10 @@
 			attributes = {
 				TargetAttributes = {
 					B514CC751FECD788005F4E6B = {
+						ProvisioningStyle = Automatic;
+					};
+					B52043EE2288C76100404CCD = {
+						CreatedOnToolsVersion = 9.4.1;
 						ProvisioningStyle = Automatic;
 					};
 					B5555EA6205438CA00D62F57 = {
@@ -424,6 +452,7 @@
 				B5555EA6205438CA00D62F57 /* amfid */,
 				B5555EAE205438F300D62F57 /* pspawn_hook */,
 				B5555EB22054390100D62F57 /* jailbreakd */,
+				B52043EE2288C76100404CCD /* unrestrict */,
 			);
 		};
 /* End PBXProject section */
@@ -511,6 +540,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B52043F32288C77300404CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B52043EE2288C76100404CCD /* unrestrict */;
+			targetProxy = B52043F22288C77300404CCD /* PBXContainerItemProxy */;
+		};
 		B5555EBB20543A4100D62F57 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B5555EA6205438CA00D62F57 /* amfid */;
@@ -715,6 +749,35 @@
 			};
 			name = Release;
 		};
+		B52043F02288C76100404CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6EKJWC698P;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B52043F12288C76100404CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6EKJWC698P;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		B5555EA8205438CA00D62F57 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -819,6 +882,15 @@
 			buildConfigurations = (
 				B514CC8D1FECD788005F4E6B /* Debug */,
 				B514CC8E1FECD788005F4E6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B52043EF2288C76100404CCD /* Build configuration list for PBXLegacyTarget "unrestrict" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B52043F02288C76100404CCD /* Debug */,
+				B52043F12288C76100404CCD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
