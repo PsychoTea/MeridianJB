@@ -216,9 +216,17 @@ int makeShitHappen(ViewController *view) {
     }
     
     // add the midnight repo 
-    if (file_exists("/etc/apt/sources.list.d/meridian.list") != 0) {
-        FILE *fd = fopen("/etc/apt/sources.list.d/meridian.list", "w+");
-        const char *text = "deb http://repo.midnight.team ./";
+//    if (file_exists("/etc/apt/sources.list.d/meridian.list") != 0) {
+//        FILE *fd = fopen("/etc/apt/sources.list.d/meridian.list", "w+");
+//        const char *text = "deb http://repo.midnight.team ./";
+//        fwrite(text, strlen(text) + 1, 1, fd);
+//        fclose(fd);
+//    }
+    
+    // add the beta substrate repo
+    if (file_exists("/etc/apt/sources.list.d/substrate.lsit") != 0) {
+        FILE *fd = fopen("/etc/apt/sources.list.d/substrate.list", "w+");
+        const char *text = "deb http://apt.saurik.com/beta/substrate11 ./";
         fwrite(text, strlen(text) + 1, 1, fd);
         fclose(fd);
     }
@@ -235,65 +243,28 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
-    // link substitute stuff
-//    setUpSubstitute();
-    
-    // symlink /Library/MobileSubstrate/DynamicLibraries -> /usr/lib/tweaks
-//    setUpSymLinks();
-    
-    // remove Substrate's SafeMode (MobileSafety) if it's installed
-    // removing from dpkg will be handled by Cydia conflicts later
-//    if (file_exists("/usr/lib/tweaks/MobileSafety.dylib") == 0) {
-//        unlink("/usr/lib/tweaks/MobileSafety.dylib");
-//    }
-//    if (file_exists("/usr/lib/tweaks/MobileSafety.plist") == 0) {
-//        unlink("/usr/lib/tweaks/MobileSafety.plist");
-//    }
+    // launch substrate if it exists
+    if (file_exists("/usr/libexec/substrate") == 0)
+    {
+        ret = execprog("/usr/libexec/substrate", NULL);
+        if (ret != 0)
+        {
+            [view writeTextPlain:@"failed to launch substrate! err: %d", ret];
+            return 1;
+        }
+    }
     
     // start jailbreakd
-//    [view writeText:@"starting jailbreakd..."];
-//    ret = startJailbreakd();
-//    if (ret != 0) {
-//        [view writeText:@"failed"];
-//        if (ret > 1) {
-//            [view writeTextPlain:@"failed to launch - %d tries", ret];
-//        }
-//        return 1;
-//    }
-//    [view writeText:@"done!"];
-    
-    {
-        // remove substitute related spelunking 
-        
-        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") == 0)
-        {
-            unlink("/Library/MobileSubstrate/DynamicLibraries");
+    [view writeText:@"starting jailbreakd..."];
+    ret = startJailbreakd();
+    if (ret != 0) {
+        [view writeText:@"failed"];
+        if (ret > 1) {
+            [view writeTextPlain:@"failed to launch - %d tries", ret];
         }
-        
-        if (file_exists("/Library/MobileSubstrate/DynamicLibraries") != 0)
-        {
-            mkdir("/Library/MobileSubstrate/DynamicLibraries", 0755);
-        }
-        
-        // Move all tweaks back into /Library/MobileSubstrate/DynamicLibraries
-        if (file_exists("/usr/lib/tweaks") != 0)
-        {
-            NSString *tweaks_path = @"/usr/lib/tweaks";
-            NSArray *items = [fileMgr contentsOfDirectoryAtPath:tweaks_path error:nil];
-            
-            for (NSString *file_name in items)
-            {
-                NSString *full_item_path = [NSString stringWithFormat:@"%@/%@", tweaks_path, file_name];
-                NSString *new_item_path = [NSString stringWithFormat:@"/Library/MobileSubstrate/DynamicLibraries/%@", file_name];
-                
-                [fileMgr moveItemAtPath:full_item_path toPath:new_item_path error:nil];
-            }
-        }
-        
-        [fileMgr removeItemAtPath:@"/usr/lib/tweaks" error:nil];
-        
-        // TODO: clean up header files/framework sym linking
+        return 1;
     }
+    [view writeText:@"done!"];
     
     // patch com.apple.System.boot-nonce
     [view writeText:@"patching boot-nonce..."];
@@ -565,48 +536,50 @@ void setUpSubstitute() {
 }
 
 int startJailbreakd() {
-    unlink("/var/tmp/jailbreakd.pid");
+    int rv;
     
-    NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
-    NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
+//    unlink("/var/tmp/jailbreakd.pid");
     
-    job[@"EnvironmentVariables"][@"KernelBase"]         = [NSString stringWithFormat:@"0x%16llx", kernel_base];
-    job[@"EnvironmentVariables"][@"KernProcAddr"]       = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
-    job[@"EnvironmentVariables"][@"ZoneMapOffset"]      = [NSString stringWithFormat:@"0x%16llx", offsets->zone_map];
-    job[@"EnvironmentVariables"][@"AddRetGadget"]       = [NSString stringWithFormat:@"0x%16llx", find_add_x0_x0_0x40_ret()];
-    job[@"EnvironmentVariables"][@"OSBooleanTrue"]      = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_True()];
-    job[@"EnvironmentVariables"][@"OSBooleanFalse"]     = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_False()];
-    job[@"EnvironmentVariables"][@"OSUnserializeXML"]   = [NSString stringWithFormat:@"0x%16llx", find_OSUnserializeXML()];
-    job[@"EnvironmentVariables"][@"Smalloc"]            = [NSString stringWithFormat:@"0x%16llx", find_smalloc()];
-    [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
-    chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
-    chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);
-    
-    int rv = start_launchdaemon("/meridian/jailbreakd/jailbreakd.plist");
-    if (rv != 0) return 1;
-    
-    int tries = 0;
-    while (file_exists("/var/tmp/jailbreakd.pid") != 0) {
-        printf("Waiting for jailbreakd \n");
-        tries++;
-        usleep(300000); // 300ms
-        
-        if (tries >= 100) {
-            NSLog(@"too many tries for jbd - %d", tries);
-            return tries;
-        }
-    }
-    
-    if (tweaksAreEnabled()) {
-        sleep(2);
+//    NSData *blob = [NSData dataWithContentsOfFile:@"/meridian/jailbreakd/jailbreakd.plist"];
+//    NSMutableDictionary *job = [NSPropertyListSerialization propertyListWithData:blob options:NSPropertyListMutableContainers format:nil error:nil];
+//
+//    job[@"EnvironmentVariables"][@"KernelBase"]         = [NSString stringWithFormat:@"0x%16llx", kernel_base];
+//    job[@"EnvironmentVariables"][@"KernProcAddr"]       = [NSString stringWithFormat:@"0x%16llx", kernprocaddr];
+//    job[@"EnvironmentVariables"][@"ZoneMapOffset"]      = [NSString stringWithFormat:@"0x%16llx", offsets->zone_map];
+//    job[@"EnvironmentVariables"][@"AddRetGadget"]       = [NSString stringWithFormat:@"0x%16llx", find_add_x0_x0_0x40_ret()];
+//    job[@"EnvironmentVariables"][@"OSBooleanTrue"]      = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_True()];
+//    job[@"EnvironmentVariables"][@"OSBooleanFalse"]     = [NSString stringWithFormat:@"0x%16llx", find_OSBoolean_False()];
+//    job[@"EnvironmentVariables"][@"OSUnserializeXML"]   = [NSString stringWithFormat:@"0x%16llx", find_OSUnserializeXML()];
+//    job[@"EnvironmentVariables"][@"Smalloc"]            = [NSString stringWithFormat:@"0x%16llx", find_smalloc()];
+//    [job writeToFile:@"/meridian/jailbreakd/jailbreakd.plist" atomically:YES];
+//    chmod("/meridian/jailbreakd/jailbreakd.plist", 0600);
+//    chown("/meridian/jailbreakd/jailbreakd.plist", 0, 0);
+//
+//    rv = start_launchdaemon("/meridian/jailbreakd/jailbreakd.plist");
+//    if (rv != 0) return 1;
+//
+//    int tries = 0;
+//    while (file_exists("/var/tmp/jailbreakd.pid") != 0) {
+//        printf("Waiting for jailbreakd \n");
+//        tries++;
+//        usleep(300000); // 300ms
+//
+//        if (tries >= 100) {
+//            NSLog(@"too many tries for jbd - %d", tries);
+//            return tries;
+//        }
+//    }
 
+//    if (tweaksAreEnabled()) {
+//        sleep(2);
+    
         rv = inject_trust("/usr/lib/pspawn_hook.dylib");
         if (rv != 0) return 2;
 
         // inject pspawn_hook.dylib to launchd
         rv = inject_library(1, "/usr/lib/pspawn_hook.dylib");
         if (rv != 0) return 3;
-    }
+//    }
     
     return 0;
 }
