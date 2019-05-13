@@ -163,6 +163,12 @@ void set_amfi_entitlements(uint64_t proc) {
     uint64_t proc_ucred = rk64(proc + 0x100);
     uint64_t amfi_entitlements = rk64(rk64(proc_ucred + 0x78) + 0x8);
 
+    if (amfi_entitlements == 0x0)
+    {
+        DEBUGLOG(false, "failed to find amfid entitlements!");
+        return;
+    }
+    
     int rv = 0;
     
     rv = OSDictionary_SetItem(amfi_entitlements, "get-task-allow", offset_osboolean_true);
