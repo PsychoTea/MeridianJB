@@ -243,8 +243,9 @@ int makeShitHappen(ViewController *view) {
         [view writeText:@"done!"];
     }
     
-    // launch substrate if it exists
-    if (file_exists("/usr/libexec/substrate") == 0)
+    // launch substrate if it exists & tweaks are enabled
+    if (file_exists("/usr/libexec/substrate") == 0 &&
+        tweaksAreEnabled())
     {
         ret = execprog("/usr/libexec/substrate", NULL);
         if (ret != 0)
@@ -254,13 +255,13 @@ int makeShitHappen(ViewController *view) {
         }
     }
     
-    // start jailbreakd
-    [view writeText:@"starting jailbreakd..."];
+    // load pspawn
+    [view writeText:@"loading pspawn..."];
     ret = startJailbreakd();
     if (ret != 0) {
         [view writeText:@"failed"];
         if (ret > 1) {
-            [view writeTextPlain:@"failed to launch - %d tries", ret];
+            [view writeTextPlain:@"failed to load, err: %d", ret];
         }
         return 1;
     }
